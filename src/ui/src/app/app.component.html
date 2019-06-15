@@ -1,0 +1,18 @@
+<router-outlet></router-outlet>
+
+Timespan: FROM {{timespan.from | date}} - TO {{timespan.to | date}}<br><br>
+
+ROI Avg.: 0%<br>
+ROI (250k): 0%<br>
+ROI (550k): 0%<br>
+ROI (1500k): 0%<br>
+
+<hr>
+
+RNode: {{rnode_addr}}<br>
+
+<ul>
+  <li *ngFor="let impeached of rnode_data.impeached; let i = index">
+    {{impeached.generation.BlockNumber}} ({{impeached.ts * 1000 | date:'medium'}})
+  </li>
+</ul>

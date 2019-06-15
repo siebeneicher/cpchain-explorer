@@ -1,0 +1,31 @@
+{
+  "name": "cpchain-epxlorer-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "worker.js",
+  "scripts": {
+    "start": "node worker.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Markus Siebeneicher",
+  "license": "GNU General Public License v3.0",
+  "dependencies": {
+    "web3": "^1.0.0-beta.55",
+    "mongodb": "~3.2.x",
+    "express": "4.15.2",
+    "body-parser": "~1.18.x",
+    "compression": "~1.7.0",
+    "performance-now": "~2.1.0",
+    "lodash": "~4.17.5",
+    "redis": "~2.8.x",
+    "md5": "~2.2.x",
+    "moment": "~2.22.x",
+    "socket.io": "~2.2.x",
+    "inspect-process": "~0.x",
+    "express-session": "~1.15.6",
+    "connect-redis": "~3.4.x",
+    "socket.io-redis": "~5.2.x",
+    "dotenv": "~7.0.x"
+  }
+}
