@@ -9,6 +9,18 @@ ROI (1500k): 0%<br>
 
 <hr>
 
+Dashboard: {{dashboard_data | json}}<br><br>
+
+
+Blocks Last Minute: {{dashboard_data.last_blocks.minute.blocks_mined}} ({{dashboard_data.last_blocks.minute.blocks_impeached}} impeached)<br>
+Blocks Last Hour: {{dashboard_data.last_blocks.hour.blocks_mined}} ({{dashboard_data.last_blocks.hour.blocks_impeached}} impeached)<br>
+Blocks Last Day: {{dashboard_data.last_blocks.day.blocks_mined}} ({{dashboard_data.last_blocks.day.blocks_impeached}} impeached)<br>
+Blocks Last Month: {{dashboard_data.last_blocks.month.blocks_mined}} ({{dashboard_data.last_blocks.month.blocks_impeached}} impeached)<br>
+Blocks Last Year: {{dashboard_data.last_blocks.year.blocks_mined}} ({{dashboard_data.last_blocks.year.blocks_impeached}} impeached)<br>
+
+
+<hr>
+
 RNode: {{rnode_addr}}<br>
 
 <ul>
