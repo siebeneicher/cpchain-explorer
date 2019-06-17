@@ -4,7 +4,18 @@ const conf = require('./config');
 // REDIS
 redis = Redis.createClient(conf.redis.port, conf.redis.host);
 redis.on("error", (error) => console.error('Redis error:',error))
-redis.on("connect", () => console.log('Redis client connected', conf.redis.port, conf.redis.host))
+redis.on("connect", () => {
+	console.log('Redis client connected', conf.redis.port, conf.redis.host);
+
+/*	redis.keys('*', function (err, keys) {
+		if (err) return console.log(err);
+		console.log(keys);
+	});  */
+
+	redis.flushdb( function (err, succeeded) {
+		console.log("Flushed redis", succeeded); // will be true if successfull
+	});
+})
 
 const self = {
 	get: async (what) => {
@@ -44,6 +55,11 @@ const self = {
 				if (err) return reject(err);
 				resolve();
 			});
+		});
+	},
+	del: async (what) => {
+		return new Promise((resolve, reject) => {
+			redis.del(what, () => resolve);
 		});
 	},
 	expire: (what, expire) => {

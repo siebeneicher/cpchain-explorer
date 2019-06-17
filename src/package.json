@@ -24,6 +24,7 @@
     "socket.io": "~2.2.x",
     "inspect-process": "~0.x",
     "express-session": "~1.15.6",
+    "express-redis-cache": "~1.1.x",
     "connect-redis": "~3.4.x",
     "socket.io-redis": "~5.2.x",
     "dotenv": "~7.0.x"

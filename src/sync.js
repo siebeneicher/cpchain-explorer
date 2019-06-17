@@ -40,6 +40,7 @@ const python_executable = 'C:\\Users\\siebeneicher\\AppData\\Local\\Programs\\Py
 async function collect () {
 	setInterval(syncLatestBlock, sync_interval);
 	setInterval(syncRNodes, sync_interval);
+
 	//setInterval(sendTestTrx, 10000);
 }
 async function syncLatestBlock () {
@@ -145,7 +146,7 @@ async function init (clearAll = false) {
 	return new Promise((resolve, reject) => {
 		Mongodb.connect(mongo_url, async function(err, client) {
 			if (err) reject(err);
-			console.log("Connected successfully to mongodb");
+			console.log("Connected to mongodb");
 			mongo = client;
 			mongo_db = client.db(mongo_cpc_dbname);
 			mongo_db_blocks = mongo_db.collection('blocks');

@@ -11,13 +11,35 @@ ROI (1500k): 0%<br>
 
 Dashboard: {{dashboard_data | json}}<br><br>
 
-
 Blocks Last Minute: {{dashboard_data.last_blocks.minute.blocks_mined}} ({{dashboard_data.last_blocks.minute.blocks_impeached}} impeached)<br>
 Blocks Last Hour: {{dashboard_data.last_blocks.hour.blocks_mined}} ({{dashboard_data.last_blocks.hour.blocks_impeached}} impeached)<br>
 Blocks Last Day: {{dashboard_data.last_blocks.day.blocks_mined}} ({{dashboard_data.last_blocks.day.blocks_impeached}} impeached)<br>
 Blocks Last Month: {{dashboard_data.last_blocks.month.blocks_mined}} ({{dashboard_data.last_blocks.month.blocks_impeached}} impeached)<br>
 Blocks Last Year: {{dashboard_data.last_blocks.year.blocks_mined}} ({{dashboard_data.last_blocks.year.blocks_impeached}} impeached)<br>
 
+<hr>
+
+Transactions Last Minute: {{dashboard_data.last_transactions.minute.transactions_count}}<br>
+Transactions Last Hour: {{dashboard_data.last_transactions.hour.transactions_count}}<br>
+Transactions Last Day: {{dashboard_data.last_transactions.day.transactions_count}}<br>
+Transactions Last Month: {{dashboard_data.last_transactions.month.transactions_count}}<br>
+Transactions Last Year: {{dashboard_data.last_transactions.year.transactions_count}}<br>
+
+<hr>
+
+RNodes Last Minute: {{dashboard_data.rnodes_count.minute}}<br>
+RNodes Last Hour: {{dashboard_data.rnodes_count.hour}}<br>
+RNodes Last Day: {{dashboard_data.rnodes_count.day}}<br>
+RNodes Last Month: {{dashboard_data.rnodes_count.month}}<br>
+RNodes Last Year: {{dashboard_data.rnodes_count.year}}<br>
+
+
+<hr>
+
+Validator Nodes: <br>
+Team RNodes: <br>
+Community RNodes: <br>
+Industry RNodes: <br>
 
 <hr>
 

@@ -6,7 +6,7 @@ module.exports = {
 	redis: {
 		host: 'localhost',
 		port: '6379',
-		scope: 'cpc.explorer.'
+		prefix: 'cpc.explorer'
 	},
 	mongo: {
 		url: 'mongodb://localhost:27017',

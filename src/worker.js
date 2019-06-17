@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require('body-parser');
 //const socket_io = require('socket.io');
 const now = require('performance-now');
-const moment = require('moment');
 const http = require('http');
 const config = require('./app/config');
 
@@ -30,7 +29,9 @@ app.use(require('./app/routes'));					// app routes
 
 async function init () {
 	return new Promise((resolve, reject) => {
-		http.createServer(app).listen(config.server.port, () => console.log('App listening on port:', config.server.port));
+		setTimeout(() => {
+			http.createServer(app).listen(config.server.port, () => console.log('App listening on port:', config.server.port));
+		}, 2000);
 	});
 }
 
