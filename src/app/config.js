@@ -14,8 +14,8 @@ module.exports = {
 			useNewUrlParser: true
 		},
 		db: {
-			chain: 'cpc_watcher',
-			aggregation: 'cpc_explorer_aggregations'
+			sync: 'cpc_sync',
+			aggregation: 'cpc_aggregations'
 		}
 	}
 };

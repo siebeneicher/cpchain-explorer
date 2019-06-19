@@ -10,4 +10,8 @@ function convert_ts (ts, digits = 10) {
 	if (l == 13 && digits == 10) return Math.floor(ts/1000);
 }
 
-module.exports = {clone, convert_ts}
+function unique_array (list) {
+	return [...new Set(list)];
+}
+
+module.exports = {clone, convert_ts, unique_array}

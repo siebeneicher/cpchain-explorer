@@ -1,9 +1,10 @@
 const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
-const {convert_ts, clone} = require('../helper');
+const {convert_ts, clone, unique_array} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
+const {blockNumber, rnodes, versions, generation, block, transaction, balance} = require('../../cpc-fusion/api');
 
 const units = {
 	'minute': {},
@@ -13,17 +14,32 @@ const units = {
 	'year': {}
 };
 
-const max_blocks_per_aggregation = 2000;		// limit blocks per aggregation, specially when aggregating from 0
+const max_blocks_per_aggregation = 500;		// limit blocks per aggregation, specially when aggregating from 0
+const cpc_digits = parseInt(1+("0".repeat(18)));
+const cpc_reward_per_block = 12.65;
+
+
 
 module.exports = async function run () {
-	// sequential aggregate all units
-	return Object.keys(units).reduce(async (previousPromise, unit) => {
+	const t_start = now();
+
+	// sequential aggregate all timespan units
+	const result = await Object.keys(units).reduce(async (previousPromise, unit) => {
 		await previousPromise;		// wait previous chunk to finish
 		return aggregate_all(unit);
 	}, Promise.resolve());
+
+	// create/ensure indexes
+	await ensure_indexes();
+
+	console.log("Run aggregation took", now() - t_start);
+
+	return result;
 }
 
 async function aggregate_all (unit) {
+	const t_start = now();
+
 	let total_new_blocks = 0;
 
 	// aggregate until no more new blocks
@@ -33,7 +49,7 @@ async function aggregate_all (unit) {
 		if (new_blocks == 0) break;
 	}
 
-	console.log("Aggregated all ("+unit+"), new blocks:", total_new_blocks);
+	console.log(unit+": aggregated, new blocks:", total_new_blocks, "took", now() - t_start);
 
 	return Promise.resolve({new_blocks: total_new_blocks});
 }
@@ -41,7 +57,7 @@ async function aggregate_all (unit) {
 async function aggregate_process (unit) {
 	const t_start = now();
 
-	// get min/max block numbers stored
+/*	// get min/max block numbers stored
 	const {min: stored_min, max: stored_max} = await getStoredBlocksMinMax();
 
 	// get min/max block numbers aggregated
@@ -55,14 +71,17 @@ async function aggregate_process (unit) {
 		return Promise.resolve({stored_min, stored_max, aggregated_min, aggregated_max, new_blocks: 0});
 
 	// load all stored blocks ahead in time, to cluster timespan units
-	const new_block_min = aggregated_max == null ? stored_min : aggregated_max + 1;
+	const new_block_min = aggregated_max == null ? stored_min : aggregated_max + 1;*/
 
 	// prepare chunks of timespan units based on new blocks
-	const new_blocks = await getBlocksByNumberLimit(new_block_min, max_blocks_per_aggregation);
+	const new_blocks = await getBlocksByAggregated(unit, max_blocks_per_aggregation);
+
+	if (new_blocks.length == 0)
+		return Promise.resolve({new_blocks: 0});
+
 	const chunks = await chunkAggregationByBlockUnit(new_blocks, unit);
 
-	console.log("max_blocks_per_aggregation:", max_blocks_per_aggregation);
-	console.log("Clustered blocks (min: "+new_block_min+") into", Object.keys(chunks).length, "chunks");
+	console.log(unit+": Clustered "+new_blocks.length+" blocks ("+new_blocks[0].number+" ... "+new_blocks[new_blocks.length-1].number+") into", Object.keys(chunks).length, "chunks");
 
 	// chunk by chunk / sequential & asynchronious
 	const p = Object.entries(chunks).reduce(async (previousPromise, chunk) => {
@@ -70,13 +89,24 @@ async function aggregate_process (unit) {
 		return aggregate_unit(unit, parseInt(chunk[0]), chunk[1]);			// aggregate chunk
 	}, Promise.resolve());
 
-	return p.then(_ => {
-		return {stored_min, stored_max, aggregated_min, aggregated_max, new_blocks: new_blocks.length}
+	return p.then(async (_) => {
+		const bulk = new_blocks.map(block => {
+			return { updateOne: { filter: { number: block.number }, update: { $set: { ['__aggregated.by_'+unit]: true } } } };
+		});
+
+		// update all new blocks __aggregated.by_ object
+		await mongo.db(config.mongo.db.sync).collection('blocks').bulkWrite(bulk).then((result, err) => {
+			//console.log('flagged blocks to be aggregated', result.modifiedCount);
+		});
+
+		return {new_blocks: new_blocks.length}
 	});
 }
 
 async function chunkAggregationByBlockUnit (blocks, unit) {
 	const chunks = {};
+
+	if (!blocks || blocks.length == 0) return Promise.resolve(chunks);
 
 	// from/to timespan
 	let from = blocksUnitTs(blocks[0], unit);
@@ -97,8 +127,8 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 		if (chunks[ts].max === null || chunks[ts].max > b.number) chunks[ts].max = b.number;
 		chunks[ts].blocks.push(b);
 	}
-
-	// load aggreated data for each chunk
+//debugger;
+	// load aggregated data for each chunk
 	const aggregations = await getAggregatedUnitByTime(from, to, unit);
 	for (let key in aggregations) {
 		if (!chunks[aggregations[key].ts])
@@ -113,7 +143,7 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 				overlaps.push(i);
 		});
 		if (overlaps.length)
-			throw "NOT FULLY IMPLEMENTED: make sure, to not double aggregate a block into exiting aggregation"
+			;//throw "NOT FULLY IMPLEMENTED: make sure, to not double aggregate a block into exiting aggregation"
 	}
 
 	return Promise.resolve(chunks);
@@ -131,41 +161,100 @@ async function aggregate_unit (unit, ts, chunk) {
 			blocks_mined_by_node: {},
 			transactions_count: 0,
 			transactions_volume: 0,		// TODO
-			rnodes: [],
-			ts
+			rnodes: {},
+			ts,
+			_incomplete: false
+		};
+
+		const rnode_tpl = {
+			mined: 0,
+			impeached: 0,
+			proposer: 0,
+			balance_first: 0,
+			balance_last: 0,
+			balances: [],
+			locked_cpc: 0,
+			rewards_cpc_estimated: 0
 		};
 
 		// aggregate by unit, use allready aggreated data (if exists)
 		const aggregate = Object.assign(aggregate_tpl, chunk.aggregated || {});
-
+//debugger;
 		// BLOCKS
-		let b, t, m, is_impeached;
+		let b, t, m, is_impeached, gen, proposer, bnum, balance;
 		for (let key in chunk.blocks) {
 			b = chunk.blocks[key];
 			m = b.miner;
+			bnum = b.number;
 			t = moment(b.timestamp);
+			gen = b.__generation || null;
+			proposer = gen ? gen.Proposers[gen.View] : null;
 			is_impeached = m == '0x0000000000000000000000000000000000000000';
+			balance = await (async () => {
+				if (proposer === null) return null;
+				try {
+					let b = await balances(proposer, bnum);
+				} catch (err) {
+					console.error(err);
+					return null;
+				}
+				if (b && b.length && b[0] !== null) return b[0];
+				return null;
+			})();
+
+			if (balance === null) aggregate._incomplete = true;
+			if (proposer === null) aggregate._incomplete = true;
 
 			// block_min/max (number)
-			if (aggregate.block_min === null || aggregate.block_min > b.number) aggregate.block_min = b.number;
-			if (aggregate.block_max === null || aggregate.block_max < b.number) aggregate.block_max = b.number;
-
-			// Blocks mined by node
-			if (aggregate.blocks_mined_by_node[m] === undefined) aggregate.blocks_mined_by_node[m] = 0;
-			aggregate.blocks_mined_by_node[m]++;
-
-			// blocks total / impeached
-			if (!is_impeached) aggregate.blocks_mined++;
-			else aggregate.blocks_impeached++;
+			if (aggregate.block_min === null || aggregate.block_min > bnum) aggregate.block_min = bnum;
+			if (aggregate.block_max === null || aggregate.block_max < bnum) aggregate.block_max = bnum;
 
 			// transactions count
 			aggregate.transactions_count += b.transactions.length;
 
 			// transactions volume
-			//let trxs = await mongo.db(config.mongo.db.chain).collection('transactions').find().toArray();
+			try {
+				aggregate.transactions_volume = await transactionsVolume(b.transactions);
+			} catch (err) {
+				console.error(err);
+				aggregate.transactions_volume = null;		// error
+				aggregate._incomplete = true;
+			}
 
-			// rnode count
-			if (!is_impeached && !aggregate.rnodes.includes(m)) aggregate.rnodes.push(m);
+			// init miner & proposer
+			if (!aggregate.rnodes[m]) aggregate.rnodes[m] = rnode_tpl;
+			if (proposer && !aggregate.rnodes[proposer]) aggregate.rnodes[proposer] = rnode_tpl;
+
+			// rnode mined
+			aggregate.rnodes[m].mined++;
+
+			// proposer
+			if (proposer) aggregate.rnodes[proposer].proposer++;
+
+			// rnode impeached
+			if (is_impeached) {
+				if (proposer) {
+					aggregate.rnodes[proposer].impeached++;
+				}
+			}
+
+			// rnode balance cpc
+			if (proposer && balance !== null) {
+				aggregate.rnodes[proposer].balances.push(balance);
+				aggregate.rnodes[proposer].balances = unique_array(aggregate.rnodes[proposer].balances);
+
+				if (aggregate.rnodes[proposer].balance_first === null) 
+					aggregate.rnodes[proposer].balance_first = balance;
+
+				aggregate.rnodes[proposer].balance_last = balance;
+			}
+
+			// rnode locked cpc
+			// TODO
+
+			// blocks total / impeached
+			if (!is_impeached) aggregate.blocks_mined++;
+			else aggregate.blocks_impeached++;
 		}
 
 		// SYNC MONGO
@@ -174,14 +263,14 @@ async function aggregate_unit (unit, ts, chunk) {
 		const collection = mongo.db(config.mongo.db.aggregation).collection('by_'+unit);
 		await collection.updateOne({ts}, { $set: aggregate }, { upsert: true });
 
-		console.log('Aggregated unit ('+aggregate.block_min+'-'+aggregate.block_max+') '+ts+' (by '+unit+') done in ', now() - t_start);
+		//console.log('Aggregated unit ('+aggregate.block_min+'-'+aggregate.block_max+') '+ts+' (by '+unit+') done in ', now() - t_start);
 		resolve();
 	});
 }
 
 async function getStoredBlocksMinMax () {
 	return await new Promise(function (resolve, reject) {
-		mongo.db(config.mongo.db.chain).collection('blocks')
+		mongo.db(config.mongo.db.sync).collection('blocks')
 			.aggregate([
 				{ "$group": {
 					"_id": null,
@@ -223,7 +312,7 @@ async function getBlocksByTime (from, to) {
 	to = convert_ts(to, 13);
 
 	return await new Promise(function (resolve, reject) {
-		mongo.db(config.mongo.db.chain).collection('blocks')
+		mongo.db(config.mongo.db.sync).collection('blocks')
 			.find({timestamp: {$gte: from, $lte: to}})
 			//.sort({timestamp: 1})
 			.toArray((err, blocks) => {
@@ -236,7 +325,7 @@ async function getBlocksByTime (from, to) {
 
 async function getBlocksByNumber (min, max) {
 	return await new Promise(function (resolve, reject) {
-		mongo.db(config.mongo.db.chain).collection('blocks')
+		mongo.db(config.mongo.db.sync).collection('blocks')
 			.find({number: {$gte: min, $lte: max}})
 			.sort({timestamp: 1})
 			.toArray((err, blocks) => {
@@ -247,15 +336,15 @@ async function getBlocksByNumber (min, max) {
 	});
 }
 
-async function getBlocksByNumberLimit (min, limit) {
+async function getBlocksByAggregated (unit, limit) {
 	return await new Promise(function (resolve, reject) {
-		mongo.db(config.mongo.db.chain).collection('blocks')
-			.find({number: {$gte: min}})
+		mongo.db(config.mongo.db.sync).collection('blocks')
+			.find({ ['__aggregated.by_'+unit]: false })
 			.sort({timestamp: 1})
 			.limit(limit)
 			.toArray((err, blocks) => {
-				if (err) reject(err);
-				resolve(blocks);
+				if (err) console.error(err);
+				resolve(blocks || []);
 			})
 		;
 	});
@@ -275,6 +364,42 @@ async function getAggregatedUnitByTime (from, to, unit) {
 			})
 		;
 	});
+}
+
+async function transactionsVolume (transactions) {
+	if (!(transactions instanceof Array))
+		transactions = [transactions];
+
+	if (transactions.length == 0)
+		return Promise.resolve(0);
+
+	const collection = mongo.db(config.mongo.db.sync).collection('transactions');
+
+	console.log("calculating transactions volume of", transactions.length, "transactions");
+
+	collection.aggregate(
+		{ $match: { hash: transactions, value: { $gt: 0 } } },
+		{ $group: { _id: null, sum: { $sum: "$value" } } },
+		//{ $project: { _id: 0, sum: 1 } }
+	).toArray().then((value, err) => {
+		console.log(value, err);
+		if (err) throw err;
+		if (value === null) throw 'getTransaction('+txn+') unknown error: empty err and null value';
+		return value / cpc_digits;
+	});
+}
+
+async function balances (nodes, blockNum) {
+	if (!(nodes instanceof Array))
+		nodes = [nodes];
+
+	return Promise.all(nodes.map(async (node) => {
+		return balance(node, blockNum).then((value, err) => {
+			console.log(value, err);
+			if (err) throw err;
+			return value;
+		});
+	}));
 }
 
 function blocksUnitTs (block, unit) {
@@ -308,4 +433,21 @@ function blocksUnitTs (block, unit) {
 	}
 
 	return parseInt(t.unix());				// 10 digit timestamp enough to cluster by unit
+}
+
+async function ensure_indexes () {
+	const t_start = now();
+
+	return Promise.all(Object.keys(units).map(unit => {
+		// CREATE INDEXES FOR AGGREGATIONS
+		const collection = mongo.db(config.mongo.db.aggregation).collection('by_'+unit);
+
+		return collection.indexInformation((err, indexes) => {
+			if (err) return;
+			if (!indexes.ts_1)
+				return collection.createIndex({ ts: 1 }, { unique: true });
+		});
+	})).then(() => {
+		console.log("Ensured indexes took", now() - t_start);
+	});
 }

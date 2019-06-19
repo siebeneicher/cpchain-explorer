@@ -28,7 +28,6 @@ app.get('/aggregate', async function (req, res) {
 });
 
 
-
 // last one, as its wildcard
 app.get('/*', async function (req, res) {
 	res.set({'Content-Type': 'text/html'});

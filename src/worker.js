@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const now = require('performance-now');
 const http = require('http');
 const config = require('./app/config');
-
+const {aggregate} = require('./app/middleware');
 
 app.use('/app', express.static(__dirname + '/app'));
 app.use('/libs', express.static(__dirname + '/libs'));
@@ -30,16 +30,18 @@ app.use(require('./app/routes'));					// app routes
 async function init () {
 	return new Promise((resolve, reject) => {
 		setTimeout(() => {
-			http.createServer(app).listen(config.server.port, () => console.log('App listening on port:', config.server.port));
-		}, 2000);
+			http.createServer(app).listen(config.server.port, () => {
+				console.log('App listening on port:', config.server.port)
+				resolve();
+			});
+		}, 2500);
 	});
 }
 
+async function tests () {
+	return new Promise((resolve, reject) => {
+		resolve(1);
+	});
+}
 
-init().then(async () => {
-	//const overview = await getOverviewData();
-	//console.log(overview);
-
-	// debug
-	//aggregate(1551398400 * 1000, 1561939200 * 1000);
-});
+init().then(tests).then(aggregate);
