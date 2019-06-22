@@ -4,7 +4,7 @@ const redis = require('../redis');
 const {convert_ts, clone, unique_array} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
-const {blockNumber, rnodes, versions, generation, block, transaction, balance} = require('../../cpc-fusion/api');
+const {blockNumber, rnodes, versions, generation, block, transaction, balance, web3} = require('../../cpc-fusion/api');
 
 const units = {
 	'minute': {},
@@ -14,27 +14,57 @@ const units = {
 	'year': {}
 };
 
+const fetch_balance_enabled = false;
 const max_blocks_per_aggregation = 500;		// limit blocks per aggregation, specially when aggregating from 0
 const cpc_digits = parseInt(1+("0".repeat(18)));
-const cpc_reward_per_block = 12.65;
+
+if (!fetch_balance_enabled) console.warn("warn: fetching balance is disabled");
+
+let run_promise = Promise.resolve();		// keep promise to chain run() calls and avoid parallelism
 
 
 
-module.exports = async function run () {
+
+module.exports = {run, reset, unitTs, test};
+
+
+
+async function reset () {
+	const blocks = await mongo.db(config.mongo.db.sync).collection('blocks');
+
+	await mongo.db(config.mongo.db.aggregation).dropDatabase();
+
+	return blocks.updateMany({}, {$set: {
+		'__aggregated.by_minute': false,
+		'__aggregated.by_hour': false,
+		'__aggregated.by_day': false,
+		'__aggregated.by_month': false,
+		'__aggregated.by_year': false,
+	}}).then((result, err) => {
+		console.log("reset all blocks for aggregation:", result.modifiedCount, err);
+	});
+}
+
+async function run () {
 	const t_start = now();
 
-	// sequential aggregate all timespan units
-	const result = await Object.keys(units).reduce(async (previousPromise, unit) => {
-		await previousPromise;		// wait previous chunk to finish
-		return aggregate_all(unit);
-	}, Promise.resolve());
+	// avoid parallel calls, instead chain them
+	return run_promise = run_promise.then(_run);
 
-	// create/ensure indexes
-	await ensure_indexes();
+	async function _run () {
+		// sequential aggregate all timespan units
+		const result = await Object.keys(units).reduce(async (previousPromise, unit) => {
+			await previousPromise;		// wait previous chunk to finish
+			return aggregate_all(unit);
+		}, Promise.resolve());
 
-	console.log("Run aggregation took", now() - t_start);
+		// create/ensure indexes
+		await ensure_indexes();
 
-	return result;
+		console.log("Run aggregation took", now() - t_start);
+
+		return result;
+	}
 }
 
 async function aggregate_all (unit) {
@@ -56,23 +86,7 @@ async function aggregate_all (unit) {
 
 async function aggregate_process (unit) {
 	const t_start = now();
-
-/*	// get min/max block numbers stored
-	const {min: stored_min, max: stored_max} = await getStoredBlocksMinMax();
-
-	// get min/max block numbers aggregated
-	const {min: aggregated_min, max: aggregated_max} = await getAggregatedBlocksMinMax(unit);
-
-	console.log('Found stored blocks min/max: '+stored_min+'/'+stored_max);
-	console.log('Found aggregated blocks min/max: '+aggregated_min+'/'+aggregated_max);
-
-	// no new blocks, everything aggregated yet
-	if (stored_max == aggregated_max)
-		return Promise.resolve({stored_min, stored_max, aggregated_min, aggregated_max, new_blocks: 0});
-
-	// load all stored blocks ahead in time, to cluster timespan units
-	const new_block_min = aggregated_max == null ? stored_min : aggregated_max + 1;*/
-
+debugger;
 	// prepare chunks of timespan units based on new blocks
 	const new_blocks = await getBlocksByAggregated(unit, max_blocks_per_aggregation);
 
@@ -109,14 +123,14 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 	if (!blocks || blocks.length == 0) return Promise.resolve(chunks);
 
 	// from/to timespan
-	let from = blocksUnitTs(blocks[0], unit);
-	let to = blocksUnitTs(blocks[blocks.length-1], unit);
+	let from = unitTs(blocks[0], unit);
+	let to = unitTs(blocks[blocks.length-1], unit);
 
 	// chunk blocks by timespan/unit
 	let b, ts;
 	for (let key in blocks) {
 		b = blocks[key];
-		ts = blocksUnitTs(b, unit);
+		ts = unitTs(b, unit);
 
 		// init chunk
 		if (chunks[ts] === undefined)
@@ -178,7 +192,7 @@ async function aggregate_unit (unit, ts, chunk) {
 		};
 
 		// aggregate by unit, use allready aggreated data (if exists)
-		const aggregate = Object.assign(aggregate_tpl, chunk.aggregated || {});
+		const aggregate = Object.assign(clone(aggregate_tpl), chunk.aggregated || {});
 //debugger;
 		// BLOCKS
 		let b, t, m, is_impeached, gen, proposer, bnum, balance;
@@ -191,6 +205,7 @@ async function aggregate_unit (unit, ts, chunk) {
 			proposer = gen ? gen.Proposers[gen.View] : null;
 			is_impeached = m == '0x0000000000000000000000000000000000000000';
 			balance = await (async () => {
+				if (!fetch_balance_enabled) return null;
 				if (proposer === null) return null;
 				try {
 					let b = await balances(proposer, bnum);
@@ -222,8 +237,8 @@ async function aggregate_unit (unit, ts, chunk) {
 			}
 
 			// init miner & proposer
-			if (!aggregate.rnodes[m]) aggregate.rnodes[m] = rnode_tpl;
-			if (proposer && !aggregate.rnodes[proposer]) aggregate.rnodes[proposer] = rnode_tpl;
+			if (!aggregate.rnodes[m]) aggregate.rnodes[m] = clone(rnode_tpl);
+			if (proposer && !aggregate.rnodes[proposer]) aggregate.rnodes[proposer] = clone(rnode_tpl);
 
 			// rnode mined
 			aggregate.rnodes[m].mined++;
@@ -367,6 +382,8 @@ async function getAggregatedUnitByTime (from, to, unit) {
 }
 
 async function transactionsVolume (transactions) {
+	const t_start = now();
+
 	if (!(transactions instanceof Array))
 		transactions = [transactions];
 
@@ -380,29 +397,31 @@ async function transactionsVolume (transactions) {
 	collection.aggregate(
 		{ $match: { hash: transactions, value: { $gt: 0 } } },
 		{ $group: { _id: null, sum: { $sum: "$value" } } },
-		//{ $project: { _id: 0, sum: 1 } }
 	).toArray().then((value, err) => {
-		console.log(value, err);
+		console.log("sum volume of", transactions.length, "transactions, took", now()-t_start);
 		if (err) throw err;
 		if (value === null) throw 'getTransaction('+txn+') unknown error: empty err and null value';
+		if (value instanceof Array && value.length == 0) return 0;
 		return value / cpc_digits;
 	});
 }
 
 async function balances (nodes, blockNum) {
+	const t_start = now();
+
 	if (!(nodes instanceof Array))
 		nodes = [nodes];
 
 	return Promise.all(nodes.map(async (node) => {
 		return balance(node, blockNum).then((value, err) => {
-			console.log(value, err);
+			console.log("get balances of", nodes.length, "addr, took", now()-t_start);
 			if (err) throw err;
 			return value;
 		});
 	}));
 }
 
-function blocksUnitTs (block, unit) {
+function unitTs (block, unit) {
 	// set time to start time of timespan
 	t = moment(block.timestamp);
 
@@ -410,26 +429,26 @@ function blocksUnitTs (block, unit) {
 		t.seconds(0);
 	}
 	if (unit == "hour") {
-		t.seconds(0);
 		t.minutes(0);
+		t.seconds(0);
 	}
 	if (unit == "day") {
-		t.seconds(0);
-		t.minutes(0);
 		t.hours(0);
+		t.minutes(0);
+		t.seconds(0);
 	}
 	if (unit == "month") {
-		t.seconds(0);
-		t.minutes(0);
+		t.date(1);
 		t.hours(0);
-		t.days(0);
+		t.minutes(0);
+		t.seconds(0);
 	}
 	if (unit == "year") {
-		t.seconds(0);
-		t.minutes(0);
-		t.hours(0);
-		t.days(0);
 		t.month(0);
+		t.date(1);
+		t.hours(0);
+		t.minutes(0);
+		t.seconds(0);
 	}
 
 	return parseInt(t.unix());				// 10 digit timestamp enough to cluster by unit
@@ -450,4 +469,97 @@ async function ensure_indexes () {
 	})).then(() => {
 		console.log("Ensured indexes took", now() - t_start);
 	});
+}
+
+
+
+async function test (unit) {
+	// minute(s) vs hour
+	const db_hour = await mongo.db(config.mongo.db.aggregation).collection('by_hour');
+
+	try {
+		await test_unit('hour', 'minute');
+		await test_unit('day', 'minute');
+		await test_unit('month', 'minute');
+		await test_unit('year', 'minute');
+	} catch (err) {
+		console.error('aggregate test failed, un-equal units for', err);
+	}
+}
+
+async function test_unit (unit, vsUnit) {
+	const db_unit = await mongo.db(config.mongo.db.aggregation).collection('by_'+unit);
+	const db_vsUnit = await mongo.db(config.mongo.db.aggregation).collection('by_'+vsUnit);
+
+	return new Promise((resolve, reject) => {
+		db_unit.find().toArray(async (err, units) => {
+			for (let i in units) {
+				try {
+					await _test_unit(unit, vsUnit, units[i]);
+				} catch (err) {
+					console.error('aggregate test failed, un-equal units for', unit, 'vs', vsUnit, units);
+				}
+			}
+
+			resolve();
+		});
+	});
+
+	async function _test_unit (unit, vsUnit, doc) {
+		let h = doc;
+		let h_ts_max = moment(h.ts*1000);
+		h_ts_max.add(1, unit);
+
+		console.log('=======================================');
+		console.log(unit+':', moment(h.ts*1000).toISOString(), "-", h_ts_max.toISOString());
+
+		return new Promise(async (resolve, reject) => {
+			db_vsUnit.find({ts: {$gte: h.ts, $lt: h_ts_max.unix()}}).sort({ts:1}).limit(60).toArray((err, vsUnits) => {
+				console.log(vsUnit+":", vsUnits.length);
+
+
+				// RNODES
+				const rnodes_merged = {};
+
+				// collect rnodes and merge manually
+				vsUnits.forEach(min => {
+					Object.entries(min.rnodes).forEach(_ => {
+
+						let addr = _[0];
+						let val = _[1];
+
+						//addr = web3.utils.toChecksumAddress(addr);
+
+						if (!rnodes_merged[addr])
+							rnodes_merged[addr] = val;
+						else {
+							rnodes_merged[addr].mined += val.mined;
+							rnodes_merged[addr].impeached += val.impeached;
+							rnodes_merged[addr].proposer += val.proposer;
+						}
+					});
+				});
+
+				// compare
+				const addr_merged = Object.keys(rnodes_merged);
+				const has_all = Object.keys(h.rnodes).filter(r => addr_merged.includes(r)).length;
+				const eq = JSON.stringify(h.rnodes) == JSON.stringify(rnodes_merged);
+
+				console.log(unit+' vs '+vsUnit+' Rnodes present:', Object.keys(h.rnodes).length == has_all);
+				console.log(unit+' vs '+vsUnit+' Rnodes equal:', eq);
+
+				if (!eq) Object.keys(h.rnodes).forEach(h_addr => {
+					let rnode = h.rnodes[h_addr];
+					let rnode_merged = rnodes_merged[h_addr];
+					let eq = JSON.stringify(rnode) == JSON.stringify(rnode_merged);
+					if (!eq) console.log(rnode,'vs',rnode_merged);
+				});
+
+				if (eq)
+					resolve(eq);
+				else
+					reject();
+			});
+		});
+	}
 }

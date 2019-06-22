@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const now = require('performance-now');
 const http = require('http');
 const config = require('./app/config');
-const {aggregate} = require('./app/middleware');
+const {aggregate, updateAll} = require('./app/middleware');
 
 app.use('/app', express.static(__dirname + '/app'));
 app.use('/libs', express.static(__dirname + '/libs'));
@@ -44,4 +44,4 @@ async function tests () {
 	});
 }
 
-init().then(tests).then(aggregate);
+init().then(/*aggregate.reset*/).then(updateAll);

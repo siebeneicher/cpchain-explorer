@@ -17,5 +17,8 @@ module.exports = {
 			sync: 'cpc_sync',
 			aggregation: 'cpc_aggregations'
 		}
+	},
+	cpc: {
+		rewardsPerBlock: 12.65
 	}
 };

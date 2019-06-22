@@ -1,29 +1,20 @@
-const {blockNumber, versions, rnodes, block, generation, transaction} = require('./cpc-fusion/api');
+const {blockNumber, versions, rnodes, block, generation, transaction, web3} = require('./cpc-fusion/api');
 const mongo = require('./app/mongo');
 const config = require('./app/config');
-const {aggregate} = require('./app/middleware');
+const {aggregate, updateAll} = require('./app/middleware');
 const now = require('performance-now');
 
 // shortcut to collections
 let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_generation;
 
+let cur_rnodes = [];				// most recent rnodes synced
+let cur_generation = {};			// most recent block generation info synced
+let last_blockNumber = 0;			// most recent block number
+let last_blockNumber_synced = 0;	// most recent synced
 
-// TODO: remove memory leak / consumptions
-
-// lookup index
-/*const blocks_num = [];
-const trx_hashes = [];
-const addresses = [];*/
-
-let cur_rnodes = [];			// most recent rnodes synced
-let cur_generation = {};		// most recent block generation info synced
-let last_blockNumber = 0;		// most recent block synced
-
-
-const start_sync_previous = false;
-const start_sync_block_number = 500000;
 const sync_delay = 1000;
-const backwards_delay = 10000;
+const backwards_delay = 5000;
+const maxNewBlocksBackwardsPerCycle = 25;
 
 
 // linux> mongodump --db cpc_watcher
@@ -39,27 +30,29 @@ function subscribe () {
 }
 
 async function collect () {
-
 	_snapshot();
-	//_syncBackwards();
+	_syncBackwards();
 
 	function _snapshot () {
 		setTimeout(async () => {
-			if (await snapshot())
-				;//await aggregate();		// aggregate whenever we have a new snapshot
-			_snapshot();
+			if (await snapshot()) {
+				await updateAll();
+			}
+			_snapshot();	// loop
 		}, sync_delay);
 	}
 
 	function _syncBackwards () {
 		setTimeout(async () => {
-			await syncBackwards();
-			_syncBackwards();
+			if (await syncBackwards()) {
+				await updateAll();
+			}
+			_syncBackwards();	// loop
 		}, backwards_delay);
 	}
 }
 async function syncBackwards () {
-	let last_blockNumber = await blockNumber();
+	let latest = await blockNumber();
 
 	// TODO: make this function big data proof
 
@@ -68,12 +61,14 @@ async function syncBackwards () {
 		mongo_db_blocks.find({__complete_transactions: true}).project({_id:-1, number: 1}).toArray(async function (err, items) {
 			let numbers = items.map(b => b.number);
 
-			console.log("Sync backwards: ",items.length,"(total synced) vs",last_blockNumber,"(last block number)");
+			console.log("Sync backwards: ",items.length,"(total synced) vs",latest,"(last block number)");
 
-			let i = 1;
-			while (i < last_blockNumber) {
+			let i = 1, new_blocks = 0;
+			while (i < latest) {
 				i++;
 				if (numbers.includes(i)) continue;
+
+				new_blocks++;
 
 				// sync missing block
 				try {
@@ -81,9 +76,11 @@ async function syncBackwards () {
 				} catch (err) {
 					console.error(err);
 				}
+
+				if (new_blocks >= maxNewBlocksBackwardsPerCycle) break;
 			}
 
-			resolve();
+			resolve(new_blocks);
 		});
 	});
 }
@@ -95,22 +92,27 @@ async function snapshot () {
 
 	return syncRNodes();  //Promise.all([syncRNodes(), syncGeneration()]);
 }
-async function syncBlock (number = null) {
+async function syncBlock (targetBlockNum = null) {
 	const t_start = now();
 	const cur_blockNum = await blockNumber();
+	let number;
 
 	// default: last block
-	if (number === null)
+	if (targetBlockNum === null) {
 		number = cur_blockNum;
 
-	//console.log(number, "last_blockNumber:",last_blockNumber);
+		// no new block
+		if (last_blockNumber_synced == number)
+			return Promise.resolve(false);
 
-	if (last_blockNumber == number)
-		return Promise.resolve(false);		// no new block
-
-	last_blockNumber = number;
+		// remember block being synced
+		last_blockNumber_synced = number;
+	} else {
+		number = targetBlockNum;
+	}
 
 	const b = await block(number);
+
 	b.__complete_transactions = b.transactions.length ? false : true;		// from false to true, when transactionsVolume got calculated
 	b.__generation = (number == cur_blockNum) ? await generation(number) : null;
 	b.__aggregated = {
@@ -120,6 +122,9 @@ async function syncBlock (number = null) {
 		by_month: false,
 		by_year: false
 	};
+
+	sanitizeBlock(b);
+
 	await mongo_db_blocks.updateOne({ number: number }, { $set: b }, { upsert: true });			// insert block into mongo, if not yet done so
 	console.log("added block:", number, "took:", now()-t_start);
 
@@ -132,10 +137,31 @@ async function syncBlock (number = null) {
 		}).catch();
 }
 
+function sanitizeBlock (block) {
+	block.miner = web3.utils.toChecksumAddress(block.miner);
+	if (block.__generation) {
+		block.__generation.Proposer = web3.utils.toChecksumAddress(block.__generation.Proposer);
+		block.__generation.Proposers = block.__generation.Proposers.map(web3.utils.toChecksumAddress);
+	}
+	if (block.dpor) {
+		block.dpor.proposers = block.dpor.proposers.map(web3.utils.toChecksumAddress);
+	}
+}
+
+function sanitizeRNodes (rnodes) {
+	rnodes.forEach(rnode => rnode.Address = web3.utils.toChecksumAddress(rnode.Address));
+}
+
+function sanitizeTransaction (trans) {
+	trans.from = web3.utils.toChecksumAddress(trans.from);
+	trans.to = web3.utils.toChecksumAddress(trans.to);
+}
+
 async function syncTransaction (txn) {
 	try {
 		const t_start = now();
 		const trx = await transaction(txn);
+		sanitizeTransaction(trx);
 		await mongo_db_transactions.update({hash: txn}, trx, { upsert: true });			// insert transaction into mongo, if not yet done so
 		console.log("added transaction:", txn, "took:", now()-t_start);
 	} catch (err) {
@@ -156,10 +182,12 @@ async function syncRNodes () {
 		// store only new versions
 		if (JSON.stringify(_rnodes) != JSON.stringify(cur_rnodes)) {
 			cur_rnodes = _rnodes;
-			await mongo_db_rnodes.insertOne({ts, _rnodes});
+			sanitizeRNodes(_rnodes);
+			await mongo_db_rnodes.insertOne({ts, rnodes: _rnodes});
 			console.log("added rnodes, took:", now()-t_start);
 			return true;
 		}
+
 		return false;
 	});
 }
@@ -178,16 +206,6 @@ async function syncGeneration () {
 		return false;
 	});
 }
-
-/*function hasBlock(num) {
-	return blocks_num.includes(num);
-}*/
-/*function hasTransaction(hash) {
-	return trx_hashes.includes(hash);
-}*/
-/*function hasAddress(addr) {
-	return addresses.includes(addr);
-}*/
 
 async function sendTestTrx () {
 	let from = "0x6026ab99f0345e57c7855a790376b47eb308cb40";

@@ -44,8 +44,8 @@ def action():
 			exit()
 	elif (action == "balance"):
 		try:
-			addr = sys.argv[2]
-			#print(addr, len(sys.argv))
+			addr = Web3.toChecksumAddress(sys.argv[2])
+			#print(Web3.toChecksumAddress(addr))
 			if len(sys.argv) > 3:
 				block = int(sys.argv[3])
 				out = {"balance": cf.cpc.getBalance(addr, block)}

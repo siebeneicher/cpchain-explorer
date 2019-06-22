@@ -1,5 +1,5 @@
 const app = module.exports = require('express')();
-const {rnode, dashboard, aggregate} = require('./middleware');
+const {rnode, dashboard, aggregate, updateAll} = require('./middleware');
 const {promisify} = require('util');
 const fs = require('fs');
 const redis = require('./redis');
@@ -18,13 +18,17 @@ app.get('/rnode', async function (req, res) {
 	let data = await rnode(req.query.rnode);
 	res.json(data);
 }).get('/dashboard', /*cache.route('dashboard'), */async function (req, res) {
-	res.json(await dashboard());
+	res.json(await dashboard.get());
 });
 
 
 // DEBUG ONLY
 app.get('/aggregate', async function (req, res) {
-	res.json(await aggregate());
+	res.json(await aggregate.run());
+}).get('/aggregate.test', async function (req, res) {
+	res.json(await aggregate.test());
+}).get('/updateAll', async function (req, res) {
+	res.json(await updateAll());
 });
 
 

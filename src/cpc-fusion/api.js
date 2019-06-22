@@ -1,17 +1,29 @@
 const now = require('performance-now');
 const config = require('../app/config');
-const python_executable = 'C:\\Users\\siebeneicher\\AppData\\Local\\Programs\\Python\\Python37\\python.exe';
-// const python_executable = "python3.6";		// unix
-
+const {python_exe} = require('../app/helper');
 const Web3 = require('web3');
 const web3 = new Web3('http://127.0.0.1:8051', null, {});
 //const web3 = new Web3('ws://127.0.0.1:8546', null, {});
 
 const { exec } = require('child_process');
+let python;
+
+
+async function call_web3 (action, ...params) {
+	return web3.eth.getBlockNumber();
+}
 
 async function call (action, ...params) {
+
+	// check web3
+	//return call_web3();
+
+
+	if (!python)
+		python = await python_exe();
+
 	const t = now();
-	const cmd = python_executable + " ./cpc-fusion/api.py " + action + " " + params.join(' ');
+	const cmd = python + " ./cpc-fusion/api.py " + action + " " + params.join(' ');
 
 	return new Promise ((resolve, reject) => {
 		exec(cmd, async function (err, data) {
@@ -51,7 +63,12 @@ async function block (num = null) {
 	return call('block', num);
 }
 async function transaction (txn) {
-	return call('transaction', txn);
+	try {
+		return await call('transaction', txn);
+	} catch (err) {
+		console.error("Error getting transaction ("+txn+"): ", err);
+		return Promise.reject(err);
+	}
 }
 async function balance (addr, blockNum = "") {
 	try {

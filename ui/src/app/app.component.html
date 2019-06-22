@@ -1,52 +1,179 @@
 <router-outlet></router-outlet>
 
-Timespan: FROM {{timespan.from | date}} - TO {{timespan.to | date}}<br><br>
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="https://bulma.io">
+      <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: Free, open source, & modern CSS framework based on Flexbox" width="112" height="28">
+    </a>
 
-ROI Avg.: 0%<br>
-ROI (250k): 0%<br>
-ROI (550k): 0%<br>
-ROI (1500k): 0%<br>
+    <a class="navbar-item">
+	  Home
+	</a>
 
-<hr>
-
-Dashboard: {{dashboard_data | json}}<br><br>
-
-Blocks Last Minute: {{dashboard_data.last_blocks.minute.blocks_mined}} ({{dashboard_data.last_blocks.minute.blocks_impeached}} impeached)<br>
-Blocks Last Hour: {{dashboard_data.last_blocks.hour.blocks_mined}} ({{dashboard_data.last_blocks.hour.blocks_impeached}} impeached)<br>
-Blocks Last Day: {{dashboard_data.last_blocks.day.blocks_mined}} ({{dashboard_data.last_blocks.day.blocks_impeached}} impeached)<br>
-Blocks Last Month: {{dashboard_data.last_blocks.month.blocks_mined}} ({{dashboard_data.last_blocks.month.blocks_impeached}} impeached)<br>
-Blocks Last Year: {{dashboard_data.last_blocks.year.blocks_mined}} ({{dashboard_data.last_blocks.year.blocks_impeached}} impeached)<br>
-
-<hr>
-
-Transactions Last Minute: {{dashboard_data.last_transactions.minute.transactions_count}}<br>
-Transactions Last Hour: {{dashboard_data.last_transactions.hour.transactions_count}}<br>
-Transactions Last Day: {{dashboard_data.last_transactions.day.transactions_count}}<br>
-Transactions Last Month: {{dashboard_data.last_transactions.month.transactions_count}}<br>
-Transactions Last Year: {{dashboard_data.last_transactions.year.transactions_count}}<br>
-
-<hr>
-
-RNodes Last Minute: {{dashboard_data.rnodes_count.minute}}<br>
-RNodes Last Hour: {{dashboard_data.rnodes_count.hour}}<br>
-RNodes Last Day: {{dashboard_data.rnodes_count.day}}<br>
-RNodes Last Month: {{dashboard_data.rnodes_count.month}}<br>
-RNodes Last Year: {{dashboard_data.rnodes_count.year}}<br>
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+</nav>
 
 
-<hr>
+<section class="hero is-info">
+	<div class="hero-body">
+		<div class="container">
+			<h1 class="title">RNodes.io // CPChain Blockchain Explorer</h1>
+		</div>
+	</div>
+</section>
 
-Validator Nodes: <br>
-Team RNodes: <br>
-Community RNodes: <br>
-Industry RNodes: <br>
+<section class="section">
+	<div class="container">
+	  <h1 class="title">Lockup Season 1</h1>
+	</div>
+</section>
 
-<hr>
 
-RNode: {{rnode_addr}}<br>
+<section class="section">
+<div class="container">
 
-<ul>
-  <li *ngFor="let impeached of rnode_data.impeached; let i = index">
-    {{impeached.generation.BlockNumber}} ({{impeached.ts * 1000 | date:'medium'}})
-  </li>
-</ul>
+	<div class="columns is-size-3-mobile is-size-3-desktop">
+		<div class="column">45 RNodes Live</div>
+		<div class="column">X CPC Rewards (last 24h)</div>
+		<div class="column">Avg. ROI 12 % (by year)</div>
+	</div>
+
+</div>
+</section>
+
+
+
+
+
+<div class="container is-widescreen is-mobile">
+
+<div class="notification is-large">
+This container is <strong>centered</strong> on desktop.
+</div>
+<div class="notification is-large-mobile">
+This container is <strong>centered</strong> on desktop.
+</div>
+<div class="notification">
+This container is <strong>centered</strong> on desktop.
+</div>
+<div class="notification">
+This container is <strong>centered</strong> on desktop.
+</div>
+
+</div>
+
+
+<div class="tile is-ancestor">
+  <div class="tile">
+	<div class="blocks">
+		<h2>Blocks</h2>
+
+		<table class="table">
+			<thead>
+				<td></td>
+				<td *ngFor="let unit of units">{{unit}}</td>
+			</thead>
+			<tr>
+				<td>Total Blocks</td>
+				<td *ngFor="let unit of units">{{dashboard_data.rewards[unit].total_mined}}</td>
+			</tr>
+			<tr>
+				<td>Total Impeached Blocks</td>
+				<td *ngFor="let unit of units">{{dashboard_data.rewards[unit].total_impeached}}</td>
+			</tr>
+		</table>
+	</div>
+  </div>
+  <div class="tile">
+	<div class="dashboard-block rewards">
+		<h2>Rewards</h2>
+
+		TODO: min rewards, max rewards
+
+		<table class="table">
+			<thead>
+				<td></td>
+				<td *ngFor="let unit of units">{{unit}}</td>
+			</thead>
+			<tr>
+				<td>Avg. Blocks / RNode</td>
+				<td *ngFor="let unit of units">{{dashboard_data.rewards[unit].avg_mined}}</td>
+			</tr>
+			<tr>
+				<td>Avg. Rewards / RNode</td>
+				<td *ngFor="let unit of units">{{dashboard_data.rewards[unit].avg_rewards}}</td>
+			</tr>
+		</table>
+	</div>
+  </div>
+</div>
+
+
+
+<div *ngIf="dashboard_data" class="dashboard-row">
+
+	<div class="dashboard-block any">
+
+
+		Timespan: FROM {{timespan.from | date}} - TO {{timespan.to | date}}<br><br>
+
+		ROI Avg.: 0%<br>
+		ROI (250k): 0%<br>
+		ROI (550k): 0%<br>
+		ROI (1500k): 0%<br>
+	</div>
+
+	<div class="dashboard-block any">
+
+		Blocks Last Minute: {{dashboard_data.last_blocks.minute.blocks_mined}} ({{dashboard_data.last_blocks.minute.blocks_impeached}} impeached)<br>
+		Blocks Last Hour: {{dashboard_data.last_blocks.hour.blocks_mined}} ({{dashboard_data.last_blocks.hour.blocks_impeached}} impeached)<br>
+		Blocks Last Day: {{dashboard_data.last_blocks.day.blocks_mined}} ({{dashboard_data.last_blocks.day.blocks_impeached}} impeached)<br>
+		Blocks Last Month: {{dashboard_data.last_blocks.month.blocks_mined}} ({{dashboard_data.last_blocks.month.blocks_impeached}} impeached)<br>
+		Blocks Last Year: {{dashboard_data.last_blocks.year.blocks_mined}} ({{dashboard_data.last_blocks.year.blocks_impeached}} impeached)<br>
+	</div>
+
+	<div class="dashboard-block any">
+
+		Transactions Last Minute: {{dashboard_data.last_transactions.minute.transactions_count}}<br>
+		Transactions Last Hour: {{dashboard_data.last_transactions.hour.transactions_count}}<br>
+		Transactions Last Day: {{dashboard_data.last_transactions.day.transactions_count}}<br>
+		Transactions Last Month: {{dashboard_data.last_transactions.month.transactions_count}}<br>
+		Transactions Last Year: {{dashboard_data.last_transactions.year.transactions_count}}<br>
+	</div>
+
+	<div class="dashboard-block any">
+
+		RNodes Last Minute: {{dashboard_data.rnodes_count.minute}}<br>
+		RNodes Last Hour: {{dashboard_data.rnodes_count.hour}}<br>
+		RNodes Last Day: {{dashboard_data.rnodes_count.day}}<br>
+		RNodes Last Month: {{dashboard_data.rnodes_count.month}}<br>
+		RNodes Last Year: {{dashboard_data.rnodes_count.year}}<br>
+	</div>
+
+	<div class="dashboard-block any">
+
+		Validator Nodes: <br>
+		Team RNodes: <br>
+		Community RNodes: <br>
+		Industry RNodes: <br>
+	</div>
+
+	<div class="dashboard-block any">
+
+		RNode: {{rnode_addr}}<br>
+
+		<!-- <ul>
+		  <li *ngFor="let impeached of rnode_data.impeached; let i = index">
+		    {{impeached.generation.BlockNumber}} ({{impeached.ts * 1000 | date:'medium'}})
+		  </li>
+		</ul>
+		 -->
+
+	</div>
+
+</div>
