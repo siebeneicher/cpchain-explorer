@@ -1,1 +1,55 @@
-/* You can add global styles to this file, and also import other style files */
+@charset "utf-8";
+
+@import "bulma/sass/utilities/initial-variables";
+@import "bulma/sass/utilities/functions";
+
+
+// BRAND COLORS
+// COLOR PALLETE: https://coolors.co/4497cc-8bcef1-d7f0f5-dee2e3-316e92
+$celestial-blue: #4497CC;
+$baby-blue: #8bcef1;
+$azureish-white: #d7f0f5;
+$azureish-white-light: #CAE8F8;
+$alice-blue: #EEF5FA;
+$platinum: #dee2e3;
+$teal-blue: #316e92;
+
+
+// FONT FAMILY
+// Import Fonts
+//@import url('https://fonts.googleapis.com/css?family=Nunito:400,700');
+@import url('https://fonts.googleapis.com/css?family=Merriweather:400,700');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700');
+$family-sans-serif: "Open Sans", sans-serif;
+$family-serif: "Merriweather", serif;
+$family-primary: $family-sans-serif;
+$family-secondary: $family-serif;
+$body-weight: $weight-light;
+$title-weight: $weight-light;
+$subtitle-weight: $weight-medium;
+
+
+// ASSIGN COLORS
+$primary: $baby-blue;
+$primary-invert: white;
+
+$secondary: $teal-blue;
+$secondary-invert: white;
+
+$link: $baby-blue;
+$link-invert: white;
+
+$widescreen-enabled: true;
+$fullhd-enabled: true;
+
+// Update some of Bulma's component variables
+$body-background-color: $alice-blue;
+$control-border-width: 2px;
+$input-border-color: transparent;
+$input-shadow: none;
+
+// CONTENT
+.content {line-height: 1.65em;}
+
+
+@import 'bulma';

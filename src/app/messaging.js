@@ -1,5 +1,5 @@
 const NRP = require('node-redis-pubsub');
-const conf = require('../config');
+const conf = require('./config');
 
 const app_messaging_config = {
   port  : conf.redis.port  , // Port of your locally running Redis server

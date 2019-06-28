@@ -1,14 +1,14 @@
-<router-outlet></router-outlet>
-
-<nav class="navbar" role="navigation" aria-label="main navigation">
+<nav class="navbar main is-secondary" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item" href="https://bulma.io">
-      <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: Free, open source, & modern CSS framework based on Flexbox" width="112" height="28">
+    <a class="navbar-item">
+      <!-- <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: Free, open source, & modern CSS framework based on Flexbox" width="112" height="28"> -->
+      RNodes.io
     </a>
 
-    <a class="navbar-item">
-	  Home
-	</a>
+    <a class="navbar-item">Health</a>
+    <a class="navbar-item">Rewards</a>
+    <a class="navbar-item">Wealth</a>
+    <a class="navbar-item">My RNode</a>
 
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
       <span aria-hidden="true"></span>
@@ -18,56 +18,20 @@
   </div>
 </nav>
 
+<router-outlet></router-outlet>
 
-<section class="hero is-info">
-	<div class="hero-body">
-		<div class="container">
-			<h1 class="title">RNodes.io // CPChain Blockchain Explorer</h1>
-		</div>
-	</div>
-</section>
+<footer class="footer">
+  <div class="content has-text-centered">
+    <p>
+      <strong>RNode Explorer</strong> by <a href="https://badass-consulting.eu">Badass Consulting</a>. The source code is licensed
+      <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
+      is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.<br>
+      cpchain.io, Github, twitter, docs
+    </p>
+  </div>
+</footer>
 
-<section class="section">
-	<div class="container">
-	  <h1 class="title">Lockup Season 1</h1>
-	</div>
-</section>
-
-
-<section class="section">
-<div class="container">
-
-	<div class="columns is-size-3-mobile is-size-3-desktop">
-		<div class="column">45 RNodes Live</div>
-		<div class="column">X CPC Rewards (last 24h)</div>
-		<div class="column">Avg. ROI 12 % (by year)</div>
-	</div>
-
-</div>
-</section>
-
-
-
-
-
-<div class="container is-widescreen is-mobile">
-
-<div class="notification is-large">
-This container is <strong>centered</strong> on desktop.
-</div>
-<div class="notification is-large-mobile">
-This container is <strong>centered</strong> on desktop.
-</div>
-<div class="notification">
-This container is <strong>centered</strong> on desktop.
-</div>
-<div class="notification">
-This container is <strong>centered</strong> on desktop.
-</div>
-
-</div>
-
-
+<!-- 
 <div class="tile is-ancestor">
   <div class="tile">
 	<div class="blocks">
@@ -111,11 +75,11 @@ This container is <strong>centered</strong> on desktop.
 		</table>
 	</div>
   </div>
-</div>
+</div> -->
 
 
 
-<div *ngIf="dashboard_data" class="dashboard-row">
+<!-- <div *ngIf="dashboard_data" class="dashboard-row">
 
 	<div class="dashboard-block any">
 
@@ -165,15 +129,8 @@ This container is <strong>centered</strong> on desktop.
 
 	<div class="dashboard-block any">
 
-		RNode: {{rnode_addr}}<br>
+		RNode: {{rnode_addr}}<br
 
-		<!-- <ul>
-		  <li *ngFor="let impeached of rnode_data.impeached; let i = index">
-		    {{impeached.generation.BlockNumber}} ({{impeached.ts * 1000 | date:'medium'}})
-		  </li>
-		</ul>
-		 -->
+	</div> 
 
-	</div>
-
-</div>
+</div>-->

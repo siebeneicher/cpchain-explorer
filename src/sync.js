@@ -1,20 +1,23 @@
-const {blockNumber, versions, rnodes, block, generation, transaction, web3} = require('./cpc-fusion/api');
+const {blockNumber, versions, rnodes, block, generation, transaction, web3, balance} = require('./cpc-fusion/api');
 const mongo = require('./app/mongo');
 const config = require('./app/config');
-const {aggregate, updateAll} = require('./app/middleware');
 const now = require('performance-now');
+const moment = require('moment');
+const {convert_ts, last_unit_ts} = require('./app/helper');
+const {messaging} = require('./app');
 
 // shortcut to collections
-let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_generation;
+let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_generation, mongo_db_balances;
 
 let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
 let last_blockNumber = 0;			// most recent block number
 let last_blockNumber_synced = 0;	// most recent synced
 
-const sync_delay = 1000;
+const sync_delay = 500;
 const backwards_delay = 5000;
-const maxNewBlocksBackwardsPerCycle = 25;
+const balance_delay = 10000;
+const maxNewBlocksBackwardsPerCycle = 15;
 
 
 // linux> mongodump --db cpc_watcher
@@ -32,25 +35,120 @@ function subscribe () {
 async function collect () {
 	_snapshot();
 	_syncBackwards();
+	_syncBalances();
 
 	function _snapshot () {
 		setTimeout(async () => {
-			if (await snapshot()) {
-				await updateAll();
+			try {
+				if (await snapshot()) {
+					messaging.emit('SYNC-SNAPSHOT-PERFORMED', {});
+				}
+			} catch (err) {
+				console.error(err);
 			}
+
 			_snapshot();	// loop
 		}, sync_delay);
 	}
 
 	function _syncBackwards () {
 		setTimeout(async () => {
-			if (await syncBackwards()) {
-				await updateAll();
+			try {
+				if (await syncBackwards()) {
+					messaging.emit('SYNC-BACKWARDS-PERFORMED', {});
+				}
+			} catch (err) {
+				console.error(err);
 			}
+
 			_syncBackwards();	// loop
 		}, backwards_delay);
 	}
+
+	function _syncBalances () {
+		setTimeout(async () => {
+			try {
+				if (await syncBalances()) {
+					messaging.emit('SYNC-BALANCES-PERFORMED', {});
+				}
+			} catch (err) {
+				console.error(err);
+			}
+
+			_syncBalances();	// loop
+		}, balance_delay);
+	}
 }
+
+async function syncBalances () {
+	return new Promise ((resolve, reject) => {
+		const t_start = now();
+		const from_ts = moment().subtract('1', 'week').unix();
+
+		// fetch rnode IDs
+		mongo.db(config.mongo.db.sync).collection('rnodes')
+			.aggregate([
+				{ $match: { ts: { $gte: from_ts } } },
+				{ $unwind: '$rnodes' },
+				{ $group: {
+					_id: '$rnodes.Address'
+				} },
+				{ $project: { _id: 0, address: '$_id' } }
+			])
+			.toArray((err, result) => {
+				if (err) {
+					reject();
+					console.error(err);
+				} else if (result.length == 0) {
+					resolve(null);
+				} else {
+					console.log("syncBalances() mongo-request found "+result.length+" rnodes, took:", now() - t_start);
+					resolve(result);
+				}
+			});
+	}).then(async (rnodes) => {
+		const t_start = now();
+
+		// get balances from node
+		for (let k in rnodes) {
+			let ts = convert_ts(new Date().getTime(), 10);
+			let _balance = await balance(rnodes[k].address);
+
+			// insert only new rnode address
+			// update last_balance + ts
+			// push new balanace history element
+			await mongo_db_balances.updateOne({
+				address: rnodes[k].address
+			}, {
+				$set: { address: rnodes[k].address, latest_balance: _balance }
+			}, { upsert: true }).then(async (result, err) => {
+				if (err) {
+					console.error(err);
+					return Promise.reject(err);
+				}
+
+				if (result.upsertedId || result.modifiedCount) {
+					// either initial insert or update occured (= balance has changed since last update)
+					// then go and push new history
+					return mongo_db_balances.updateOne({
+						address: rnodes[k].address
+					}, {
+						$push: { history: { ts, balance: _balance } }
+					}, { upsert: true }).then((result, err) => {
+						console.log("pushed balance history to addr", rnodes[k].address, "new balance:", _balance);
+					});
+				}
+			});
+		}
+
+		//console.log(rnodes);
+		console.log("syncBalances() fetch balances from node took:", now() - t_start);
+
+		return rnodes.length;
+	});
+}
+
+
 async function syncBackwards () {
 	let latest = await blockNumber();
 
@@ -61,11 +159,11 @@ async function syncBackwards () {
 		mongo_db_blocks.find({__complete_transactions: true}).project({_id:-1, number: 1}).toArray(async function (err, items) {
 			let numbers = items.map(b => b.number);
 
-			console.log("Sync backwards: ",items.length,"(total synced) vs",latest,"(last block number)");
+			console.log("Sync backwards: ",items.length,"(total synced) vs", latest, "(last block number)");
 
-			let i = 1, new_blocks = 0;
-			while (i < latest) {
-				i++;
+			let i = latest, new_blocks = 0;
+			while (i > 1) {
+				i--;
 				if (numbers.includes(i)) continue;
 
 				new_blocks++;
@@ -126,7 +224,7 @@ async function syncBlock (targetBlockNum = null) {
 	sanitizeBlock(b);
 
 	await mongo_db_blocks.updateOne({ number: number }, { $set: b }, { upsert: true });			// insert block into mongo, if not yet done so
-	console.log("added block:", number, "took:", now()-t_start);
+	console.log("added block (generation: "+!!b.__generation+"):", number, "took:", now()-t_start);
 
 	// sync transactions, async background
 	return Promise.all(b.transactions.map(txn => syncTransaction(txn)))
@@ -141,10 +239,10 @@ function sanitizeBlock (block) {
 	block.miner = web3.utils.toChecksumAddress(block.miner);
 	if (block.__generation) {
 		block.__generation.Proposer = web3.utils.toChecksumAddress(block.__generation.Proposer);
-		block.__generation.Proposers = block.__generation.Proposers.map(web3.utils.toChecksumAddress);
+		block.__generation.Proposers = block.__generation.Proposers.map(_ => web3.utils.toChecksumAddress(_));
 	}
 	if (block.dpor) {
-		block.dpor.proposers = block.dpor.proposers.map(web3.utils.toChecksumAddress);
+		block.dpor.proposers = block.dpor.proposers.map(_ => web3.utils.toChecksumAddress(_));
 	}
 }
 
@@ -240,9 +338,9 @@ function ensure_indexes () {
 		mongo_db_blocks.indexInformation(async (err, indexes) => {
 			if (err) return;
 			if (!indexes.timestamp_1)
-				await mongo_db_blocks.createIndex({ timestamp: 1 }, { unique: true });
+				await mongo_db_blocks.createIndex({ timestamp: -1 }, { unique: true });
 			if (!indexes.number_1)
-				await mongo_db_blocks.createIndex({ number: 1 }, { unique: true });
+				await mongo_db_blocks.createIndex({ number: -1 }, { unique: true });
 			if (!indexes.__complete_transactions)
 				await mongo_db_blocks.createIndex({ __complete_transactions: 1 }, { unique: false });
 			if (!indexes['__aggregated.by_minute_1'])
@@ -262,9 +360,9 @@ function ensure_indexes () {
 		mongo_db_generation.indexInformation(async (err, indexes) => {
 			if (err) return;
 			if (!indexes.ts_1)
-				await mongo_db_generation.createIndex({ ts: 1 }, { unique: true });
+				await mongo_db_generation.createIndex({ ts: -1 }, { unique: true });
 			if (!indexes['generation.BlockNumber_1'])
-				await mongo_db_generation.createIndex({ 'generation.BlockNumber': 1 }, { unique: false });
+				await mongo_db_generation.createIndex({ 'generation.BlockNumber': -1 }, { unique: false });
 		})
 	}
 
@@ -272,7 +370,19 @@ function ensure_indexes () {
 		mongo_db_rnodes.indexInformation(async (err, indexes) => {
 			if (err) return;
 			if (!indexes.ts_1)
-				await mongo_db_rnodes.createIndex({ ts: 1 }, { unique: true });
+				await mongo_db_rnodes.createIndex({ ts: -1 }, { unique: true });
+		})
+	}
+
+	if (mongo_db_balances) {
+		mongo_db_balances.indexInformation(async (err, indexes) => {
+			if (err) return;
+			if (!indexes.ts_1)
+				await mongo_db_balances.createIndex({ ts: -1 }, { unique: false });
+			if (!indexes.balance_1)
+				await mongo_db_balances.createIndex({ balance: 1 }, { unique: false });
+			if (!indexes.address_1)
+				await mongo_db_balances.createIndex({ address: 1 }, { unique: true });
 		})
 	}
 
@@ -282,7 +392,7 @@ function ensure_indexes () {
 			if (!indexes.blockHash_1)
 				await mongo_db_transactions.createIndex({ blockHash: 1 }, { unique: false });
 			if (!indexes.blockNumber_1)
-				await mongo_db_transactions.createIndex({ blockNumber: 1 }, { unique: false });
+				await mongo_db_transactions.createIndex({ blockNumber: -1 }, { unique: false });
 			if (!indexes.hash_1)
 				await mongo_db_transactions.createIndex({ hash: 1 }, { unique: true });
 		})
@@ -298,6 +408,7 @@ async function init (clearAll = false) {
 			mongo_db_blocks = mongo_db.collection('blocks');
 			mongo_db_transactions = mongo_db.collection('transactions');
 			mongo_db_rnodes = mongo_db.collection('rnodes');
+			mongo_db_balances = mongo_db.collection('balances');
 			mongo_db_generation = mongo_db.collection('generation');
 
 			// clear all data

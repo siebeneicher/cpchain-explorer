@@ -1,7 +1,9 @@
-const app = module.exports = require('express')();
-const {rnode, dashboard, aggregate, updateAll} = require('./middleware');
+const express = require('express');
+const app = module.exports = express();
+const {rnodes, dashboard, aggregate, updateAll, blocks} = require('./middleware');
 const {promisify} = require('util');
 const fs = require('fs');
+const path = require('path');
 const redis = require('./redis');
 const config = require('./config');
 const cache = require('express-redis-cache')({ client: redis.client, prefix: config.redis.prefix });
@@ -14,11 +16,12 @@ const cache = require('express-redis-cache')({ client: redis.client, prefix: con
 /*	let d = await redis.get(config.redis.prefix+':dashboard');
 	console.log(d);*/
 
-app.get('/rnode', async function (req, res) {
-	let data = await rnode(req.query.rnode);
-	res.json(data);
-}).get('/dashboard', /*cache.route('dashboard'), */async function (req, res) {
+app.get('/api/v1/rnode/user/:addr', async function (req, res) {
+	res.json(await rnodes.user.get(req.params.addr));
+}).get('/api/v1/dashboard', /*cache.route('dashboard'), */async function (req, res) {
 	res.json(await dashboard.get());
+}).get('/api/v1/blocks-squared', async function (req, res) {
+	res.json(await blocks.squared.get(req.query.unit, parseInt(req.query.ts)));
 });
 
 
@@ -31,10 +34,11 @@ app.get('/aggregate', async function (req, res) {
 	res.json(await updateAll());
 });
 
+// UI (ORDER AFTER API ROUTES)
+app.use('/', express.static(__dirname + '/../ui-build'));
+
 
 // last one, as its wildcard
 app.get('/*', async function (req, res) {
-	res.set({'Content-Type': 'text/html'});
-	let f = await promisify(fs.readFile)("index.html");
-	res.send(f);
+	res.status(404).json({error: 404});
 })

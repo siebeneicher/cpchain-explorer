@@ -62,6 +62,14 @@ const self = {
 			redis.del(what, () => resolve);
 		});
 	},
+	delPrefix: async (prefix) => {
+		return new Promise((resolve, reject) => {
+			redis.keys(prefix+'*', (err, keys) => {
+				console.log("redis, deleting keys: ", keys);
+				redis.del(keys, (err, res) => resolve(res));
+			});
+		});
+	},
 	expire: (what, expire) => {
 		redis.expire(what, expire);
 	},
