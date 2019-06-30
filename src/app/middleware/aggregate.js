@@ -11,6 +11,7 @@ const units = {
 	'minute': {},
 	'hour': {},
 	'day': {},
+	//'week': {},
 	'month': {},
 	'year': {}
 };
@@ -180,7 +181,9 @@ async function aggregate_unit (unit, ts, chunk) {
 			transactions_volume: 0,		// TODO
 			rnodes: {},
 			ts,
-			_incomplete: false
+			_incomplete: false,
+			_blocks_aggregated: 0,
+			_blocks_aggregate_should: config.cpc.should_blocks_per_unit[unit]
 		};
 
 		const rnode_tpl = {
@@ -277,6 +280,8 @@ async function aggregate_unit (unit, ts, chunk) {
 			// blocks total / impeached
 			if (!is_impeached) aggregate.blocks_mined++;
 			else aggregate.blocks_impeached++;
+
+			aggregate._blocks_aggregated++;
 		}
 
 		// SYNC MONGO

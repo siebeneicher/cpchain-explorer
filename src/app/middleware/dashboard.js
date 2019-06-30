@@ -1,6 +1,7 @@
 const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
+const kpi = require('./kpi');
 const {convert_ts, clone, unique_array, last_unit_ts} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
@@ -48,13 +49,30 @@ async function update () {
 					year: await transactions.last('year')
 				},
 				last_rewards: {
-					// use minute as base unit, because "last" is from now() backwards and minute as smallest unit will provide best precision.
-					hour: await rewards.last_merged('minute', 60),
-					day: await rewards.last_merged('minute', 60 * 24),
-					week: await rewards.last_merged('minute', 60 * 24 * 7),
-					month: await rewards.last_merged('minute', 60 * 24 * 31),
-					quarter: await rewards.last_merged('minute', 60 * 24 * 31 * 3),
-					year: await rewards.last_merged('minute', 60 * 24 * 31 * 12),
+					hour: {
+						option: await kpi.options('last_rewards', 'hour'),
+						data: await kpi.get('last_rewards', 'hour')
+					},
+					day: {
+						option: await kpi.options('last_rewards', 'day'),
+						data: await kpi.get('last_rewards', 'day')
+					},
+					week: {
+						option: await kpi.options('last_rewards', 'week'),
+						data: await kpi.get('last_rewards', 'week')
+					},
+					month: {
+						option: await kpi.options('last_rewards', 'month'),
+						data: await kpi.get('last_rewards', 'month')
+					},
+					quarter: {
+						option: await kpi.options('last_rewards', 'quarter'),
+						data: await kpi.get('last_rewards', 'quarter')
+					},
+					year: {
+						option: await kpi.options('last_rewards', 'year'),
+						data: await kpi.get('last_rewards', 'year')
+					},
 				},
 				reward_per_block: config.cpc.rewardsPerBlock,
 				last_block: await blocks.last(),

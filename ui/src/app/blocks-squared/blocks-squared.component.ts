@@ -40,6 +40,7 @@ export class BlocksSquaredComponent implements OnInit {
 		this.httpClient.get(environment.backendBaseUrl+`/blocks-squared?unit=${this.unit}&ts=${this.ts}`).subscribe(res => {
 			this.blocksByHour.length = 0;
 
+			let ts_now = moment.utc().unix()*1000;
 			let last_h = 0, h = 0;
 
 			// chunk blocks and set state
@@ -51,6 +52,9 @@ export class BlocksSquaredComponent implements OnInit {
 
 				// chunk by hour
 				h = moment.utc(b.timestamp).hour();
+
+				// set sync_should on client side, as backend might not update properly in time
+				b.sync_should = b.timestamp <= ts_now;
 
 				if (!this.blocksByHour[h]) this.blocksByHour.push([]);
 				this.blocksByHour[h].push(b);

@@ -4,6 +4,7 @@ const dashboard = require('./dashboard');
 const aggregate = require('./aggregate');
 const blocks = require('./blocks');
 const rnodes = require('./rnodes');
+const kpi = require('./kpi');
 const moment = require('moment');
 
 let updateAll_promise = Promise.resolve();
@@ -49,5 +50,6 @@ module.exports = {
 	dashboard,
 	blocks,
 	aggregate,
-	rnodes
+	rnodes,
+	kpi
 };

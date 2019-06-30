@@ -38,14 +38,42 @@
         <article class="tile is-child notification is-primary">
           <p class="title is-size-3">Rewards</p>
           <p class="subtitle">Whats the rewards running an RNode</p>
-          <p class="content">
-          	ROI RNode (avg.): {{dashboard_data.last_rewards.hour.total_roi_year}} % (year)<br>
-          	ROI ENode (avg.): X%<br>
-          	Reward / Block: {{dashboard_data.reward_per_block}} CPC<br>
-          	Total Rewards: {{dashboard_data.last_rewards.day.total_rewards}} (day)<br>
-          	Lockup Season: X (July-August)<br>
-          	Rewards / Year: X CPC (250k, 500k, 1M, 2M, 3M, 5M)
-          </p>
+          <div class="keys-values-container is-size-5 onhover">
+            <div class="keys-container">
+              <div class="item">ROI RNode (avg.)</div>
+              <div class="item">ROI ENode (avg.)</div>
+              <div class="item">Reward / Block</div>
+              <div class="item">Total Rewards</div>
+              <div class="item">Lockup Season</div>
+              <div class="item">Rewards / Year</div>
+            </div>
+            <div class="values-container is-size-5">
+              <div class="item">
+                <span class="onhover-hide">{{kpiData('last_rewards', 'total_roi_year', 'dashboard.rewards')}}% / {{kpiSelectedOption('last_rewards', 'total_roi_year', 'dashboard.rewards').short}}</span>
+
+                <div class="buttons has-addons onhover-show">
+                  <a *ngFor="let option of kpiOptions('last_rewards')"
+                    class="button is-small {{kpiUnitSelected('last_rewards', 'total_roi_year', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    [attr.data-tooltip]="option.full"
+                    (click)="kpiSelectUnit('last_rewards', 'total_roi_year', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                </div>
+              </div>
+              <div class="item">X%</div>
+              <div class="item">{{dashboard_data.reward_per_block}} CPC</div>
+              <div class="item">
+                <span class="onhover-hide">{{kpiData('last_rewards', 'total_rewards', 'dashboard.rewards')}} CPC / {{kpiSelectedOption('last_rewards', 'total_rewards', 'dashboard.rewards').short}}</span>
+
+                <div class="buttons has-addons onhover-show">
+                  <a *ngFor="let option of kpiOptions('last_rewards')"
+                    class="button is-small {{kpiUnitSelected('last_rewards', 'total_rewards', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    [attr.data-tooltip]="option.full"
+                    (click)="kpiSelectUnit('last_rewards', 'total_rewards', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                </div>
+              </div>
+              <div class="item">X (July-August)</div>
+              <div class="item">X CPC (250k,500k)</div>
+            </div>
+          </div>
         </article>
       </div>
     </div>
@@ -69,7 +97,17 @@
         <p class="title is-size-3">My RNode</p>
         <p class="subtitle">{{userRNodeAddr | slice:0:20}}...</p>
         <div class="content" *ngIf="user_rnode_data">
-        	Blocks sealed: {{user_rnode_data.last_rewards.hour.total_mined}},{{user_rnode_data.last_rewards.day.total_mined}},{{user_rnode_data.last_rewards.month.total_mined}},{{user_rnode_data.last_rewards.year.total_mined}}<br>
+          <div class="keys-values-container is-size-5 onhover">
+            <div class="keys-container">
+              <div class="item">Blocks sealed</div>
+            </div>
+            <div class="values-container is-size-5">
+              <div class="item">
+{{user_rnode_data.last_rewards.hour.total_mined}},{{user_rnode_data.last_rewards.day.total_mined}},{{user_rnode_data.last_rewards.month.total_mined}},{{user_rnode_data.last_rewards.year.total_mined}}
+              </div>
+            </div>
+          </div>
+
         	Rewards earned: {{user_rnode_data.last_rewards.hour.total_rewards}},{{user_rnode_data.last_rewards.day.total_rewards}},{{user_rnode_data.last_rewards.month.total_rewards}},{{user_rnode_data.last_rewards.year.total_rewards}}<br>
         	Impeached: {{user_rnode_data.last_blocks.hour.impeached}},{{user_rnode_data.last_blocks.day.impeached}},{{user_rnode_data.last_blocks.month.impeached}},{{user_rnode_data.last_blocks.year.impeached}}<br>
           (TODO) ROI / Year: {{user_rnode_data.last_rewards.month.total_roi_year}}% (rank)<br>

@@ -1,0 +1,50 @@
+.keys-values-container {
+	width: 100%;
+	display: flex;
+	//border: 1px solid red;
+
+	.keys-container {
+		width: 45%;
+		padding: 0 15px 0 0;
+		text-align: right;
+		border-right: 1px solid white;
+
+		.item {
+			height: 25px;
+			margin: 5px 0;
+			//border: 1px solid blue;
+		}
+	}
+	.values-container {
+		width: 55%;
+		padding: 0 0 0 15px;
+
+		.item {
+			height: 25px;
+			margin: 5px 0;
+			//border: 1px solid green;
+		}
+	}
+}
+
+.onhover {
+	.onhover-show {
+		display: none;
+		animation-name: hide;
+		animation-duration: 0.75s;
+	}
+	.onhover-hide {
+		display: initial;
+
+	}
+
+	&:hover {
+		.onhover-show {display: initial;}
+		.onhover-hide {display: none;}
+	}
+
+	@keyframes hide {
+		from {opacity: 0;}
+		to {opacity: 1;}
+	}
+}

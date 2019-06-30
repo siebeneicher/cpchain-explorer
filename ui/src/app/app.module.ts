@@ -11,6 +11,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { BlocksComponent } from './blocks/blocks.component';
 import { BlocksSquaredComponent } from './blocks-squared/blocks-squared.component';
 import { CookieService } from 'ngx-cookie-service';
+import { MyRnodeComponent } from './dashboard/my-rnode/my-rnode.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { CookieService } from 'ngx-cookie-service';
     DashboardComponent,
     BlocksComponent,
     BlocksSquaredComponent,
+    MyRnodeComponent,
   ],
   imports: [
     BrowserModule,

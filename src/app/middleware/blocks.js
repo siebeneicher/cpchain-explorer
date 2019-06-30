@@ -70,7 +70,6 @@ const squared = {
 
 					block.i = i;
 					block.time_pretty = time_pretty;
-					block.sync_should = block.timestamp <= ts_now;
 
 					_blocks.push(block);
 				}
