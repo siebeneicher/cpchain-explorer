@@ -1,5 +1,5 @@
 {
-  "name": "cpchain-epxlorer-backend",
+  "name": "rnode-epxlorer-backend",
   "version": "1.0.0",
   "description": "",
   "main": "worker.js",
@@ -20,6 +20,7 @@
     "performance-now": "~2.1.0",
     "lodash": "~4.17.5",
     "redis": "~2.8.x",
+    "node-redis-pubsub": "~4.0.x",
     "md5": "~2.2.x",
     "moment": "~2.22.x",
     "socket.io": "~2.2.x",

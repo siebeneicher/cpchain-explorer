@@ -2,6 +2,9 @@ const mongo = require('../mongo');
 const config = require('../config');
 const dashboard = require('./dashboard');
 const aggregate = require('./aggregate');
+const blocks = require('./blocks');
+const rnodes = require('./rnodes');
+const moment = require('moment');
 
 let updateAll_promise = Promise.resolve();
 
@@ -33,7 +36,9 @@ async function updateAll () {
 	async function _updateAll () {
 		return aggregate.run().then(async () => {
 			return Promise.all([
-				dashboard.update()
+				dashboard.update(),
+				blocks.squared.update('day', moment.utc().unix()),
+				rnodes.user.cache_flush_all()		// instead of updating, we flush the existing entries
 			]);
 		});
 	}
@@ -42,5 +47,7 @@ async function updateAll () {
 module.exports = {
 	updateAll,
 	dashboard,
-	aggregate
+	blocks,
+	aggregate,
+	rnodes
 };

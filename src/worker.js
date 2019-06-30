@@ -44,4 +44,4 @@ async function tests () {
 	});
 }
 
-init().then(/*aggregate.reset*/).then(updateAll);
+init().then(/*aggregate.reset*/);

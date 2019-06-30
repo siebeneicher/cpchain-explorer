@@ -1,0 +1,90 @@
+
+$color-impeached: red;
+$color-validated: green;
+$color-unsynced: orange;
+$color-future: lightgrey;
+
+.blocks-by-hour {
+	display: flex;
+	flex-flow: row wrap;
+
+	.hour {
+		flex-grow: 1;
+		flex-basis: 50px;
+		max-width: 4%;
+
+		.title {
+
+		}
+
+		.hour-container {
+			width: 100%;
+			display: flex;
+			flex-flow: row wrap;
+
+			.block {
+				background-color: $color-future;
+				margin: 1px;
+				width: 5px;
+				height: 5px;
+
+				&.linebreak {
+					flex-basis: 100%;
+					height: 0;
+				}
+				&.synced {
+					background-color: $color-validated !important;
+				}
+				&.sync-should {
+					background-color: $color-unsynced;
+				}
+				&.impeached.impeached {
+					background-color: $color-impeached !important;
+				}
+			}
+		}
+	}
+
+
+}
+
+
+.legend {
+	.column {
+		.colorbox {
+			position: relative;
+			display: inline-block;
+			width: 12px;
+			height: 12px;
+
+			&.validated {
+				background-color: green;
+			}
+			&.impeached {
+				background-color: red;
+			}
+			&.unsynced {
+				background-color: orange;
+			}
+			&.future {
+				background-color: lightgrey;
+			}
+		}
+		.desc {
+			position: relative;
+			margin: 0 0 0 10px;
+			display: inline-block;
+		}
+	}
+}
+
+.hover-tooltip {
+	position: absolute;
+	background-color: white;
+	padding: 5px 10px;
+	border-radius: 2px;
+
+	&.hide {
+		visibility: hidden;
+	}
+}

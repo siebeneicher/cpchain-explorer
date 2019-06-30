@@ -1,7 +1,8 @@
 const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
-const {convert_ts, clone, unique_array} = require('../helper');
+const balances = require('../data/balances');
+const {convert_ts, clone, unique_array, unit_ts} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
 const {blockNumber, rnodes, versions, generation, block, transaction, balance, web3} = require('../../cpc-fusion/api');
@@ -14,7 +15,7 @@ const units = {
 	'year': {}
 };
 
-const fetch_balance_enabled = false;
+const fetch_balance_enabled = true;
 const max_blocks_per_aggregation = 500;		// limit blocks per aggregation, specially when aggregating from 0
 const cpc_digits = parseInt(1+("0".repeat(18)));
 
@@ -25,7 +26,7 @@ let run_promise = Promise.resolve();		// keep promise to chain run() calls and a
 
 
 
-module.exports = {run, reset, unitTs, test};
+module.exports = {run, reset, test};
 
 
 
@@ -74,7 +75,7 @@ async function aggregate_all (unit) {
 
 	// aggregate until no more new blocks
 	while (1) {
-		let {new_blocks} = await aggregate_process(unit);
+		let {new_blocks} = await aggregate_process_blocks(unit);		// limits new blocks to max_blocks_per_aggregation
 		total_new_blocks += new_blocks;
 		if (new_blocks == 0) break;
 	}
@@ -84,9 +85,9 @@ async function aggregate_all (unit) {
 	return Promise.resolve({new_blocks: total_new_blocks});
 }
 
-async function aggregate_process (unit) {
+async function aggregate_process_blocks (unit) {
 	const t_start = now();
-debugger;
+
 	// prepare chunks of timespan units based on new blocks
 	const new_blocks = await getBlocksByAggregated(unit, max_blocks_per_aggregation);
 
@@ -123,14 +124,14 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 	if (!blocks || blocks.length == 0) return Promise.resolve(chunks);
 
 	// from/to timespan
-	let from = unitTs(blocks[0], unit);
-	let to = unitTs(blocks[blocks.length-1], unit);
+	let from = unit_ts(blocks[0].timestamp, unit);
+	let to = unit_ts(blocks[blocks.length-1].timestamp, unit);
 
 	// chunk blocks by timespan/unit
 	let b, ts;
 	for (let key in blocks) {
 		b = blocks[key];
-		ts = unitTs(b, unit);
+		ts = unit_ts(b.timestamp, unit);
 
 		// init chunk
 		if (chunks[ts] === undefined)
@@ -141,7 +142,9 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 		if (chunks[ts].max === null || chunks[ts].max > b.number) chunks[ts].max = b.number;
 		chunks[ts].blocks.push(b);
 	}
+
 //debugger;
+
 	// load aggregated data for each chunk
 	const aggregations = await getAggregatedUnitByTime(from, to, unit);
 	for (let key in aggregations) {
@@ -184,40 +187,51 @@ async function aggregate_unit (unit, ts, chunk) {
 			mined: 0,
 			impeached: 0,
 			proposer: 0,
-			balance_first: 0,
-			balance_last: 0,
-			balances: [],
-			locked_cpc: 0,
-			rewards_cpc_estimated: 0
+			balance: null,
+			//locked_cpc: 0,
+			//rewards_cpc_estimated: 0
 		};
 
 		// aggregate by unit, use allready aggreated data (if exists)
 		const aggregate = Object.assign(clone(aggregate_tpl), chunk.aggregated || {});
+
 //debugger;
+
 		// BLOCKS
-		let b, t, m, is_impeached, gen, proposer, bnum, balance;
+		let b, t, m, is_impeached, gen, proposer, bnum, _balance;
 		for (let key in chunk.blocks) {
 			b = chunk.blocks[key];
 			m = b.miner;
 			bnum = b.number;
-			t = moment(b.timestamp);
+			t = moment.utc(b.timestamp);
 			gen = b.__generation || null;
 			proposer = gen ? gen.Proposers[gen.View] : null;
 			is_impeached = m == '0x0000000000000000000000000000000000000000';
-			balance = await (async () => {
+
+			_balances = await (async () => {
 				if (!fetch_balance_enabled) return null;
-				if (proposer === null) return null;
+				if (proposer === null && is_impeached) return null;
 				try {
-					let b = await balances(proposer, bnum);
+					async function __balance (addr) {
+						if (!addr)
+							return null;
+						let b = await balances.getByUnit(addr, unit, ts);
+						if (b === null)
+							b = await balances.latest(addr);
+						return b;
+					}
+
+					return {
+						proposer: await __balance(proposer),
+						miner: await __balance(m)
+					};
 				} catch (err) {
 					console.error(err);
 					return null;
 				}
-				if (b && b.length && b[0] !== null) return b[0];
-				return null;
 			})();
 
-			if (balance === null) aggregate._incomplete = true;
+			if (_balances === null) aggregate._incomplete = true;
 			if (proposer === null) aggregate._incomplete = true;
 
 			// block_min/max (number)
@@ -254,15 +268,8 @@ async function aggregate_unit (unit, ts, chunk) {
 			}
 
 			// rnode balance cpc
-			if (proposer && balance !== null) {
-				aggregate.rnodes[proposer].balances.push(balance);
-				aggregate.rnodes[proposer].balances = unique_array(aggregate.rnodes[proposer].balances);
-
-				if (aggregate.rnodes[proposer].balance_first === null) 
-					aggregate.rnodes[proposer].balance_first = balance;
-
-				aggregate.rnodes[proposer].balance_last = balance;
-			}
+			if (_balances !== null && _balances.miner !== null) aggregate.rnodes[m].balance = _balances.miner;
+			if (_balances !== null && _balances.proposer !== null) aggregate.rnodes[proposer].balance = _balances.proposer;
 
 			// rnode locked cpc
 			// TODO
@@ -406,54 +413,6 @@ async function transactionsVolume (transactions) {
 	});
 }
 
-async function balances (nodes, blockNum) {
-	const t_start = now();
-
-	if (!(nodes instanceof Array))
-		nodes = [nodes];
-
-	return Promise.all(nodes.map(async (node) => {
-		return balance(node, blockNum).then((value, err) => {
-			console.log("get balances of", nodes.length, "addr, took", now()-t_start);
-			if (err) throw err;
-			return value;
-		});
-	}));
-}
-
-function unitTs (block, unit) {
-	// set time to start time of timespan
-	t = moment(block.timestamp);
-
-	if (unit == "minute") {
-		t.seconds(0);
-	}
-	if (unit == "hour") {
-		t.minutes(0);
-		t.seconds(0);
-	}
-	if (unit == "day") {
-		t.hours(0);
-		t.minutes(0);
-		t.seconds(0);
-	}
-	if (unit == "month") {
-		t.date(1);
-		t.hours(0);
-		t.minutes(0);
-		t.seconds(0);
-	}
-	if (unit == "year") {
-		t.month(0);
-		t.date(1);
-		t.hours(0);
-		t.minutes(0);
-		t.seconds(0);
-	}
-
-	return parseInt(t.unix());				// 10 digit timestamp enough to cluster by unit
-}
-
 async function ensure_indexes () {
 	const t_start = now();
 
@@ -507,11 +466,11 @@ async function test_unit (unit, vsUnit) {
 
 	async function _test_unit (unit, vsUnit, doc) {
 		let h = doc;
-		let h_ts_max = moment(h.ts*1000);
+		let h_ts_max = moment.utc(h.ts*1000);
 		h_ts_max.add(1, unit);
 
 		console.log('=======================================');
-		console.log(unit+':', moment(h.ts*1000).toISOString(), "-", h_ts_max.toISOString());
+		console.log(unit+':', moment.utc(h.ts*1000).toISOString(), "-", h_ts_max.toISOString());
 
 		return new Promise(async (resolve, reject) => {
 			db_vsUnit.find({ts: {$gte: h.ts, $lt: h_ts_max.unix()}}).sort({ts:1}).limit(60).toArray((err, vsUnits) => {

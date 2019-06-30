@@ -1,12 +1,47 @@
 const { exec } = require('child_process');
 const moment = require('moment');
+const config = require('./config');
 
 function clone (obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
-function last_unit_ts (unit, count) {
-	let t = moment();
+function unit_ts (ts, unit, digits = 10) {
+	// set time to start time of timespan based on unit
+	t = moment.utc(convert_ts(ts, 13));
+
+	if (unit == "minute") {
+		t.seconds(0);
+	}
+	if (unit == "hour") {
+		t.minutes(0);
+		t.seconds(0);
+	}
+	if (unit == "day") {
+		t.hours(0);
+		t.minutes(0);
+		t.seconds(0);
+	}
+	if (unit == "month") {
+		t.date(1);
+		t.hours(0);
+		t.minutes(0);
+		t.seconds(0);
+	}
+	if (unit == "year") {
+		t.month(0);
+		t.date(1);
+		t.hours(0);
+		t.minutes(0);
+		t.seconds(0);
+	}
+
+	return convert_ts(t.unix(), digits);				// 10 digit timestamp enough to cluster by unit
+}
+
+function last_unit_ts (unit, count, digits = 10) {
+	// return ts with current timestamp - unit*count
+	let t = moment.utc();
 
 	if (unit == "minute") {
 		t.subtract(count, 'minute');
@@ -24,7 +59,7 @@ function last_unit_ts (unit, count) {
 		t.subtract(count, 'y');
 	}
 
-	return convert_ts(t.unix(), 10);
+	return convert_ts(t.unix(), digits);
 }
 
 function convert_ts (ts, digits = 10) {
@@ -56,4 +91,8 @@ async function python_exe () {
 	});
 }
 
-module.exports = {clone, convert_ts, unique_array, python_exe, last_unit_ts}
+function calculate_future_block_number (syncedBlock, ts) {
+	return syncedBlock.number + Math.ceil((convert_ts(ts,10) - convert_ts(syncedBlock.timestamp,10)) / config.cpc.block_each_second);
+}
+
+module.exports = {clone, convert_ts, unique_array, python_exe, last_unit_ts, unit_ts, calculate_future_block_number}

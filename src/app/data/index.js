@@ -4,4 +4,5 @@ module.exports = {
 	rewards: require('./rewards'),
 	rnodes: require('./rnodes'),
 	transactions: require('./transactions'),
+	balances: require('./balances'),
 };

@@ -1,0 +1,160 @@
+
+
+
+
+<br>
+<section class="section">
+<div class="container">
+	<div class="columns is-size-2-mobile is-size-2-desktop">
+		<div class="column has-text-weight-light">{{dashboard_data.last_rnodes.rnodes.length}} RNodes</div>
+		<div class="column has-text-weight-light">ROI {{dashboard_data.last_rewards.hour.total_roi_year}}%</div>
+		<div class="column has-text-weight-light">Trxs X</div>
+		<div class="column">Growth X</div>
+	</div>
+</div>
+</section>
+
+
+<section class="section">
+<div class="container">
+<div class="tile is-ancestor">
+  <div class="tile is-vertical is-8">
+    <div class="tile">
+      <div class="tile is-parent is-vertical">
+        <article class="tile is-child notification is-primary">
+          <p class="title is-size-3">Health</p>
+          <p class="subtitle">Networks overall health KPIs</p>
+          <p class="content">
+            (M|H|D|W|M|Y)<br>
+            Last Block: {{dashboard_data.last_block.number}} ({{ago(dashboard_data.last_block.timestamp)}})<br>
+            Active RNodes: {{dashboard_data.last_rnodes.rnodes.length}}<br>
+            Transactions: {{dashboard_data.last_transactions.hour.transactions_count}} (h)<br>
+            Volume: {{dashboard_data.last_transactions.hour.transactions_volume}} (h)<br>
+            Impeached: {{dashboard_data.last_blocks.hour.blocks_impeached}} (h)
+          </p>
+        </article>
+      </div>
+      <div class="tile is-parent">
+        <article class="tile is-child notification is-primary">
+          <p class="title is-size-3">Rewards</p>
+          <p class="subtitle">Whats the rewards running an RNode</p>
+          <p class="content">
+          	ROI RNode (avg.): {{dashboard_data.last_rewards.hour.total_roi_year}} % (year)<br>
+          	ROI ENode (avg.): X%<br>
+          	Reward / Block: {{dashboard_data.reward_per_block}} CPC<br>
+          	Total Rewards: {{dashboard_data.last_rewards.day.total_rewards}} (day)<br>
+          	Lockup Season: X (July-August)<br>
+          	Rewards / Year: X CPC (250k, 500k, 1M, 2M, 3M, 5M)
+          </p>
+        </article>
+      </div>
+    </div>
+    <div class="tile is-parent">
+      <article class="tile is-child notification is-primary">
+        <p class="title is-size-3">Wealth</p>
+        <p class="subtitle is-size-4">Current wealth of the CPC Ecosystem</p>
+        <div class="content">
+          Industry|Team|Community Nodes: X<br>
+          Prices: ETH/BTC/USD<br>
+          Exchanges: A/B/C<br>
+          Balance Growth RNodes: 1.5%<br>
+          Addresses: 124 (growth 1.5% / day)
+        </div>
+      </article>
+    </div>
+  </div>
+  <div class="tile is-parent">
+    <article class="tile is-child notification is-primary">
+      <div class="content">
+        <p class="title is-size-3">My RNode</p>
+        <p class="subtitle">{{userRNodeAddr | slice:0:20}}...</p>
+        <div class="content" *ngIf="user_rnode_data">
+        	Blocks sealed: {{user_rnode_data.last_rewards.hour.total_mined}},{{user_rnode_data.last_rewards.day.total_mined}},{{user_rnode_data.last_rewards.month.total_mined}},{{user_rnode_data.last_rewards.year.total_mined}}<br>
+        	Rewards earned: {{user_rnode_data.last_rewards.hour.total_rewards}},{{user_rnode_data.last_rewards.day.total_rewards}},{{user_rnode_data.last_rewards.month.total_rewards}},{{user_rnode_data.last_rewards.year.total_rewards}}<br>
+        	Impeached: {{user_rnode_data.last_blocks.hour.impeached}},{{user_rnode_data.last_blocks.day.impeached}},{{user_rnode_data.last_blocks.month.impeached}},{{user_rnode_data.last_blocks.year.impeached}}<br>
+          (TODO) ROI / Year: {{user_rnode_data.last_rewards.month.total_roi_year}}% (rank)<br>
+        	RPT: {{user_rnode_data.last_rpt.rpt}} (rank {{user_rnode_data.last_rpt.rank}} of {{dashboard_data.last_rnodes.rnodes.length}})<br>
+        	Balance: {{user_rnode_data.last_balance}} CPC<br>
+        	Proposer: TODO<br>
+        	Type of RNode: {{user_rnode_data.type}}<br>
+          See blocks + trxs<br>
+
+          <!-- {{user_rnode_data | json}} -->
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+</div>
+</section>
+
+
+<section class="section">
+<div class="container">
+	<app-blocks-squared></app-blocks-squared>
+</div>
+</section>
+
+<section class="hero is-primary">
+  <div class="hero-body">
+    <div class="container">
+      Current CPC node version: <a href="{{latestRelease.html_url}}">{{latestRelease.name}}</a><br>
+      <i>Next version scheduled for 12/12/2030</i><br>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+<div class="container">
+	INDUSTRY NODES (TRAFFIC OVERVIEW)
+</div>
+</section>
+
+
+<pre>
+	Views:
+		Blocks: visualized as square-block, per day, each block red/green color (mined/impeached), count trx, count trx volume
+		Dashboard: blocks line, each new block constructed visually by the line of the square
+
+	Overall stats:
+		ROI
+
+	ROI calculator:
+		give amount CPC (Eoc, Rnode)
+
+	RNode centered:
+		block X
+		balance X
+		is Rnode
+		is Proposer
+		blocks sealed
+		timeframe: within last X hours, X days, X weeks, X months, X years - now | date/time
+		ROI
+		manual add price for harward (by hour/month)
+		impeached blocks, amount, when
+		reputation over time
+
+	RNodes overview:
+		addr
+		balance during time period
+		blocks sealed
+		ROI based on balance during time period
+		timeframe: within last X hours, X days, X weeks, X months, X years - now | date/time
+
+	Reputation:
+		averages
+
+	Transactions:
+		stats by count txs, volume cps
+
+	Addresses:
+		growth
+		icon by hash
+		if rnode: reputation, promoter
+
+	Live:
+		Blocks
+		Transactions
+
+
+</pre>

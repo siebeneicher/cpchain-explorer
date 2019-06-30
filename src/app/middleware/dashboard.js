@@ -14,15 +14,12 @@ let update_promise = Promise.resolve();
 module.exports = {get: dashboard, update};
 
 
-async function dashboard () {
+async function dashboard (forceUpdate = false) {
 	let data = await redis.get(CACHE_KEY_DASHBOARD);
 
-	if (data) console.log("Serving dashboard from redis");
-	if (!data)
+	if (!forceUpdate && data) console.log("Serving dashboard from redis");
+	if (forceUpdate || !data)
 		data = await update();
-
-	redis.set(CACHE_KEY_DASHBOARD, data);
-	redis.expire(CACHE_KEY_DASHBOARD, CACHE_EXPIRE_FOREVER);
 
 	return data;
 }
@@ -52,18 +49,23 @@ async function update () {
 				},
 				last_rewards: {
 					// use minute as base unit, because "last" is from now() backwards and minute as smallest unit will provide best precision.
-					hour: await rewards.last('minute', 60),
-					day: await rewards.last('minute', 60 * 24),
-					week: await rewards.last('minute', 60 * 24 * 7),
-					month: await rewards.last('minute', 60 * 24 * 31),
-					quarter: await rewards.last('minute', 60 * 24 * 31 * 3),
-					year: await rewards.last('minute', 60 * 24 * 31 * 12),
+					hour: await rewards.last_merged('minute', 60),
+					day: await rewards.last_merged('minute', 60 * 24),
+					week: await rewards.last_merged('minute', 60 * 24 * 7),
+					month: await rewards.last_merged('minute', 60 * 24 * 31),
+					quarter: await rewards.last_merged('minute', 60 * 24 * 31 * 3),
+					year: await rewards.last_merged('minute', 60 * 24 * 31 * 12),
 				},
-				reward_per_block: config.cpc.rewardsPerBlock
+				reward_per_block: config.cpc.rewardsPerBlock,
+				last_block: await blocks.last(),
+				last_rnodes: await rnodes.last(),
 			};
 
 			console.log("dashboard took:", now() - t_start);
-			console.log(data.last_rewards);
+			//console.log(data.last_rewards.year);
+
+			redis.set(CACHE_KEY_DASHBOARD, data);
+			redis.expire(CACHE_KEY_DASHBOARD, CACHE_EXPIRE_FOREVER);
 
 			resolve(data);
 		});
