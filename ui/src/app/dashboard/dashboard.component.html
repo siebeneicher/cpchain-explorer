@@ -103,6 +103,16 @@
             </div>
             <div class="values-container is-size-5">
               <div class="item">
+                <span class="onhover-hide">{{kpiData('last_rewards', 'total_rewards', 'dashboard.rewards')}} CPC / {{kpiSelectedOption('last_rewards', 'total_rewards', 'dashboard.rewards').short}}</span>
+
+                <div class="buttons has-addons onhover-show">
+                  <a *ngFor="let option of kpiOptions('last_rewards')"
+                    class="button is-small {{kpiUnitSelected('last_rewards', 'total_rewards', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    [attr.data-tooltip]="option.full"
+                    (click)="kpiSelectUnit('last_rewards', 'total_rewards', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                </div>
+              </div>
+              <div class="item">
 {{user_rnode_data.last_rewards.hour.total_mined}},{{user_rnode_data.last_rewards.day.total_mined}},{{user_rnode_data.last_rewards.month.total_mined}},{{user_rnode_data.last_rewards.year.total_mined}}
               </div>
             </div>
