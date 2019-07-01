@@ -46,19 +46,20 @@ const squared = {
 				const data = await blocks.byUnit(unit, ts, select);
 				console.log("blocks.squared took:", now() - t_start);
 
-				const sec_per_block = 10;
+				const sec_per_block = config.cpc.block_each_second;
 				const from_ = convert_ts(ts,13);
 				const to_ = convert_ts(moment.utc(ts).add(1, unit).unix(), 13);
 
 				// build block structure from unit start to end
 				const must_blocks = (to_ - from_) / 1000 / sec_per_block;		// 10 blocks / second
 				const _blocks = [];
-
+debugger;
 				for (let i = 0; i < must_blocks; i++) {
 					const assumed_time = from_+(i*sec_per_block*1000);
 					const time_pretty = moment.utc(assumed_time).format('HH:mm:ss');
 
-					const find_block = data.filter(_ => _.timestamp == assumed_time);
+					// make sure we find block even with timestamp not matching
+					const find_block = data.filter(_ => _.timestamp >= assumed_time && !(_.timestamp > (config.cpc.block_each_second*1000)+assumed_time));
 					const block = find_block.length ? find_block[0] : {number: calculate_future_block_number(last_synced_block, assumed_time), impeached: null};
 					block.synced = !!find_block.length;
 

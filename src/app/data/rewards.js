@@ -86,7 +86,7 @@ async function last (unit, times, rnode_addr = null) {
 				} }
 			])
 			.toArray((err, result) => {
-				console.log(unit+".dashboard.rewards took:", now() - t_start);
+				console.log("rewards.last(",unit, times,")", now() - t_start);
 				//console.log(result);
 
 				if (err || result.length == 0) {

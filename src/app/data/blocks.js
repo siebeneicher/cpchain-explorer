@@ -34,10 +34,10 @@ async function byUnit (unit, ts, select = []) {
 		mongo.db(config.mongo.db.sync).collection('blocks')
 			.aggregate(aggr)
 			.toArray((err, result) => {
-				console.log(unit+".blocks.byUnit took: ", now() - t_start);
+				console.log("blocks.byUnit(",unit, ts,")", now() - t_start);
 
 				if (err || result.length == 0) {
-					console.error(unit+".blocks.byUnit.find:", err, result);
+					console.error("blocks.byUnit(",unit, ts,"):", err, result);
 					resolve([]);
 				} else {
 					resolve(result);
@@ -65,16 +65,17 @@ async function last (unit = null, rnode_addr = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
 
-		const project = {_id:0, ts:1, blocks_mined:1, blocks_impeached:1};
+		const project = {_id:0, ts:1, mined: '$blocks_mined', impeached: '$blocks_impeached'};
 		if (rnode_addr) project.rnodes = 1;
 
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
-			.find({})
-			.project(project)
-			.limit(1)
-			.sort({ts: -1})
+			.aggregate([
+				{ $sort: { ts: -1 } },
+				{ $limit: 1 },
+				{ $project: project },
+			])
 			.toArray((err, result) => {
-				console.log(unit+".dashboard.blocks.last took:", now() - t_start);
+				console.log("blocks.last(",unit, rnode_addr,")", now() - t_start);
 
 				if (err || result.length == 0) {
 					console.error("overview data, mongo_db_aggregation_by."+unit+".find:", err, result);

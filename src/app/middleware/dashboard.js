@@ -16,13 +16,15 @@ module.exports = {get: dashboard, update};
 
 
 async function dashboard (forceUpdate = false) {
-	let data = await redis.get(CACHE_KEY_DASHBOARD);
+/*	let data = await redis.get(CACHE_KEY_DASHBOARD);
 
 	if (!forceUpdate && data) console.log("Serving dashboard from redis");
 	if (forceUpdate || !data)
 		data = await update();
 
-	return data;
+	return data;*/
+
+	return this.update();
 }
 
 async function update () {
@@ -35,18 +37,64 @@ async function update () {
 
 			const data = {
 				last_blocks: {
-					minute: await blocks.last('minute'),
-					hour: await blocks.last('hour'),
-					day: await blocks.last('day'),
-					month: await blocks.last('month'),
-					year: await blocks.last('year')
+					minute: {
+						option: await kpi.options('last_blocks', 'minute'),
+						data: await kpi.get('last_blocks', 'minute')
+					},
+					hour: {
+						option: await kpi.options('last_blocks', 'hour'),
+						data: await kpi.get('last_blocks', 'hour')
+					},
+					day: {
+						option: await kpi.options('last_blocks', 'day'),
+						data: await kpi.get('last_blocks', 'day')
+					},
+/*					week: {
+						option: await kpi.options('last_blocks', 'week'),
+						data: await kpi.get('last_blocks', 'week')
+					},*/
+					month: {
+						option: await kpi.options('last_blocks', 'month'),
+						data: await kpi.get('last_blocks', 'month')
+					},
+/*					quarter: {
+						option: await kpi.options('last_blocks', 'quarter'),
+						data: await kpi.get('last_blocks', 'quarter')
+					},*/
+					year: {
+						option: await kpi.options('last_blocks', 'year'),
+						data: await kpi.get('last_blocks', 'year')
+					}
 				},
-				last_transactions: {
-					minute: await transactions.last('minute'),
-					hour: await transactions.last('hour'),
-					day: await transactions.last('day'),
-					month: await transactions.last('month'),
-					year: await transactions.last('year')
+				last_transactions_sum: {
+					minute: {
+						option: await kpi.options('last_transactions_sum', 'minute'),
+						data: await kpi.get('last_transactions_sum', 'minute')
+					},
+					hour: {
+						option: await kpi.options('last_transactions_sum', 'hour'),
+						data: await kpi.get('last_transactions_sum', 'hour')
+					},
+					day: {
+						option: await kpi.options('last_transactions_sum', 'day'),
+						data: await kpi.get('last_transactions_sum', 'day')
+					},
+					week: {
+						option: await kpi.options('last_transactions_sum', 'week'),
+						data: await kpi.get('last_transactions_sum', 'week')
+					},
+					month: {
+						option: await kpi.options('last_transactions_sum', 'month'),
+						data: await kpi.get('last_transactions_sum', 'month')
+					},
+					quarter: {
+						option: await kpi.options('last_transactions_sum', 'quarter'),
+						data: await kpi.get('last_transactions_sum', 'quarter')
+					},
+					year: {
+						option: await kpi.options('last_transactions_sum', 'year'),
+						data: await kpi.get('last_transactions_sum', 'year')
+					}
 				},
 				last_rewards: {
 					hour: {

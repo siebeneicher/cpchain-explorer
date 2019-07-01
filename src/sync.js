@@ -142,7 +142,7 @@ async function syncBalances () {
 		}
 
 		//console.log(rnodes);
-		console.log("syncBalances() fetch balances from node took:", now() - t_start);
+		console.log("syncBalances() total time:", now() - t_start);
 
 		return rnodes.length;
 	});
@@ -227,8 +227,12 @@ async function syncBlock (targetBlockNum = null) {
 	console.log("added block (generation: "+!!b.__generation+"):", number, "took:", now()-t_start);
 
 	// sync transactions, async background
-	return Promise.all(b.transactions.map(txn => syncTransaction(txn)))
-		.then(async () => {
+	return new Promise(async (resolve, reject) => {
+		// trx by trx, sequential to avoid high loads
+		for (let k in b.transactions)
+			await syncTransaction(b.transactions[k]);
+		resolve();
+	}).then(async () => {
 			// flag block complete
 			b.__complete_transactions = true;
 			return mongo_db_blocks.updateOne({ number: number }, { $set: b });

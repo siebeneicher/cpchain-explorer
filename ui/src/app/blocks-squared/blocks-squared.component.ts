@@ -12,7 +12,7 @@ import * as moment from 'moment';
 export class BlocksSquaredComponent implements OnInit {
 	blocksByHour:Array<any>;
 
-	ts:number = new Date().getTime();
+	ts:number;
 	unit:string = "day";
 	mouse_x:number;
 	mouse_y:number;
@@ -25,6 +25,11 @@ export class BlocksSquaredComponent implements OnInit {
 	constructor(private httpClient: HttpClient, private ref: ChangeDetectorRef) { }
 
 	ngOnInit() {
+		// the timestamp needs to be the exact start of the day
+		let today = moment.utc();
+		today.second(0).minute(0).hour(0);
+		this.ts = today.unix()*1000;
+
 		this.blocksByHour = [];
 		this.loadBlocksSquared();
 

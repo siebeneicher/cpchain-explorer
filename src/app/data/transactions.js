@@ -1,22 +1,29 @@
 const mongo = require('../mongo');
 const config = require('../config');
 const now = require('performance-now');
+const {convert_ts, last_unit_ts} = require('../helper');
 
-module.exports = {last}
+module.exports = {last_sum}
 
-async function last (unit) {
+async function last_sum (unit, times = 1) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
+		const last_ts = last_unit_ts(unit, times);
+
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
-			.find({})
-			.project({_id:0, ts:1, transactions_count:1, transactions_volume:1})
-			.limit(1)
-			.sort({ts: -1})
+			.aggregate([
+				{ $match: { ts: { $gte: last_ts } } },
+				{ $group: {
+					_id: 'sum',
+					count: { $sum: '$transactions_count' },
+					volume: { $sum: '$transactions_volume' },
+				} },
+			])
 			.toArray((err, result) => {
-				console.log(unit+".dashboard.transactions.last took:", now() - t_start);
+				console.log("transactions.last_sum(",unit, times,")", now() - t_start);
 
 				if (err || result.length == 0) {
-					console.error("overview data, mongo_db_aggregation_by."+unit+".find:", err, result);
+					console.error("transactions.last_sum(",unit, times,"):", err, result);
 					resolve(null);
 				} else {
 					resolve(result[0]);

@@ -1,16 +1,13 @@
 
-
-
-
 <br>
 <section class="section">
 <div class="container">
-	<div class="columns is-size-2-mobile is-size-2-desktop">
-		<div class="column has-text-weight-light">{{dashboard_data.last_rnodes.rnodes.length}} RNodes</div>
-		<div class="column has-text-weight-light">ROI {{dashboard_data.last_rewards.hour.total_roi_year}}%</div>
-		<div class="column has-text-weight-light">Trxs X</div>
-		<div class="column">Growth X</div>
-	</div>
+  <div class="columns is-size-2-mobile is-size-2-desktop">
+    <div class="column has-text-centered has-text-weight-light">{{kpiService.datasets.dashboard.data.last_rnodes.rnodes.length}} RNodes</div>
+    <div class="column has-text-centered has-text-weight-light">{{kpiService.data('dashboard','last_rewards','total_roi_year','dashboard.top-teaser')}}% ROI / Y</div>
+    <div class="column has-text-centered has-text-weight-light">{{kpiService.data('dashboard','last_transactions_sum','count','dashboard.top-teaser')}} Trx's / H</div>
+    <div class="column has-text-centered">Growth X</div>
+  </div>
 </div>
 </section>
 
@@ -25,12 +22,11 @@
           <p class="title is-size-3">Health</p>
           <p class="subtitle">Networks overall health KPIs</p>
           <p class="content">
-            (M|H|D|W|M|Y)<br>
-            Last Block: {{dashboard_data.last_block.number}} ({{ago(dashboard_data.last_block.timestamp)}})<br>
-            Active RNodes: {{dashboard_data.last_rnodes.rnodes.length}}<br>
-            Transactions: {{dashboard_data.last_transactions.hour.transactions_count}} (h)<br>
-            Volume: {{dashboard_data.last_transactions.hour.transactions_volume}} (h)<br>
-            Impeached: {{dashboard_data.last_blocks.hour.blocks_impeached}} (h)
+            Last Block: {{kpiService.datasets.dashboard.data.last_block.number}} ({{ago(kpiService.datasets.dashboard.data.last_block.timestamp)}})<br>
+            Active RNodes: {{kpiService.datasets.dashboard.data.last_rnodes.rnodes.length}}<br>
+            Transactions: {{kpiService.data('dashboard','last_transactions_sum','count','dashboard.health')}} (X)<br>
+            Volume: {{kpiService.data('dashboard','last_transactions_sum','volume','dashboard.health')}} (X)<br>
+            Impeached: {{kpiService.data('dashboard','last_blocks','impeached','dashboard.health')}} (X)
           </p>
         </article>
       </div>
@@ -49,26 +45,26 @@
             </div>
             <div class="values-container is-size-5">
               <div class="item">
-                <span class="onhover-hide">{{kpiData('last_rewards', 'total_roi_year', 'dashboard.rewards')}}% / {{kpiSelectedOption('last_rewards', 'total_roi_year', 'dashboard.rewards').short}}</span>
+                <span class="onhover-hide">{{kpiService.data('dashboard','last_rewards','total_roi_year','dashboard.rewards')}}% / {{kpiService.selectedOption('dashboard','last_rewards','total_roi_year','dashboard.rewards').short}}</span>
 
                 <div class="buttons has-addons onhover-show">
-                  <a *ngFor="let option of kpiOptions('last_rewards')"
-                    class="button is-small {{kpiUnitSelected('last_rewards', 'total_roi_year', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                  <a *ngFor="let option of kpiService.options('dashboard','last_rewards')"
+                    class="button is-small {{kpiService.unitSelected('dashboard','last_rewards', 'total_roi_year', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
                     [attr.data-tooltip]="option.full"
-                    (click)="kpiSelectUnit('last_rewards', 'total_roi_year', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                    (click)="kpiService.selectUnit('dashboard','last_rewards', 'total_roi_year', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
                 </div>
               </div>
               <div class="item">X%</div>
-              <div class="item">{{dashboard_data.reward_per_block}} CPC</div>
+              <div class="item"><!-- {{dashboard_data.reward_per_block}} --> CPC</div>
               <div class="item">
-                <span class="onhover-hide">{{kpiData('last_rewards', 'total_rewards', 'dashboard.rewards')}} CPC / {{kpiSelectedOption('last_rewards', 'total_rewards', 'dashboard.rewards').short}}</span>
+<!--                 <span class="onhover-hide">{{kpiData('last_rewards', 'total_rewards', 'dashboard.rewards')}} CPC / {{kpiSelectedOption('last_rewards', 'total_rewards', 'dashboard.rewards').short}}</span>
 
                 <div class="buttons has-addons onhover-show">
                   <a *ngFor="let option of kpiOptions('last_rewards')"
                     class="button is-small {{kpiUnitSelected('last_rewards', 'total_rewards', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
                     [attr.data-tooltip]="option.full"
                     (click)="kpiSelectUnit('last_rewards', 'total_rewards', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
-                </div>
+                </div> -->
               </div>
               <div class="item">X (July-August)</div>
               <div class="item">X CPC (250k,500k)</div>
@@ -97,19 +93,19 @@
         <p class="title is-size-3">My RNode</p>
         <p class="subtitle">{{userRNodeAddr | slice:0:20}}...</p>
         <div class="content" *ngIf="user_rnode_data">
-          <div class="keys-values-container is-size-5 onhover">
+<!--           <div class="keys-values-container is-size-5 onhover">
             <div class="keys-container">
               <div class="item">Blocks sealed</div>
             </div>
             <div class="values-container is-size-5">
               <div class="item">
-                <span class="onhover-hide">{{kpiData('last_rewards', 'total_rewards', 'dashboard.rewards')}} CPC / {{kpiSelectedOption('last_rewards', 'total_rewards', 'dashboard.rewards').short}}</span>
+                <span class="onhover-hide">{{kpiData('last_rewards', 'total_mined', 'dashboard.rewards')}} CPC / {{kpiSelectedOption('last_rewards', 'total_mined', 'dashboard.my-rnode.total_mined').short}}</span>
 
                 <div class="buttons has-addons onhover-show">
                   <a *ngFor="let option of kpiOptions('last_rewards')"
-                    class="button is-small {{kpiUnitSelected('last_rewards', 'total_rewards', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    class="button is-small {{kpiUnitSelected('last_rewards', 'total_mined', 'dashboard.my-rnode.total_mined') == option.unit ? 'is-info is-selected' : ''}} tooltip"
                     [attr.data-tooltip]="option.full"
-                    (click)="kpiSelectUnit('last_rewards', 'total_rewards', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                    (click)="kpiSelectUnit('last_rewards', 'total_mined', 'dashboard.my-rnode.total_mined', option.unit)">{{option.abbrev}}</a>
                 </div>
               </div>
               <div class="item">
@@ -125,9 +121,8 @@
         	Balance: {{user_rnode_data.last_balance}} CPC<br>
         	Proposer: TODO<br>
         	Type of RNode: {{user_rnode_data.type}}<br>
-          See blocks + trxs<br>
+          See blocks + trxs<br> -->
 
-          <!-- {{user_rnode_data | json}} -->
         </div>
       </div>
     </article>
@@ -135,6 +130,8 @@
 </div>
 </div>
 </section>
+
+
 
 
 <section class="section">
@@ -158,7 +155,7 @@
 </div>
 </section>
 
-
+<!-- 
 <pre>
 	Views:
 		Blocks: visualized as square-block, per day, each block red/green color (mined/impeached), count trx, count trx volume
@@ -205,4 +202,4 @@
 		Transactions
 
 
-</pre>
+</pre> -->
