@@ -124,7 +124,7 @@
     </div>
   </div>
   <div class="tile is-parent">
-    <article class="tile is-child notification is-primary" *ngIf="kpi.isLoaded('myrnode')">
+    <article class="tile is-child notification is-primary" x-ngIf="kpi.isLoaded('myrnode')">
       <div class="content">
         <p class="title is-size-3">My RNode</p>
         <p class="subtitle is-size-4">{{userRNode() | slice:0:22}}...</p>

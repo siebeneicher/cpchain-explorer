@@ -1,5 +1,9 @@
 <div *ngIf="blocksByHour.length">
-	<h1 class="title">Blocks of {{this.ts | date:'dd-MM-yyyy'}} <a class="button is-warning" (click)="dateBackward()">&laquo;</a>&nbsp;<a class="button is-warning" (click)="dateForward()">&raquo;</a></h1>
+	<h1 class="title">
+		Blocks of {{this.ts | date:'dd-MM-yyyy'}}
+		<a class="button is-warning {{loading ? 'is-loading' : ''}}" (click)="dateBackward()">&laquo;</a>&nbsp;
+		<a class="button is-warning {{loading ? 'is-loading' : ''}}" (click)="dateForward()">&raquo;</a>
+	</h1>
 
 	<div class="blocks-by-hour" (mouseout)="mouseout()">
 		<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
@@ -34,6 +38,6 @@
 			<span class="colorbox future"></span><span class="desc">Future Block</span>
 		</div>
 	</div>
-
-	<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}">Block: {{hovered_block ? hovered_block.number : '-'}} // Time: {{hovered_block ? hovered_block.time_pretty : ''}}<!--  // Transactions: TODO --></div>
 </div>
+
+<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}">Block: {{hovered_block ? hovered_block.number : '-'}} // Time: {{hovered_block ? hovered_block.time_pretty : ''}}<!--  // Transactions: TODO --></div>
