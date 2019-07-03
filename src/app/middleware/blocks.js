@@ -53,7 +53,7 @@ const squared = {
 				// build block structure from unit start to end
 				const must_blocks = (to_ - from_) / 1000 / sec_per_block;		// 10 blocks / second
 				const _blocks = [];
-debugger;
+
 				for (let i = 0; i < must_blocks; i++) {
 					const assumed_time = from_+(i*sec_per_block*1000);
 					const time_pretty = moment.utc(assumed_time).format('HH:mm:ss');

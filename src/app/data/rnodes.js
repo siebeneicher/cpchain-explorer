@@ -5,7 +5,7 @@ const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
 
 
-module.exports = {last, last_rpt, type}
+module.exports = {last, last_rpt, type, items}
 
 async function type (addr) {
 	return new Promise(async function (resolve, reject) {
@@ -71,6 +71,31 @@ async function last () {
 					reject();
 				} else {
 					resolve(result[0]);
+				}
+			});
+	});
+}
+
+async function items (unit, times, ts_start) {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+
+		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
+			.aggregate([
+				{ $project: { _id:0, ts:1, 'rnodes':1 } },
+				{ $sort: { ts: 1 } },
+				{ $match: { ts: { $gte: convert_ts(ts_start, 10) } } },
+				{ $limit: times },
+			])
+			.toArray((err, result) => {
+				console.log("rewards.items(", unit, times, ts_start, ")", now() - t_start);
+				//console.log(result);
+
+				if (err || result.length == 0) {
+					console.error("rewards.items(",unit, times ,") error:", err);
+					resolve(null);
+				} else {
+					resolve(result);
 				}
 			});
 	});

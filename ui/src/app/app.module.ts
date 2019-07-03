@@ -12,6 +12,7 @@ import { BlocksComponent } from './blocks/blocks.component';
 import { BlocksSquaredComponent } from './blocks-squared/blocks-squared.component';
 import { CookieService } from 'ngx-cookie-service';
 import { MyRnodeComponent } from './dashboard/my-rnode/my-rnode.component';
+import { TrxStreamgraphComponent } from './dashboard/trx-streamgraph/trx-streamgraph.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { MyRnodeComponent } from './dashboard/my-rnode/my-rnode.component';
     BlocksComponent,
     BlocksSquaredComponent,
     MyRnodeComponent,
+    TrxStreamgraphComponent,
   ],
   imports: [
     BrowserModule,

@@ -14,11 +14,9 @@ import { KpiService } from '../kpi.service';
 	providers: [ DateAgoPipe, ConvertTsPipe ]
 })
 export class DashboardComponent implements OnInit {
-	units:Array<any> = ['hour','day','month'];
 	user_rnode_data:Object;
 	dashboard_data:any = null;
 	latestRelease:any = {};
-	userRNodeAddr:string;
 
 	COOKIE_USER_RNODE:string = "cpc-user-rnode-favorite";		// todo: env.
 
@@ -28,7 +26,7 @@ export class DashboardComponent implements OnInit {
 		private dateAgo: DateAgoPipe,
 		private convertTs: ConvertTsPipe,
 		private cookieService: CookieService,
-		private kpiService: KpiService
+		private kpi: KpiService
 	) {
 		setInterval(() => {
 			this.tick();
@@ -36,37 +34,26 @@ export class DashboardComponent implements OnInit {
 	}
 
 	ngOnInit () {
-		this.kpiService.require('dashboard');
+		this.kpi.require('dashboard');
+		if (this.userRNode())
+			this.kpi.require('myrnode', {addr: this.userRNode()});
 
 		this.loadReleases();
-		this.loadUserRNode();
-
-		setInterval(() => {
-			this.loadUserRNode();
-		}, 1000);
-
 		setInterval(() => {
 			this.loadReleases();
 		}, 1000 * 60 * 5);
 	}
 	ngOnDestroy () {
-		this.kpiService.unrequire('dashboard');
+		this.kpi.unrequire('dashboard');
+		this.kpi.unrequire('myrnode');
 	}
 
 	tick () {
 		this.ref.markForCheck();
 	}
 
-
-	loadUserRNode () {
-		this.userRNodeAddr = this.cookieService.get(this.COOKIE_USER_RNODE);
-
-		if (!this.userRNodeAddr) return;
-
-		// load rnode data from backend
-		this.httpClient.get(environment.backendBaseUrl+`/rnode/user/${this.userRNodeAddr}`).subscribe(res => {
-			this.user_rnode_data = res;
-		});
+	userRNode () {
+		return this.cookieService.get(this.COOKIE_USER_RNODE);
 	}
 
 	ago (ts) {

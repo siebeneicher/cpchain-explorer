@@ -11,7 +11,7 @@ module.exports = {
 		prefix: 'cpc.explorer'
 	},
 	mongo: {
-		url: 'mongodb://localhost:27017',
+		url: 'mongodb://localhost:27018',
 		options: {
 			useNewUrlParser: true,
 			//https://stackoverflow.com/questions/30909492/mongoerror-topology-was-destroyed

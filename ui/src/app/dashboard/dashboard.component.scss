@@ -10,8 +10,8 @@
 		border-right: 1px solid white;
 
 		.item {
-			height: 25px;
-			margin: 5px 0;
+			height: 27px;
+			margin: 7px 0;
 			//border: 1px solid blue;
 		}
 	}
@@ -20,8 +20,9 @@
 		padding: 0 0 0 15px;
 
 		.item {
-			height: 25px;
-			margin: 5px 0;
+			overflow: visible;
+			height: 27px;
+			margin: 7px 0;
 			//border: 1px solid green;
 		}
 	}

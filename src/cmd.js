@@ -23,7 +23,8 @@ setTimeout(async () => {
 	//let r = await rewards.last_merged('day', 1);
 	//console.log(r);
 
-	console.log(await blocks.squared.update('day', new Date().getTime()));
+	await rnodes.streamgraph.update('hour', 24);
+	//console.log(await blocks.squared.update('day', new Date().getTime()));
 
 	//await rnodes.user.update('0x45F40E0C7135D86D92a88443a160045a2897436E');
 	//await rnodes.user.cache_flush_all();

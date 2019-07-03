@@ -22,6 +22,8 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await dashboard.get());
 }).get('/api/v1/blocks-squared', async function (req, res) {
 	res.json(await blocks.squared.get(req.query.unit, parseInt(req.query.ts)));
+}).get('/api/v1/rnodes-streamgraph', async function (req, res) {
+	res.json(await rnodes.streamgraph.get(req.query.unit, parseInt(req.query.times)));
 });
 
 

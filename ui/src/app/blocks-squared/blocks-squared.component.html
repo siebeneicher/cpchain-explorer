@@ -1,38 +1,39 @@
+<div *ngIf="blocksByHour.length">
+	<h1 class="title">Blocks of {{this.ts | date:'dd-MM-yyyy'}} <a class="button is-warning" (click)="dateBackward()">&laquo;</a>&nbsp;<a class="button is-warning" (click)="dateForward()">&raquo;</a></h1>
 
-<h1 class="title">Blocks of {{this.ts | date:'dd-MM-yyyy'}} <a class="button is-warning" (click)="dateBackward()">&laquo;</a>&nbsp;<a class="button is-warning" (click)="dateForward()">&raquo;</a></h1>
-
-<div class="blocks-by-hour" (mouseout)="mouseout()">
-	<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
-		<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
-		<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
-			<span
-				*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
-				class="block"
-				[attr.data-index]="i"
-				[class.linebreak]="block.sec == 0 && block.min == 0"
-				[class.synced]="block.synced"
-				[class.sync-should]="block.sync_should"
-				[class.impeached]="block.impeached"></span>
+	<div class="blocks-by-hour" (mouseout)="mouseout()">
+		<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
+			<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
+			<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
+				<span
+					*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
+					class="block"
+					[attr.data-index]="i"
+					[class.linebreak]="block.sec == 0 && block.min == 0"
+					[class.synced]="block.synced"
+					[class.sync-should]="block.sync_should"
+					[class.impeached]="block.impeached"></span>
+			</div>
 		</div>
 	</div>
+
+	<br><br>
+
+
+	<div class="columns legend">
+		<div class="column is-one-fifth">
+			<span class="colorbox validated"></span><span class="desc">Validated Block</span>
+		</div>
+		<div class="column is-one-fifth">
+			<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
+		</div>
+		<div class="column is-one-fifth">
+			<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
+		</div>
+		<div class="column is-one-fifth">
+			<span class="colorbox future"></span><span class="desc">Future Block</span>
+		</div>
+	</div>
+
+	<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}">Block: {{hovered_block ? hovered_block.number : '-'}} // Time: {{hovered_block ? hovered_block.time_pretty : ''}}<!--  // Transactions: TODO --></div>
 </div>
-
-<br><br>
-
-
-<div class="columns legend">
-	<div class="column is-one-fifth">
-		<span class="colorbox validated"></span><span class="desc">Validated Block</span>
-	</div>
-	<div class="column is-one-fifth">
-		<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
-	</div>
-	<div class="column is-one-fifth">
-		<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
-	</div>
-	<div class="column is-one-fifth">
-		<span class="colorbox future"></span><span class="desc">Future Block</span>
-	</div>
-</div>
-
-<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}">Block: {{hovered_block ? hovered_block.number : '-'}} // Time: {{hovered_block ? hovered_block.time_pretty : ''}}<!--  // Transactions: TODO --></div>

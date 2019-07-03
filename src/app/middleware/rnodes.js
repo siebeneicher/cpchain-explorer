@@ -2,10 +2,10 @@ const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
 const {balances, rnodes, blocks, rewards} = require('../data');
-const {convert_ts, clone, unique_array, unit_ts} = require('../helper');
+const {convert_ts, clone, unique_array, unit_ts, last_unit_ts} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
-
+const kpi = require('./kpi');
 
 
 const CACHE_EXPIRE_FOREVER = 99999999999;			// redis cache lives forever, values are updated via aggregate.js
@@ -51,12 +51,26 @@ const user = {
 						hour: await blocks.last('hour', addr),
 					},
 					last_rewards: {
-						hour: await rewards.last_merged('minute', 60, addr),
-						day: await rewards.last_merged('minute', 60 * 24, addr),
-						week: await rewards.last_merged('minute', 60 * 24 * 7, addr),
-						month: await rewards.last_merged('minute', 60 * 24 * 31, addr),
-						quarter: await rewards.last_merged('minute', 60 * 24 * 31 * 3, addr),
-						year: await rewards.last_merged('minute', 60 * 24 * 31 * 12, addr),
+						hour: {
+							option: await kpi.options('last_rewards', 'hour'),
+							data: await kpi.get('last_rewards', 'hour', {addr})
+						},
+						day: {
+							option: await kpi.options('last_rewards', 'day'),
+							data: await kpi.get('last_rewards', 'day', {addr})
+						},
+						week: {
+							option: await kpi.options('last_rewards', 'week'),
+							data: await kpi.get('last_rewards', 'week', {addr})
+						},
+						month: {
+							option: await kpi.options('last_rewards', 'month'),
+							data: await kpi.get('last_rewards', 'month', {addr})
+						},
+						year: {
+							option: await kpi.options('last_rewards', 'year'),
+							data: await kpi.get('last_rewards', 'year', {addr})
+						}
 					},
 					type: await rnodes.type(addr)
 				};
@@ -74,4 +88,88 @@ const user = {
 	}
 }
 
-module.exports = {user};
+const streamgraph = {
+	update_promise_chain: Promise.resolve(),
+
+	cache_key: function (unit, times, ts_start) {
+		return 'CPC-DATA-RNODES-STREAMGRAPH_'+unit+'_'+times+'_'+ts_start;
+	},
+	cache_flush_all: async function () {
+		return redis.delPrefix('CPC-DATA-RNODES-STREAMGRAPH_');
+	},
+	get: async function (unit, times, ts_start = 'latest', forceUpdate = false) {
+		let data = await redis.get(streamgraph.cache_key(unit, times, ts_start));
+
+		if (!forceUpdate && data) console.log("Serving rnodes.streamgraph from redis");
+		if (forceUpdate || !data)
+			data = await streamgraph.update(unit, times, ts_start);
+
+		return data;
+	},
+
+	update: async function (unit, times, ts_start = 'latest') {
+
+		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
+
+		// avoid parallel calls, instead chain them
+		return streamgraph.update_promise_chain = streamgraph.update_promise_chain.then(_update);
+
+		async function _update () {
+			return new Promise(async function (resolve, reject) {
+
+				let items = await rnodes.items(unit, times, ts);
+
+				if (!items || !items.length)
+					resolve(null);
+
+// TODO: discard from node.js 11+
+require('array-flat-polyfill');
+let all_rnodes = [...new Set(items.flatMap(item => Object.keys(item.rnodes)))];	// unique list of rnodes
+let max_val = 0;
+let max_total = 0;
+
+items.forEach(item => {
+	let total = 0;
+
+	Object.entries(item.rnodes).forEach(rnode => {
+
+// TODO: DISCARD
+// RANDOMIZE: mined, impeached (until mainnet)
+//rnode[1].mined = Math.floor(Math.random() * 50);
+//rnode[1].impeached = Math.floor(Math.random() * 15);
+
+		// flatten rnodes array down to item object
+		item[rnode[0]] = rnode[1].mined;
+
+		total += rnode[1].mined;
+
+		if (max_val < rnode[1].mined)
+			max_val = rnode[1].mined;
+	});
+
+	if (max_total < total)
+		max_total = total;
+
+	// make sure to fill rnodes in all items, even non-existing
+	all_rnodes.forEach(rnode => {
+		if (!Object.keys(item).includes(rnode))
+			item[rnode] = 0;
+	});
+
+	// flatten, remove rnodes property
+	delete item.rnodes;
+});
+
+let data = {data: items, columns: all_rnodes, max_val, max_total}
+//console.log(data);
+
+				redis.set(streamgraph.cache_key(unit, times, ts_start), data);
+				redis.expire(streamgraph.cache_key(unit, times, ts_start), CACHE_EXPIRE_FOREVER);
+
+				resolve(data);
+			});
+		}
+	}
+}
+
+module.exports = {user, streamgraph};

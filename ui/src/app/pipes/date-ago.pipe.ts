@@ -18,8 +18,8 @@ export class DateAgoPipe implements PipeTransform {
                 'week': 604800,
                 'day': 86400,
                 'hour': 3600,
-                'minute': 60,
-                'second': 1
+                'min': 60,
+                'sec': 1
             };
             let counter;
             for (const i in intervals) {

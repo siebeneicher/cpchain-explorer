@@ -87,10 +87,10 @@ async function update () {
 						option: await kpi.options('last_transactions_sum', 'month'),
 						data: await kpi.get('last_transactions_sum', 'month')
 					},
-					quarter: {
+/*					quarter: {
 						option: await kpi.options('last_transactions_sum', 'quarter'),
 						data: await kpi.get('last_transactions_sum', 'quarter')
-					},
+					},*/
 					year: {
 						option: await kpi.options('last_transactions_sum', 'year'),
 						data: await kpi.get('last_transactions_sum', 'year')
@@ -113,10 +113,10 @@ async function update () {
 						option: await kpi.options('last_rewards', 'month'),
 						data: await kpi.get('last_rewards', 'month')
 					},
-					quarter: {
+/*					quarter: {
 						option: await kpi.options('last_rewards', 'quarter'),
 						data: await kpi.get('last_rewards', 'quarter')
-					},
+					},*/
 					year: {
 						option: await kpi.options('last_rewards', 'year'),
 						data: await kpi.get('last_rewards', 'year')

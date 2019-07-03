@@ -15,13 +15,13 @@ module.exports = {options, get};
 const kpis = {
 	last_blocks: {
 		options: {
-			hour: { short: 'Minute', abbrev: 'm', full: 'Last Minute' },
+			minute: { short: 'Minute', abbrev: 'm', full: 'Last Minute' },
 			hour: { short: 'Hour', abbrev: 'h', full: 'Last Hour' },
 			day: { short: 'Day', abbrev: 'd', full: 'Last Day' },
 			//week: { short: 'Week', abbrev: 'w', full: 'Last Week' },
-			month: { short: '30 Days', abbrev: 'm', full: 'Last 30 Days' },
+			month: { short: '30 Days', abbrev: 'm', full: 'Last Month' },
 			//quarter: { short: 'Quarter', abbrev: 'q', full: 'Last Quarter (12 weeks)' },
-			year: { short: 'Year', abbrev: 'y', full: 'Last Year (365 days)' }
+			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
 			minute: async () => blocks.last('minute'),
@@ -38,27 +38,28 @@ const kpis = {
 			hour: { short: 'Hour', abbrev: 'h', full: 'Last Hour' },
 			day: { short: 'Day', abbrev: 'd', full: 'Last Day' },
 			week: { short: 'Week', abbrev: 'w', full: 'Last Week' },
-			month: { short: '30 Days', abbrev: 'm', full: 'Last 30 Days' },
-			quarter: { short: 'Quarter', abbrev: 'q', full: 'Last Quarter (12 weeks)' },
-			year: { short: 'Year', abbrev: 'y', full: 'Last Year (365 days)' }
+			month: { short: '30 Days', abbrev: 'm', full: 'Last Month' },
+			//quarter: { short: 'Quarter', abbrev: 'q', full: 'Last Quarter (12 weeks)' },
+			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
-			hour: async () => rewards.last_merged('minute', 60),
-			day: async () => rewards.last_merged('minute', 60*24),
-			week: async () => rewards.last_merged('minute', 60*24*7),
-			month: async () => rewards.last_merged('minute', 60*24*30),
-			quarter: async () => rewards.last_merged('day', 31+30+31),
-			year: async () => rewards.last_merged('day', 365),
+			hour: async (params) => rewards.last_merged('minute', 60, params.addr || null),
+			day: async (params) => rewards.last_merged('minute', 60*24, params.addr || null),
+			week: async (params) => rewards.last_merged('minute', 60*24*7, params.addr || null),
+			month: async (params) => rewards.last_merged('minute', 60*24*30, params.addr || null),
+			//quarter: async (addr = null) => rewards.last_merged('day', 31+30+31, params.addr || null),
+			year: async (params) => rewards.last_merged('day', 365, params.addr || null),
 		}
 	},
 	last_transactions_sum: {
 		options: {
+			minute: { short: 'Minute', abbrev: 'm', full: 'Last Minute' },
 			hour: { short: 'Hour', abbrev: 'h', full: 'Last Hour' },
 			day: { short: 'Day', abbrev: 'd', full: 'Last Day' },
 			week: { short: 'Week', abbrev: 'w', full: 'Last Week' },
-			month: { short: '30 Days', abbrev: 'm', full: 'Last 30 Days' },
-			quarter: { short: 'Quarter', abbrev: 'q', full: 'Last Quarter (12 weeks)' },
-			year: { short: 'Year', abbrev: 'y', full: 'Last Year (365 days)' }
+			month: { short: 'Month', abbrev: 'm', full: 'Last Month' },
+			//quarter: { short: 'Quarter', abbrev: 'q', full: 'Last Quarter' },
+			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
 			minute: async () => transactions.last_sum('minute', 1),
@@ -66,7 +67,7 @@ const kpis = {
 			day: async () => transactions.last_sum('minute', 60*24),
 			week: async () => transactions.last_sum('hour', 24*7),
 			month: async () => transactions.last_sum('hour', 24*30),
-			quarter: async () => transactions.last_sum('day', 31+30+31),
+			//quarter: async () => transactions.last_sum('day', 31+30+31),
 			year: async () => transactions.last_sum('day', 365),
 		}
 	}
@@ -82,26 +83,26 @@ async function options (key, unit = null) {
 async function get (key, unit, params = {}, forceUpdate = false) {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const cache_key = _cache_key(key, unit);
+			const cache_key = _cache_key(key, unit, params);
 
 			let data = await redis.get(cache_key);
 
 			if (!forceUpdate && data) {
-				console.log("Serving kpi (",key, unit,") from cache");
+				console.log("Serving kpi (",key,unit,params,") from cache");
 				resolve(data);
 			} else {
-				data = await kpis[key].get[unit]();
+				data = await kpis[key].get[unit](params);
 				redis.set(cache_key, data);
 				redis.expire(cache_key, CACHE_EXPIRE_FOREVER);
 				resolve(data);
 			}
 		} catch (err) {
-			console.error("kpi.get(",key, unit,") throws error: ",err);
+			console.error("kpi.get(",key,unit,params,") throws error: ",err);
 			reject();
 		}
 	});
 }
 
-function _cache_key (kpi_key, unit) {
-	return 'cpc-kpi_'+kpi_key+'_'+unit;
+function _cache_key (kpi_key, unit, params = {}) {
+	return 'cpc-kpi_'+kpi_key+'_'+unit+'_'+JSON.stringify(params);
 }

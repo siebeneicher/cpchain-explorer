@@ -33,13 +33,13 @@ async function last_merged (unit, times, rnode_addr = null) {
 		merged.total_balances = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.balance, 0);
 		merged.total_mined = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.mined, 0);
 		merged.total_rewards = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.rewards, 0);
-		merged.total_roi = (merged.total_rewards / merged.total_balances * 100).toFixed(3);
-		merged.total_roi_year = (time_multiply * merged.total_roi).toFixed(3);
+		merged.total_roi = (merged.total_rewards / merged.total_balances * 100).toFixed(2);
+		merged.total_roi_year = (time_multiply * merged.total_roi).toFixed(2);
 
 		merged.avg_rewards = merged.total_rewards / merged.total_rnodes;
 		merged.avg_balance = merged.total_balances / merged.total_rnodes;
 		merged.avg_roi = merged.avg_rewards / merged.avg_balance * 100;
-		merged.avg_roi_year = (time_multiply * merged.avg_roi).toFixed(3);
+		merged.avg_roi_year = (time_multiply * merged.avg_roi).toFixed(2);
 	} catch (err) {
 		
 	}
@@ -86,11 +86,11 @@ async function last (unit, times, rnode_addr = null) {
 				} }
 			])
 			.toArray((err, result) => {
-				console.log("rewards.last(",unit, times,")", now() - t_start);
+				console.log("rewards.last(",unit, times,rnode_addr,")", now() - t_start);
 				//console.log(result);
 
 				if (err || result.length == 0) {
-					console.error(unit+".dashboard.rewards error:", err);
+					console.error("rewards.last(",unit, times,rnode_addr,") error:", err);
 					resolve(null);
 				} else {
 					// calculate ROI
