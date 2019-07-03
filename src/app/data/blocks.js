@@ -3,6 +3,7 @@ const config = require('../config');
 const now = require('performance-now');
 const moment = require('moment');
 const {convert_ts, clone, unique_array, last_unit_ts, unit_ts} = require('../helper');
+const {web3} = require('../../cpc-fusion/api');
 
 module.exports = {last, byUnit};
 
@@ -65,6 +66,9 @@ async function last (unit = null, rnode_addr = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
 
+		// sanitize given addr
+		if (rnode_addr) rnode_addr = web3.utils.toChecksumAddress(rnode_addr);
+
 		const project = {_id:0, ts:1, mined: '$blocks_mined', impeached: '$blocks_impeached'};
 		if (rnode_addr) project.rnodes = 1;
 
@@ -75,7 +79,7 @@ async function last (unit = null, rnode_addr = null) {
 				{ $project: project },
 			])
 			.toArray((err, result) => {
-				console.log("blocks.last(",unit, rnode_addr,")", now() - t_start);
+				console.log("blocks.last(", unit, rnode_addr, ")", now() - t_start);
 
 				if (err || result.length == 0) {
 					console.error("overview data, mongo_db_aggregation_by."+unit+".find:", err, result);

@@ -2,6 +2,7 @@ const mongo = require('../mongo');
 const config = require('../config');
 const now = require('performance-now');
 const moment = require('moment');
+const {web3} = require('../../cpc-fusion/api');
 
 module.exports = {getByUnit, latest};
 
@@ -9,8 +10,13 @@ module.exports = {getByUnit, latest};
 async function latest (addr) {
 	const t_start = now();
 
+	// sanitize given addr
+	addr = web3.utils.toChecksumAddress(addr);
+
 	return new Promise((resolve, reject) => {
-		mongo.db(config.mongo.db.sync).collection('balances').find({address: addr}).toArray((err, result) => {
+		mongo.db(config.mongo.db.sync).collection('balances').find({address: addr}).project({history: 0}).toArray((err, result) => {
+			//console.log('balances: ', err, result);
+
 			if (!result || result.length == 0) {
 				resolve(null);
 				return;

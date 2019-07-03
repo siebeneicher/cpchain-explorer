@@ -1,8 +1,15 @@
 const def = require('./default');
-const production = require('./production');
+const objectAssignDeep = require('object-assign-deep');
 
-const env = process.env.NODE_ENV || 'development';
+let env = process.env.NODE_ENV || 'development';
 
-console.log('ENV:',env);
+if (!['production','development','development-prod-db'].includes(env))
+	env = 'production';
 
-module.exports = Object.assign(def, env == "production" ? production : {});
+console.log('ENV:', env);
+
+const merged_conf = objectAssignDeep(def, require('./'+env));
+
+//console.log(merged_conf);
+
+module.exports = merged_conf;

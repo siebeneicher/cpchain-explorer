@@ -1,8 +1,7 @@
-const {dashboard, aggregate, updateAll, blocks, rnodes} = require('./app/middleware');
-const {rewards} = require('./app/data');
+const {dashboard, aggregate, updateAll, blocks, rnodes, kpi} = require('./app/middleware');
+const {rewards, balances} = require('./app/data');
 const {python_exe} = require('./app/helper');
 const {versions} = require('./cpc-fusion/api');
-const {kpi} = require('./app/middleware');
 
 setTimeout(async () => {
 	//await aggregate.reset();
@@ -23,10 +22,13 @@ setTimeout(async () => {
 	//let r = await rewards.last_merged('day', 1);
 	//console.log(r);
 
-	await rnodes.streamgraph.update('hour', 24);
+	//await rnodes.streamgraph.update('hour', 24);
 	//console.log(await blocks.squared.update('day', new Date().getTime()));
 
-	//await rnodes.user.update('0x45F40E0C7135D86D92a88443a160045a2897436E');
+	let addr = '0x501f6cf7b2437671d770998e3b785474878fef1d';
+	//await balances.latest(addr);
+	//await blocks.latest('minute', addr);
+	await rnodes.user.update(addr);
 	//await rnodes.user.cache_flush_all();
 
 	//await dashboard.update();

@@ -24,13 +24,13 @@ const kpis = {
 			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
-			minute: async () => blocks.last('minute'),
-			hour: async () => blocks.last('hour'),
-			day: async () => blocks.last('day'),
-//			week: async () => blocks.last('minute'),
-			month: async () => blocks.last('month'),
-			//quarter: async () => blocks.last('day'),
-			year: async () => blocks.last('year'),
+			minute: async (params = {}) => blocks.last('minute', params.addr || null),
+			hour: async (params = {}) => blocks.last('hour', params.addr || null),
+			day: async (params = {}) => blocks.last('day', params.addr || null),
+//			week: async (params = {}) => blocks.last('minute', params.addr || null),
+			month: async (params = {}) => blocks.last('month', params.addr || null),
+			//quarter: async (params = {}) => blocks.last('day', params.addr || null),
+			year: async (params = {}) => blocks.last('year', params.addr || null),
 		}
 	},
 	last_rewards: {
@@ -47,7 +47,7 @@ const kpis = {
 			day: async (params) => rewards.last_merged('minute', 60*24, params.addr || null),
 			week: async (params) => rewards.last_merged('minute', 60*24*7, params.addr || null),
 			month: async (params) => rewards.last_merged('minute', 60*24*30, params.addr || null),
-			//quarter: async (addr = null) => rewards.last_merged('day', 31+30+31, params.addr || null),
+			//quarter: async (params) => rewards.last_merged('day', 31+30+31, params.addr || null),
 			year: async (params) => rewards.last_merged('day', 365, params.addr || null),
 		}
 	},

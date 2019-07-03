@@ -45,10 +45,26 @@ const user = {
 					last_rpt: await rnodes.last_rpt(addr),		// incl. rank
 					last_balance: await balances.latest(addr),
 					last_blocks: {
-						year: await blocks.last('year', addr),
-						month: await blocks.last('month', addr),
-						day: await blocks.last('day', addr),
-						hour: await blocks.last('hour', addr),
+						minute: {
+							option: await kpi.options('last_blocks', 'minute'),
+							data: await kpi.get('last_blocks', 'minute', {addr})
+						},
+						hour: {
+							option: await kpi.options('last_blocks', 'hour'),
+							data: await kpi.get('last_blocks', 'hour', {addr})
+						},
+						day: {
+							option: await kpi.options('last_blocks', 'day'),
+							data: await kpi.get('last_blocks', 'day', {addr})
+						},
+						month: {
+							option: await kpi.options('last_blocks', 'month'),
+							data: await kpi.get('last_blocks', 'month', {addr})
+						},
+						year: {
+							option: await kpi.options('last_blocks', 'year'),
+							data: await kpi.get('last_blocks', 'year', {addr})
+						},
 					},
 					last_rewards: {
 						hour: {

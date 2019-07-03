@@ -3,11 +3,14 @@ const config = require('../config');
 const {convert_ts, last_unit_ts} = require('../helper');
 const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
-
+const {web3} = require('../../cpc-fusion/api');
 
 module.exports = {last, last_rpt, type, items}
 
 async function type (addr) {
+	// sanitize given addr
+	addr = web3.utils.toChecksumAddress(addr);
+
 	return new Promise(async function (resolve, reject) {
 		mongo.db(config.mongo.db.sync).collection('rnodes')
 			.find()
@@ -28,6 +31,9 @@ resolve("NOT-IMPLEMENTED");
 }
 
 async function last_rpt (addr) {
+	// sanitize given addr
+	addr = web3.utils.toChecksumAddress(addr);
+
 	return new Promise(async function (resolve, reject) {
 		mongo.db(config.mongo.db.sync).collection('rnodes')
 			.aggregate(
@@ -38,10 +44,10 @@ async function last_rpt (addr) {
 			.toArray((err, result) => {
 				if (result.length == 0) {
 					console.log("rnodes.last_rpt empty");
-					resolve(null);
+					resolve({ts: null, rpt: null, rank: null});
 				} else if (err) {
 					console.error("rnodes.last_rpt error: ", err);
-					resolve(null);
+					resolve({ts: null, rpt: null, rank: null});
 				} else {
 					// sort, for ranking
 					result[0].rnodes.sort(function(a, b) { return a[1] - b[1] });

@@ -3,10 +3,15 @@ const config = require('../config');
 const {convert_ts, last_unit_ts} = require('../helper');
 const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
+const {web3} = require('../../cpc-fusion/api');
 
 module.exports = {last, last_merged};
 
 async function last_merged (unit, times, rnode_addr = null) {
+
+	// sanitize given addr
+	if (rnode_addr) rnode_addr = web3.utils.toChecksumAddress(rnode_addr);
+
 	const merged = {
 		rnodes: await last (unit, times, rnode_addr),
 		total_rnodes: 0,
@@ -51,6 +56,9 @@ async function last (unit, times, rnode_addr = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
 		const last_ts = last_unit_ts(unit, times);
+
+		// sanitize given addr
+		if (rnode_addr) rnode_addr = web3.utils.toChecksumAddress(rnode_addr);
 
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
 			.aggregate([

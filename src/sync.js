@@ -264,7 +264,7 @@ async function syncTransaction (txn) {
 		const t_start = now();
 		const trx = await transaction(txn);
 		sanitizeTransaction(trx);
-		await mongo_db_transactions.update({hash: txn}, trx, { upsert: true });			// insert transaction into mongo, if not yet done so
+		await mongo_db_transactions.updateOne({hash: txn}, {$set: trx}, { upsert: true });			// insert transaction into mongo, if not yet done so
 		console.log("added transaction:", txn, "took:", now()-t_start);
 	} catch (err) {
 		console.error(err);

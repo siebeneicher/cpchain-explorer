@@ -4,9 +4,9 @@
 <div class="container">
   <div class="columns is-size-2-mobile is-size-2-desktop">
     <div class="column has-text-centered has-text-weight-light">{{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}} RNodes</div>
-    <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_rewards','total_roi_year','dashboard.top-teaser')}}% ROI / Y</div>
-    <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_transactions_sum','count','dashboard.top-teaser')}} Trx's / H</div>
-    <div class="column has-text-centered">Growth X</div>
+    <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_rewards','total_roi','dashboard.top-teaser')}}% ROI / Y</div>
+    <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_transactions_sum','count','dashboard.top-teaser')}} Trx's / D</div>
+    <div class="column has-text-centered">Growth TODO</div>
   </div>
 </div>
 </section>
@@ -81,13 +81,13 @@
             </div>
             <div class="values-container is-size-5">
               <div class="item onhover">
-                <span class="onhover-hide">{{kpi.data('dashboard','last_rewards','total_roi_year','dashboard.rewards')}}% / {{kpi.selectedOption('dashboard','last_rewards','total_roi_year','dashboard.rewards').full}}</span>
+                <span class="onhover-hide">{{kpi.data('dashboard','last_rewards','total_roi','dashboard.rewards')}}% / {{kpi.selectedOption('dashboard','last_rewards','total_roi','dashboard.rewards').full}}</span>
 
                 <div class="buttons has-addons onhover-show">
                   <a *ngFor="let option of kpi.options('dashboard','last_rewards')"
-                    class="button is-small {{kpi.unitSelected('dashboard','last_rewards', 'total_roi_year', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    class="button is-small {{kpi.unitSelected('dashboard','last_rewards', 'total_roi', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
                     [attr.data-tooltip]="option.full"
-                    (click)="kpi.selectUnit('dashboard','last_rewards', 'total_roi_year', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                    (click)="kpi.selectUnit('dashboard','last_rewards', 'total_roi', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
                 </div>
               </div>
               <div class="item">TODO</div>
@@ -152,17 +152,17 @@
                 </div> 
               </div>
               <div class="item onhover">
-                 <span class="onhover-hide">TODO <!-- {{kpi.data('myrnode','last_rewards','total_impeached','dashboard.myrnode')}} CPC / {{kpi.selectedOption('myrnode','last_rewards', 'total_impeached', 'dashboard.myrnode').full}} --></span>
+                 <span class="onhover-hide">{{kpi.data('myrnode','last_blocks','impeached','dashboard.myrnode')}} CPC / {{kpi.selectedOption('myrnode','last_blocks', 'impeached', 'dashboard.myrnode').full}}</span>
 
                 <div class="buttons has-addons onhover-show">
-                  <a *ngFor="let option of kpi.options('myrnode','last_rewards')"
-                    class="button is-small {{kpi.unitSelected('myrnode','last_rewards', 'total_impeached', 'dashboard.myrnode') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                  <a *ngFor="let option of kpi.options('myrnode','last_blocks')"
+                    class="button is-small {{kpi.unitSelected('myrnode','last_blocks', 'impeached', 'dashboard.myrnode') == option.unit ? 'is-info is-selected' : ''}} tooltip"
                     [attr.data-tooltip]="option.full"
-                    (click)="kpi.selectUnit('myrnode','last_rewards', 'total_impeached', 'dashboard.myrnode', option.unit)">{{option.abbrev}}</a>
+                    (click)="kpi.selectUnit('myrnode','last_blocks', 'impeached', 'dashboard.myrnode', option.unit)">{{option.abbrev}}</a>
                 </div> 
               </div>
               <div class="item onhover">
-                 <span class="onhover-hide">{{kpi.data('myrnode','last_rewards','total_rewards','dashboard.myrnode') | number : '1.2-2'}} CPC / {{kpi.selectedOption('myrnode','last_rewards', 'total_rewards', 'dashboard.myrnode').full}}</span>
+                 <span class="onhover-hide">{{kpi.data('myrnode','last_rewards','total_rewards','dashboard.myrnode') | number : '1.2-2'}} CPC / {{kpi.selectedOption('myrnode','last_rewards', 'total_rewards', 'dashboard.myrnode').abbrev}}</span>
 
                 <div class="buttons has-addons onhover-show">
                   <a *ngFor="let option of kpi.options('myrnode','last_rewards')"
@@ -182,20 +182,16 @@
                 </div> 
               </div>
               <div class="item">
-                <span *ngIf="kpi.datasets.myrnode.data.last_rpt">
-                  {{kpi.datasets.myrnode.data.last_rpt.rpt}} (rank {{kpi.datasets.myrnode.data.last_rpt.rank}} of {{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}})
-                </span>TODO
+                {{kpi.datasets.myrnode.data.last_rpt.rpt}} (rank {{kpi.datasets.myrnode.data.last_rpt.rank}} of {{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}})
               </div>
               <div class="item">
-                <span *ngIf="kpi.datasets.myrnode.data.last_balance">
-                  {{kpi.datasets.myrnode.data.last_balance}} (rank ?)
-                </span>TODO
+                {{kpi.datasets.myrnode.data.last_balance | number : '1.2-2'}} (rank ?)
               </div>
               <div class="item">
                 TODO
               </div>
               <div class="item">
-                TODO
+                CPC-Team
               </div>
             </div>
           </div>
