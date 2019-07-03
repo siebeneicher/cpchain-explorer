@@ -7,7 +7,7 @@ module.exports = {
     exec_mode: "cluster",
     max_memory_restart: "500M",
     cwd: './',
-    watch: true,
+    watch: false,
     ignore_watch: ['node_modules','logs','ui-build'],
     watch_options: {
         "followSymlinks": false
@@ -15,9 +15,6 @@ module.exports = {
     error_file: "./logs/sync.err.log",
     //out_file: "./logs/sync.verbose.log",
     env: {
-      NODE_ENV: "development",
-    },
-    env_production: {
       NODE_ENV: "production",
     }
   }, {
@@ -28,7 +25,7 @@ module.exports = {
     exec_mode: "cluster",
     max_memory_restart: "1000M",
     cwd: './',
-    watch: true,
+    watch: false,
     ignore_watch: ['node_modules','logs','ui-build'],
     watch_options: {
         "followSymlinks": false
@@ -36,9 +33,6 @@ module.exports = {
     error_file: "./logs/aggregate.err.log",
     //out_file: "./logs/aggregate.verbose.log",
     env: {
-      NODE_ENV: "development",
-    },
-    env_production: {
       NODE_ENV: "production",
     }
   }, {
@@ -49,7 +43,7 @@ module.exports = {
     exec_mode: "cluster",
     max_memory_restart: "300M",
     cwd: './',
-    watch: true,
+    watch: false,
     ignore_watch: ['node_modules','logs','ui-build'],
     watch_options: {
         "followSymlinks": false
@@ -57,9 +51,6 @@ module.exports = {
     error_file: "./logs/worker.err.log",
     //out_file: "./logs/worker.verbose.log",
     env: {
-      NODE_ENV: "development",
-    },
-    env_production: {
       NODE_ENV: "production",
     }
   }]

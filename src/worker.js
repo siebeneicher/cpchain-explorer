@@ -31,7 +31,7 @@ async function init () {
 	return new Promise((resolve, reject) => {
 		setTimeout(() => {
 			http.createServer(app).listen(config.server.port, () => {
-				console.log('App listening on port:', config.server.port)
+				console.log('Web listening on port:', config.server.port)
 				resolve();
 			});
 		}, 2500);

@@ -26,7 +26,7 @@ export class DashboardComponent implements OnInit {
 		private dateAgo: DateAgoPipe,
 		private convertTs: ConvertTsPipe,
 		private cookieService: CookieService,
-		private kpi: KpiService
+		public kpi: KpiService
 	) {
 		setInterval(() => {
 			this.tick();
@@ -34,6 +34,9 @@ export class DashboardComponent implements OnInit {
 	}
 
 	ngOnInit () {
+// FOR TESTING ONLY
+this.cookieService.set(this.COOKIE_USER_RNODE, '0x501f6cf7b2437671d770998e3b785474878fef1d');
+
 		this.kpi.require('dashboard');
 		if (this.userRNode())
 			this.kpi.require('myrnode', {addr: this.userRNode()});
