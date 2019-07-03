@@ -1,7 +1,7 @@
 const def = require('./default');
 const objectAssignDeep = require('object-assign-deep');
 
-let env = process.env.NODE_ENV || 'development';
+let env = process.env.NODE_ENV || 'production';
 
 if (!['production','development','development-prod-db'].includes(env))
 	env = 'production';
