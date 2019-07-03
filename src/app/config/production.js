@@ -2,7 +2,7 @@
 // production, only define what to replace from default.js
 module.exports = {
 	server: {
-		host: 'localhost',
+		host: 'af87f51.online-server.cloud',
 		port: 80
 	},
 	mongo: {
