@@ -107,23 +107,23 @@ const user = {
 const streamgraph = {
 	update_promise_chain: Promise.resolve(),
 
-	cache_key: function (unit, times, ts_start) {
-		return 'CPC-DATA-RNODES-STREAMGRAPH_'+unit+'_'+times+'_'+ts_start;
+	cache_key: function (unit, times, ts_start, options = {}) {
+		return 'CPC-DATA-RNODES-STREAMGRAPH_'+unit+'_'+times+'_'+ts_start+'_'+JSON.stringify(options);
 	},
 	cache_flush_all: async function () {
 		return redis.delPrefix('CPC-DATA-RNODES-STREAMGRAPH_');
 	},
-	get: async function (unit, times, ts_start = 'latest', forceUpdate = false) {
-		let data = await redis.get(streamgraph.cache_key(unit, times, ts_start));
+	get: async function (unit, times, ts_start = 'latest', options = {}, forceUpdate = false) {
+		let data = await redis.get(streamgraph.cache_key(unit, times, ts_start, options));
 
 		if (!forceUpdate && data) console.log("Serving rnodes.streamgraph from redis");
 		if (forceUpdate || !data)
-			data = await streamgraph.update(unit, times, ts_start);
+			data = await streamgraph.update(unit, times, ts_start, options);
 
 		return data;
 	},
 
-	update: async function (unit, times, ts_start = 'latest') {
+	update: async function (unit, times, ts_start = 'latest', options = {}) {
 
 		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
 
@@ -132,6 +132,7 @@ const streamgraph = {
 
 		async function _update () {
 			return new Promise(async function (resolve, reject) {
+				const t_start = now();
 
 				let items = await rnodes.items(unit, times, ts);
 
@@ -141,6 +142,7 @@ const streamgraph = {
 // TODO: discard from node.js 11+
 require('array-flat-polyfill');
 let all_rnodes = [...new Set(items.flatMap(item => Object.keys(item.rnodes)))];	// unique list of rnodes
+let rnodes_sum = {};
 let max_val = 0;
 let max_total = 0;
 
@@ -149,15 +151,15 @@ items.forEach(item => {
 
 	Object.entries(item.rnodes).forEach(rnode => {
 
-// TODO: DISCARD
-// RANDOMIZE: mined, impeached (until mainnet)
-//rnode[1].mined = Math.floor(Math.random() * 50);
-//rnode[1].impeached = Math.floor(Math.random() * 15);
-
 		// flatten rnodes array down to item object
 		item[rnode[0]] = rnode[1].mined;
 
+		// total per unit
 		total += rnode[1].mined;
+
+		// sum per rnode
+		if (!rnodes_sum[rnode[0]]) rnodes_sum[rnode[0]] = 0;
+		rnodes_sum[rnode[0]] += rnode[1].mined;
 
 		if (max_val < rnode[1].mined)
 			max_val = rnode[1].mined;
@@ -176,11 +178,13 @@ items.forEach(item => {
 	delete item.rnodes;
 });
 
-let data = {data: items, columns: all_rnodes, max_val, max_total}
-//console.log(data);
+let data = {data: items, columns: all_rnodes, max_val, max_total, rnodes_sum};
 
-				redis.set(streamgraph.cache_key(unit, times, ts_start), data);
-				redis.expire(streamgraph.cache_key(unit, times, ts_start), CACHE_EXPIRE_FOREVER);
+
+				redis.set(streamgraph.cache_key(unit, times, ts_start, options), data);
+				redis.expire(streamgraph.cache_key(unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);
+
+				console.log('rnodes.streamgraph.update took', now()-t_start);
 
 				resolve(data);
 			});

@@ -20,10 +20,15 @@ $teal-blue: #316e92;
 //@import url('https://fonts.googleapis.com/css?family=Nunito:400,700');
 @import url('https://fonts.googleapis.com/css?family=Merriweather:400,700');
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700');
+
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono:300');
+@import url('https://fonts.googleapis.com/css?family=Nanum+Gothic+Coding:400');
+
 $family-sans-serif: "Open Sans", sans-serif;
 $family-serif: "Merriweather", serif;
 $family-primary: $family-sans-serif;
 $family-secondary: $family-serif;
+$family-mono: "Nanum Gothic Coding";
 $body-weight: $weight-light;
 $title-weight: $weight-light;
 $subtitle-weight: $weight-medium;
@@ -50,6 +55,6 @@ $body-background-color: $alice-blue;
 
 // CONTENT
 .content {line-height: 1.65em;}
-
+.number-mono {font-family: $family-mono; font-weight: 400}
 
 @import 'bulma';
