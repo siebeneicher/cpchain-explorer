@@ -1,8 +1,8 @@
 <div *ngIf="blocksByHour.length">
 	<h1 class="title">
 		Blocks of {{this.ts | date:'dd-MM-yyyy'}}
-		<a class="button is-warning {{loading ? 'is-loading' : ''}}" (click)="dateBackward()">&laquo;</a>&nbsp;
-		<a class="button is-warning {{loading ? 'is-loading' : ''}}" (click)="dateForward()">&raquo;</a>
+		<a class="button is-warning {{loading ? 'is-loading' : ''}}" (click)="dateBackward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
+		<a class="button is-warning {{loading ? 'is-loading' : ''}}" (click)="dateForward()"><i class="typcn typcn-chevron-right"></i></a>
 	</h1>
 
 	<div class="blocks-by-hour" (mouseout)="mouseout()">

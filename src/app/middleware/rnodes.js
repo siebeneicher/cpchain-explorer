@@ -125,6 +125,8 @@ const streamgraph = {
 
 	update: async function (unit, times, ts_start = 'latest', options = {}) {
 
+		const target = options.target || 'mined';
+
 		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
 
 		// avoid parallel calls, instead chain them
@@ -151,18 +153,20 @@ items.forEach(item => {
 
 	Object.entries(item.rnodes).forEach(rnode => {
 
+		const val = rnode[1][target];
+
 		// flatten rnodes array down to item object
-		item[rnode[0]] = rnode[1].mined;
+		item[rnode[0]] = val;
 
 		// total per unit
-		total += rnode[1].mined;
+		total += val;
 
 		// sum per rnode
 		if (!rnodes_sum[rnode[0]]) rnodes_sum[rnode[0]] = 0;
-		rnodes_sum[rnode[0]] += rnode[1].mined;
+		rnodes_sum[rnode[0]] += val;
 
-		if (max_val < rnode[1].mined)
-			max_val = rnode[1].mined;
+		if (max_val < val)
+			max_val = val;
 	});
 
 	if (max_total < total)

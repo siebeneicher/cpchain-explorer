@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DateAgoPipe } from '../pipes/date-ago.pipe';
 import { ConvertTsPipe } from '../pipes/convert-ts.pipe';
@@ -18,6 +19,8 @@ export class DashboardComponent implements OnInit {
 	dashboard_data:any = null;
 	latestRelease:any = {};
 
+	user_rnode_addr:string;
+
 	COOKIE_USER_RNODE:string = "cpc-user-rnode-favorite";		// todo: env.
 
 	constructor (
@@ -34,12 +37,9 @@ export class DashboardComponent implements OnInit {
 	}
 
 	ngOnInit () {
-// FOR TESTING ONLY
-this.cookieService.set(this.COOKIE_USER_RNODE, '0x501f6cf7b2437671d770998e3b785474878fef1d');
-
 		this.kpi.require('dashboard');
-		if (this.userRNode())
-			this.kpi.require('myrnode', {addr: this.userRNode()});
+
+		this.updateUserRNode(this.cookieService.get(this.COOKIE_USER_RNODE));
 
 		this.loadReleases();
 		setInterval(() => {
@@ -51,12 +51,31 @@ this.cookieService.set(this.COOKIE_USER_RNODE, '0x501f6cf7b2437671d770998e3b7854
 		this.kpi.unrequire('myrnode');
 	}
 
-	tick () {
-		this.ref.markForCheck();
+	resetUserRNode () {
+		this.updateUserRNode();
 	}
 
-	userRNode () {
-		return this.cookieService.get(this.COOKIE_USER_RNODE);
+	addUserRNode () {
+		let ele = document.querySelector('#user_rnode_addr_input') as HTMLInputElement;
+		this.updateUserRNode(ele ? ele.value : null);
+	}
+
+	updateUserRNode (newAddr = null) {
+		// TOOD: check addr
+
+		if (!newAddr) {
+			this.user_rnode_addr = null;
+			this.cookieService.delete(this.COOKIE_USER_RNODE);
+			this.kpi.unrequire('myrnode');
+		} else {
+			this.user_rnode_addr = newAddr;
+			this.cookieService.set(this.COOKIE_USER_RNODE, newAddr);
+			this.kpi.require('myrnode', {addr: this.user_rnode_addr});
+		}
+	}
+
+	tick () {
+		this.ref.markForCheck();
 	}
 
 	ago (ts) {
@@ -69,5 +88,4 @@ this.cookieService.set(this.COOKIE_USER_RNODE, '0x501f6cf7b2437671d770998e3b7854
 			this.latestRelease = res[0];
 		});
 	}
-
 }

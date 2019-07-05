@@ -124,11 +124,28 @@
     </div>
   </div>
   <div class="tile is-parent">
-    <article class="tile is-child notification is-primary" x-ngIf="kpi.isLoaded('myrnode')">
+    <article class="tile is-child notification is-primary">
       <div class="content">
-        <p class="title is-size-3">My RNode</p>
-        <p class="subtitle is-size-4">{{userRNode() | slice:0:22}}...</p>
-        <div class="content">
+        <p class="title is-size-3">My RNode Stats</p>
+        <p class="subtitle is-size-4" *ngIf="user_rnode_addr" >
+          <span class="">{{user_rnode_addr | slice:0:22}}...</span>
+          &nbsp;
+          <span (click)="resetUserRNode()" class="is-size-3 typcn typcn-backspace is-clickable"></span>
+        </p>
+        <div class="subtitle is-size-4" *ngIf="!user_rnode_addr" >
+          <div class="field has-addons">
+            <p class="control has-icons-left">
+              <input class="input" type="text" placeholder="Your address..." id="user_rnode_addr_input">
+              <span class="icon is-small is-left">
+                <i class="typcn typcn-database"></i>
+              </span>
+            </p>
+            <div class="control">
+              <a class="button is-info" (click)="addUserRNode()">Register</a>
+            </div>
+          </div>
+        </div>
+        <div class="content" *ngIf="user_rnode_addr && kpi.isLoaded('myrnode')">
            <div class="keys-values-container is-size-5">
             <div class="keys-container">
               <div class="item">Blocks sealed</div>
@@ -143,7 +160,7 @@
             <div class="values-container is-size-5">
               <div class="item onhover">
                 <span class="onhover-hide">
-                  <span class="number-mono">{{kpi.data('myrnode','last_rewards','total_mined','dashboard.myrnode')}} CPC</span> / {{kpi.selectedOption('myrnode','last_rewards', 'total_mined', 'dashboard.myrnode').full}}
+                  <span class="number-mono">{{kpi.data('myrnode','last_rewards','total_mined','dashboard.myrnode')}}</span> / {{kpi.selectedOption('myrnode','last_rewards', 'total_mined', 'dashboard.myrnode').full}}
                 </span>
 
                 <div class="buttons has-addons onhover-show">
