@@ -1,0 +1,14 @@
+#trx-stream {
+
+}
+
+.hover-tooltip {
+	position: absolute;
+	background-color: white;
+	padding: 5px 10px;
+	border-radius: 2px;
+
+	&.hide {
+		visibility: hidden;
+	}
+}
