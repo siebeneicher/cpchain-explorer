@@ -141,48 +141,48 @@ const streamgraph = {
 				if (!items || !items.length)
 					resolve(null);
 
-// TODO: discard from node.js 11+
-require('array-flat-polyfill');
-let all_rnodes = [...new Set(items.flatMap(item => Object.keys(item.rnodes)))];	// unique list of rnodes
-let rnodes_sum = {};
-let max_val = 0;
-let max_total = 0;
+				// TODO: discard from node.js 11+
+				require('array-flat-polyfill');
+				let all_rnodes = [...new Set(items.flatMap(item => Object.keys(item.rnodes)))];	// unique list of rnodes
+				let rnodes_sum = {};
+				let max_val = 0;
+				let max_total = 0;
 
-items.forEach(item => {
-	let total = 0;
+				items.forEach(item => {
+					let total = 0;
 
-	Object.entries(item.rnodes).forEach(rnode => {
+					Object.entries(item.rnodes).forEach(rnode => {
 
-		const val = rnode[1][target];
+						const val = rnode[1][target];
 
-		// flatten rnodes array down to item object
-		item[rnode[0]] = val;
+						// flatten rnodes array down to item object
+						item[rnode[0]] = val;
 
-		// total per unit
-		total += val;
+						// total per unit
+						total += val;
 
-		// sum per rnode
-		if (!rnodes_sum[rnode[0]]) rnodes_sum[rnode[0]] = 0;
-		rnodes_sum[rnode[0]] += val;
+						// sum per rnode
+						if (!rnodes_sum[rnode[0]]) rnodes_sum[rnode[0]] = 0;
+						rnodes_sum[rnode[0]] += val;
 
-		if (max_val < val)
-			max_val = val;
-	});
+						if (max_val < val)
+							max_val = val;
+					});
 
-	if (max_total < total)
-		max_total = total;
+					if (max_total < total)
+						max_total = total;
 
-	// make sure to fill rnodes in all items, even non-existing
-	all_rnodes.forEach(rnode => {
-		if (!Object.keys(item).includes(rnode))
-			item[rnode] = 0;
-	});
+					// make sure to fill rnodes in all items, even non-existing
+					all_rnodes.forEach(rnode => {
+						if (!Object.keys(item).includes(rnode))
+							item[rnode] = 0;
+					});
 
-	// flatten, remove rnodes property
-	delete item.rnodes;
-});
+					// flatten, remove rnodes property
+					delete item.rnodes;
+				});
 
-let data = {data: items, columns: all_rnodes, max_val, max_total, rnodes_sum};
+				let data = {data: items, columns: all_rnodes, max_val, max_total, rnodes_sum};
 
 
 				redis.set(streamgraph.cache_key(unit, times, ts_start, options), data);

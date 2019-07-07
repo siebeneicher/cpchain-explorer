@@ -178,7 +178,10 @@ async function aggregate_unit (unit, ts, chunk) {
 			blocks_impeached: 0,
 			blocks_mined_by_node: {},
 			transactions_count: 0,
-			transactions_volume: 0,		// TODO
+			transactions_volume: 0,
+			transactions_fee: 0,
+			transactions_sender: {},
+			transactions_receiver: {},
 			rnodes: {},
 			ts,
 			_incomplete: false,
@@ -244,12 +247,22 @@ async function aggregate_unit (unit, ts, chunk) {
 			// transactions count
 			aggregate.transactions_count += b.transactions.length;
 
-			// transactions volume
+			// transactions volume, fee
 			try {
-				aggregate.transactions_volume = await transactionsVolume(b.transactions);
+				const {volume: trx_volume, fee: trx_fee} = await transactionsVolumeFee(b.transactions);
+				debugger;
+				aggregate.transactions_volume += trx_volume;
+				aggregate.transactions_fee += trx_fee;
 			} catch (err) {
 				console.error(err);
-				aggregate.transactions_volume = null;		// error
+				aggregate._incomplete = true;
+			}
+
+			// transactions unique sender/receiver count
+			try {
+				await mergeTransactionsSenderReceiver(b.transactions, aggregate);
+			} catch (err) {
+				console.error(err);
 				aggregate._incomplete = true;
 			}
 
@@ -393,29 +406,86 @@ async function getAggregatedUnitByTime (from, to, unit) {
 	});
 }
 
-async function transactionsVolume (transactions) {
+async function transactionsVolumeFee (transactions) {
 	const t_start = now();
 
 	if (!(transactions instanceof Array))
 		transactions = [transactions];
 
 	if (transactions.length == 0)
-		return Promise.resolve(0);
+		return Promise.resolve({volume: 0, fee: 0});
 
 	const collection = mongo.db(config.mongo.db.sync).collection('transactions');
 
-	console.log("calculating transactions volume of", transactions.length, "transactions");
+	console.log("calculating volume of", transactions.length, "transactions");
 
-	collection.aggregate(
-		{ $match: { hash: transactions, value: { $gt: 0 } } },
-		{ $group: { _id: null, sum: { $sum: "$value" } } },
-	).toArray().then((value, err) => {
-		console.log("sum volume of", transactions.length, "transactions, took", now()-t_start);
-		if (err) throw err;
-		if (value === null) throw 'getTransaction('+txn+') unknown error: empty err and null value';
-		if (value instanceof Array && value.length == 0) return 0;
-		return value / cpc_digits;
+	return new Promise ((resolve, reject) => {
+		collection.aggregate([
+			{ $match: { hash: {$in: transactions}, value: { $gt: 0 } } },
+			{ $project: { _id:1, value: { $divide: [ "$value", config.cpc.unit_convert ] }, fee: { $divide: [ { $multiply: [ "$gas", "$gasPrice" ] }, config.cpc.unit_convert ] } } },
+			{ $group: { _id: null, volume: { $sum: "$value" }, fee: { $sum: "$fee" } } },
+		]).toArray((err, value) => {
+			console.log("sum volume of", transactions.length, "transactions, took", now()-t_start);
+
+			if (err) throw err;
+			if (value === null) throw 'getTransaction('+txn+') unknown error: empty err and null value';
+			if (!(value instanceof Array) || value.length == 0) return resolve({volume: 0, fee: 0});
+			resolve({volume: value[0].volume, fee: value[0].fee});
+		});
 	});
+}
+
+async function mergeTransactionsSenderReceiver (transactions, aggregate) {
+	const t_start = now();
+
+	if (!(transactions instanceof Array))
+		transactions = [transactions];
+
+	if (transactions.length == 0)
+		return Promise.resolve();
+
+	const collection = mongo.db(config.mongo.db.sync).collection('transactions');
+
+	await _count('from', aggregate.transactions_sender);
+	await _count('to', aggregate.transactions_receiver);
+
+	return Promise.resolve();
+
+	async function _count (what, mergeInto) {
+		return new Promise ((resolve, reject) => {
+			collection.aggregate([
+				{ $match: { hash: { $in: transactions } } },
+				//{ $project: { _id:1, value:1, trx_fee: { $multiply: [ "$gas", "$gasPrice" ] } } },
+				{ $project: { _id:1, from:1, to:1, value:1, gasPrice: { $divide: [ "$gasPrice", config.cpc.unit_convert ] }, fee: { $divide: [ { $multiply: [ "$gas", "$gasPrice" ] }, config.cpc.unit_convert ] } } },
+				{ $group: {
+					_id: '$'+what,
+					count: {
+						$sum: 1
+					},
+					volume: {
+						$sum: '$value'
+					},
+					fee: { $sum: '$fee' },
+					//price_avg: { $avg: '$gasPrice' }
+				} },
+			]).toArray((err, value) => {
+				console.log("count/volume "+what+" of transactions took", now()-t_start);
+
+				value.forEach(_ => {
+					// init if no previous state
+					if (!mergeInto[_._id]) mergeInto[_._id] = {count: 0, volume: 0, fee: 0};
+
+					// cummulate
+					mergeInto[_._id].count += _.count;
+					mergeInto[_._id].volume += _.volume;
+					mergeInto[_._id].fee += _.fee;
+				});
+
+				resolve();
+			});
+		});
+	}
+
 }
 
 async function ensure_indexes () {

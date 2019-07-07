@@ -3,6 +3,7 @@ const config = require('../config');
 const dashboard = require('./dashboard');
 const aggregate = require('./aggregate');
 const blocks = require('./blocks');
+const transactions = require('./transactions');
 const rnodes = require('./rnodes');
 const kpi = require('./kpi');
 const moment = require('moment');
@@ -20,11 +21,7 @@ async function updateAll () {
 				await blocks.squared.update('day', moment.utc().unix()),
 				rnodes.user.cache_flush_all(),		// instead of updating, we flush the existing entries
 				rnodes.streamgraph.cache_flush_all(),
-				await rnodes.streamgraph.update('hour', 24, 'latest'),
-				await rnodes.streamgraph.update('hour', 48, 'latest'),
-				await rnodes.streamgraph.update('day', 7, 'latest'),
-				await rnodes.streamgraph.update('day', 14, 'latest'),
-				await rnodes.streamgraph.update('day', 30, 'latest'),
+				transactions.streamgraph.cache_flush_all(),
 			]);
 		});
 	}
@@ -36,5 +33,6 @@ module.exports = {
 	blocks,
 	aggregate,
 	rnodes,
-	kpi
+	kpi,
+	transactions
 };

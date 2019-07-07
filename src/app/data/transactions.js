@@ -3,7 +3,7 @@ const config = require('../config');
 const now = require('performance-now');
 const {convert_ts, last_unit_ts} = require('../helper');
 
-module.exports = {last_sum}
+module.exports = {last_sum, items}
 
 async function last_sum (unit, times = 1) {
 	return new Promise(async function (resolve, reject) {
@@ -31,3 +31,28 @@ async function last_sum (unit, times = 1) {
 			});
 	});
 }
+
+async function items (unit, times, ts_start) {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+
+		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
+			.aggregate([
+				{ $project: { _id:0, ts:1, 'transactions_receiver':1, 'transactions_sender':1, transactions_count:1, transactions_volume:1 } },
+				{ $sort: { ts: 1 } },
+				{ $match: { ts: { $gte: convert_ts(ts_start, 10) } } },
+				{ $limit: times },
+			])
+			.toArray((err, result) => {
+				console.log("transactions.items(", unit, times, ts_start, ")", now() - t_start);
+
+				if (err || result.length == 0) {
+					console.error("transactions.items(",unit, times ,") error:", err);
+					resolve(null);
+				} else {
+					resolve(result);
+				}
+			});
+	});
+}
+

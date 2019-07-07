@@ -69,7 +69,12 @@ async function last (unit = null, rnode_addr = null) {
 		// sanitize given addr
 		if (rnode_addr) rnode_addr = web3.utils.toChecksumAddress(rnode_addr);
 
-		const project = {_id:0, ts:1, mined: '$blocks_mined', impeached: '$blocks_impeached'};
+		const project = {
+			_id:0, ts:1,
+			mined: '$blocks_mined',
+			impeached: '$blocks_impeached',
+			fees: '$transactions_fee'
+		};
 		if (rnode_addr) project.rnodes = 1;
 
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)

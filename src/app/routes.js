@@ -27,11 +27,14 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 });
 
 
+// TODO: remove in production
 // DEBUG ONLY
 app.get('/aggregate', async function (req, res) {
 	res.json(await aggregate.run());
 }).get('/aggregate.test', async function (req, res) {
 	res.json(await aggregate.test());
+}).get('/aggregate.reset', async function (req, res) {
+	res.json(await aggregate.reset());
 }).get('/updateAll', async function (req, res) {
 	res.json(await updateAll());
 });

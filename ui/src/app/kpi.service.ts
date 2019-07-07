@@ -21,7 +21,10 @@ export class KpiService {
 				defaults: {
 					last_blocks: {
 						impeached: {
-							'dashboard.health': 'year'
+							'dashboard.health': 'day'
+						},
+						fees: {
+							'dashboard.health': 'day'
 						},
 					},
 					last_rewards: {
@@ -31,15 +34,18 @@ export class KpiService {
 						},
 						total_rewards: {
 							'dashboard.rewards': 'day'
+						},
+						total_fees: {
+							'dashboard.rewards': 'day'
 						}
 					},
 					last_transactions_sum: {
 						count: {
-							'dashboard.top-teaser': 'hour',
-							'dashboard.health': 'hour'
+							'dashboard.top-teaser': 'day',
+							'dashboard.health': 'day'
 						},
 						volume: {
-							'dashboard.health': 'hour'
+							'dashboard.health': 'day'
 						}
 					}
 				},

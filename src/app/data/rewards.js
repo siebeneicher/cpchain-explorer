@@ -79,6 +79,7 @@ async function last (unit, times, rnode_addr = null) {
 					_id: '$rnodes_.k',
 					mined: { $sum: '$rnodes_.v.mined' },
 					impeached: { $sum: '$rnodes_.v.impeached' },
+					//fees: { $sum: '$rnodes_.v.transactions_fee' },
 					balance: { $last: '$rnodes_.v.balance' },
 					//proposer: { $sum: '$rnodes_.v.proposer' },
 				} },
@@ -89,6 +90,7 @@ async function last (unit, times, rnode_addr = null) {
 						mined: 1,
 						impeached: 1,
 						balance: 1,
+						//fees: 1,
 						//proposer: 1,
 						rewards: { $multiply: [ "$mined", config.cpc.rewardsPerBlock ] }
 				} }
