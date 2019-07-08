@@ -250,7 +250,6 @@ async function aggregate_unit (unit, ts, chunk) {
 			// transactions volume, fee
 			try {
 				const {volume: trx_volume, fee: trx_fee} = await transactionsVolumeFee(b.transactions);
-				debugger;
 				aggregate.transactions_volume += trx_volume;
 				aggregate.transactions_fee += trx_fee;
 			} catch (err) {
@@ -421,7 +420,7 @@ async function transactionsVolumeFee (transactions) {
 
 	return new Promise ((resolve, reject) => {
 		collection.aggregate([
-			{ $match: { hash: {$in: transactions}, value: { $gt: 0 } } },
+			{ $match: { hash: {$in: transactions} } },
 			{ $project: { _id:1, value: { $divide: [ "$value", config.cpc.unit_convert ] }, fee: { $divide: [ { $multiply: [ "$gas", "$gasPrice" ] }, config.cpc.unit_convert ] } } },
 			{ $group: { _id: null, volume: { $sum: "$value" }, fee: { $sum: "$fee" } } },
 		]).toArray((err, value) => {
