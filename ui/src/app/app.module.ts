@@ -16,6 +16,11 @@ import { BlocksSquaredComponent } from './blocks-squared/blocks-squared.componen
 import { CookieService } from 'ngx-cookie-service';
 import { MyRnodeComponent } from './dashboard/my-rnode/my-rnode.component';
 import { TrxStreamgraphComponent } from './dashboard/trx-streamgraph/trx-streamgraph.component';
+import { BlockComponent } from './block/block.component';
+import { TransactionsComponent } from './transactions/transactions.component';
+import { TransactionComponent } from './transaction/transaction.component';
+import { AddressComponent } from './address/address.component';
+import { RnodesComponent } from './rnodes/rnodes.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +32,11 @@ import { TrxStreamgraphComponent } from './dashboard/trx-streamgraph/trx-streamg
     BlocksSquaredComponent,
     MyRnodeComponent,
     TrxStreamgraphComponent,
+    BlockComponent,
+    TransactionsComponent,
+    TransactionComponent,
+    AddressComponent,
+    RnodesComponent,
   ],
   imports: [
     FormsModule,

@@ -37,6 +37,6 @@ module.exports = {
 			year: 60*60*24*365 / block_each_second,
 		},
 		rewardsPerBlock: 12.65,
-		unit_convert: 1000000000000000000
+		unit_convert: 1000000000000000000			// parseInt(1+("0".repeat(18)))
 	}
 };

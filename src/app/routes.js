@@ -42,6 +42,9 @@ app.get('/aggregate', async function (req, res) {
 // UI (ORDER AFTER API ROUTES)
 app.use('/', express.static(__dirname + '/../ui-build'));
 
+app.get(/\/(blocks|block|transactions|txs|txn|address|rnode)/, async function (req, res) {
+	res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
+})
 
 // last one, as its wildcard
 app.get('/*', async function (req, res) {
