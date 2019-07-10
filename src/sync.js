@@ -240,8 +240,9 @@ async function syncBlock (targetBlockNum = null) {
 		}
 	} catch (err) {
 		console.error(err);
-		return Promise.reject();
 	}
+
+	return Promise.resolve(true);	
 }
 
 function sanitizeBlock (block) {
