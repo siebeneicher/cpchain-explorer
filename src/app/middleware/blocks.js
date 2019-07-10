@@ -84,4 +84,17 @@ const squared = {
 	}
 }
 
-module.exports = {squared};
+async function get (number) {
+	number = parseInt(number);
+
+	return new Promise(async function (resolve, reject) {
+		try {
+			resolve(await blocks.get(number));
+		} catch (err) {
+			if (!err) resolve({empty: true});
+			else resolve({err});
+		}
+	});
+}
+
+module.exports = {squared, get};

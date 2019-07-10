@@ -156,7 +156,7 @@ async function syncBackwards () {
 
 	// sync all blocks
 	return new Promise ((resolve, reject) => {
-		mongo_db_blocks.find({__complete_transactions: true}).project({_id:-1, number: 1}).toArray(async function (err, items) {
+		mongo_db_blocks.find({}).project({_id:-1, number: 1}).toArray(async function (err, items) {
 			let numbers = items.map(b => b.number);
 
 			console.log("Sync backwards: ",items.length,"(total synced) vs", latest, "(last block number)");
@@ -211,32 +211,37 @@ async function syncBlock (targetBlockNum = null) {
 
 	const b = await block(number);
 
-	b.__complete_transactions = b.transactions.length ? false : true;		// from false to true, when transactionsVolume got calculated
 	b.__generation = (number == cur_blockNum) ? await generation(number) : null;
 	b.__aggregated = {
 		by_minute: false,
 		by_hour: false,
 		by_day: false,
+		//by_week: false,
 		by_month: false,
 		by_year: false
 	};
 
 	sanitizeBlock(b);
 
+	// split transactions into different db.collection
+	b.transactions.forEach(trx => sanitizeTransaction(trx));
+	const trxs = b.transactions;
+	b.transactions = b.transactions.map(trx => trx.hash);
+
 	await mongo_db_blocks.updateOne({ number: number }, { $set: b }, { upsert: true });			// insert block into mongo, if not yet done so
 	console.log("added block (generation: "+!!b.__generation+"):", number, "took:", now()-t_start);
 
-	// sync transactions, async background
-	return new Promise(async (resolve, reject) => {
-		// trx by trx, sequential to avoid high loads
-		for (let k in b.transactions)
-			await syncTransaction(b.transactions[k]);
-		resolve();
-	}).then(async () => {
-			// flag block complete
-			b.__complete_transactions = true;
-			return mongo_db_blocks.updateOne({ number: number }, { $set: b });
-		}).catch();
+	if (!trxs || !trxs.length) return Promise.resolve(true);
+
+	try {
+		for (let i in trxs) {
+			await mongo_db_transactions.updateOne({hash: trxs[i].hash}, {$set: trxs[i]}, { upsert: true });			// insert transaction into mongo, if not yet done so
+			console.log("added transaction:", trxs[i].hash);
+		}
+	} catch (err) {
+		console.error(err);
+		return Promise.reject();
+	}
 }
 
 function sanitizeBlock (block) {
@@ -259,7 +264,7 @@ function sanitizeTransaction (trans) {
 	trans.to = web3.utils.toChecksumAddress(trans.to);
 }
 
-async function syncTransaction (txn) {
+/*async function syncTransaction (txn) {
 	try {
 		const t_start = now();
 		const trx = await transaction(txn);
@@ -272,7 +277,7 @@ async function syncTransaction (txn) {
 	}
 
 	return Promise.resolve();
-}
+}*/
 
 async function syncRNodes () {
 	const t_start = now();
@@ -309,7 +314,7 @@ async function syncGeneration () {
 	});
 }
 
-async function sendTestTrx () {
+/*async function sendTestTrx () {
 	let from = "0x6026ab99f0345e57c7855a790376b47eb308cb40";
 	let to = "0xcdc888799762436da4d4c9b171ae2a1008cde986";
 	let amount = "1000000000000000000";
@@ -324,7 +329,7 @@ async function sendTestTrx () {
 	}
 
 	return Promise.resolve();
-}
+}*/
 
 async function clearAll () {
 	console.log("Dropping all data from mongo");
@@ -345,8 +350,6 @@ function ensure_indexes () {
 				await mongo_db_blocks.createIndex({ timestamp: -1 }, { unique: true });
 			if (!indexes.number_1)
 				await mongo_db_blocks.createIndex({ number: -1 }, { unique: true });
-			if (!indexes.__complete_transactions)
-				await mongo_db_blocks.createIndex({ __complete_transactions: 1 }, { unique: false });
 			if (!indexes['__aggregated.by_minute_1'])
 				await mongo_db_blocks.createIndex({ '__aggregated.by_minute': 1 }, { unique: false });
 			if (!indexes['__aggregated.by_hour_1'])

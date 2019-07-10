@@ -5,7 +5,7 @@ const moment = require('moment');
 const {convert_ts, clone, unique_array, last_unit_ts, unit_ts} = require('../helper');
 const {web3} = require('../../cpc-fusion/api');
 
-module.exports = {last, byUnit};
+module.exports = {last, byUnit, get};
 
 async function byUnit (unit, ts, select = []) {
 	// sanitize ts
@@ -101,6 +101,19 @@ async function last (unit = null, rnode_addr = null) {
 
 					resolve(result[0]);
 				}
+			});
+	});
+}
+
+async function get (number) {
+	return new Promise((resolve, reject) => {
+		mongo.db(config.mongo.db.sync).collection('blocks')
+			.findOne({number})
+			.then((block, err) => {
+				console.log(block, err);
+				if (err) return reject(err);
+				else if (!block) return reject(null);
+				resolve(block);
 			});
 	});
 }

@@ -64,7 +64,7 @@ def action():
 		if len(sys.argv) > 2:
 			block = int(sys.argv[2])
 		try:
-			out = convertObj(cf.cpc.getBlock(block))
+			out = convertObj(cf.cpc.getBlock(block, True))
 		except Exception as err:
 			print(json.dumps({"error": str(err)}))
 			exit()
@@ -89,9 +89,11 @@ def convertObj(dictToParse):
             parsedDict[key] = val.hex()
         elif 'list' in str(type(val)).lower():
             for i in range(len(val)):
-            	if 'HexBytes' in str(type(parsedDict[key][i])):
+                #print(key, str(type(parsedDict[key][i])).lower())
+                if 'HexBytes' in str(type(parsedDict[key][i])):
                     parsedDict[key][i] = parsedDict[key][i].hex()
-                #val[i] = convertObj(val[i])
+                elif 'cpc_fusion.datastructures.attributedict' in str(type(parsedDict[key][i])).lower():
+                    parsedDict[key][i] = convertObj(parsedDict[key][i])
     return parsedDict
 
 action ()
