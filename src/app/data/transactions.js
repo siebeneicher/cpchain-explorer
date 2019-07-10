@@ -3,7 +3,7 @@ const config = require('../config');
 const now = require('performance-now');
 const {convert_ts, last_unit_ts} = require('../helper');
 
-module.exports = {last_sum, items}
+module.exports = {last_sum, items, get}
 
 async function last_sum (unit, times = 1) {
 	return new Promise(async function (resolve, reject) {
@@ -56,3 +56,15 @@ async function items (unit, times, ts_start) {
 	});
 }
 
+async function get (trxHash) {
+	return new Promise((resolve, reject) => {
+		mongo.db(config.mongo.db.sync).collection('transactions')
+			.findOne({hash: trxHash})
+			.then((block, err) => {
+				console.log(block, err);
+				if (err) return reject(err);
+				else if (!block) return reject(null);
+				resolve(block);
+			});
+	});
+}

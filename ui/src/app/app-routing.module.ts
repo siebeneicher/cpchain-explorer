@@ -13,7 +13,7 @@ const routes: Routes = [
 	{ path: 'blocks', component: BlocksComponent },
 	{ path: 'block/:number', component: BlockComponent },
 	{ path: 'transactions', component: TransactionsComponent },
-	{ path: 'tx/:txn', component: TransactionComponent },
+	{ path: 'trx/:txHash', component: TransactionComponent },
 	{ path: 'rnodes', component: RnodesComponent },
 	{ path: 'address/:addr', component: AddressComponent },
 ];

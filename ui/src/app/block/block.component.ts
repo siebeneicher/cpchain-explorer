@@ -32,10 +32,10 @@ export class BlockComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.loadBLock();
+		this.load();
 	}
 
-	async loadBLock () {
+	async load () {
 		let url = environment.backendBaseUrl + '/block/' + this.number;
 
 		return new Promise((resolve, reject) => {

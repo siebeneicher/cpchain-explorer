@@ -1,1 +1,22 @@
-<p>transaction works!</p>
+<section class="section">
+<div class="container">
+
+	<h3 class="title">Transaction {{txHash}}</h3>
+
+	<table class="table table is-hoverable table is-fullwidth is-striped">
+		<tbody>
+			<tr><td>Tx Hash</td><td>{{txHash}}</td></tr>
+			<tr><td>Timestamp</td><td>TODO</td></tr>
+			<tr><td>Block Hash</td><td>{{trx.blockHash}}</td></tr>
+			<tr><td>Block Number</td><td><a href="/block/{{trx.blockNumber}}">{{trx.blockNumber}}</a></td></tr>
+			<tr><td>From</td><td>{{trx.from}}</td></tr>
+			<tr><td>To</td><td>{{trx.to}}</td></tr>
+			<tr><td>Value</td><td>{{trx.value}}</td></tr>
+			<tr><td>gas</td><td>{{trx.gas}}</td></tr>
+			<tr><td>gasPrice</td><td>{{trx.gasPrice}}</td></tr>
+			<tr><td>Type</td><td>{{trx.type}}</td></tr>
+		</tbody>
+	</table>
+
+</div>
+</section>

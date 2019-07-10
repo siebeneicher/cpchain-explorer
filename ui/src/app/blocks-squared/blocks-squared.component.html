@@ -9,14 +9,14 @@
 		<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
 			<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
 			<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
-				<span
+				<a href="/block/{{block.number}}"
 					*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
 					class="block"
 					[attr.data-index]="i"
 					[class.linebreak]="block.sec == 0 && block.min == 0"
 					[class.synced]="block.synced"
 					[class.sync-should]="block.sync_should"
-					[class.impeached]="block.impeached"></span>
+					[class.impeached]="block.impeached"></a>
 			</div>
 		</div>
 	</div>

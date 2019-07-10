@@ -7,7 +7,9 @@
 		<tbody>
 			<tr><td>Height</td><td>{{number}}</td></tr>
 			<tr><td>Timestamp</td><td>{{block.timestamp}}</td></tr>
-			<tr><td>Transactions</td><td>{{block.transactions | json}}</td></tr>
+			<tr><td>Transactions</td><td>
+				<div *ngFor="let trx of block.transactions"><a href="/trx/{{trx}}">{{trx}}x</a></div>
+			</td></tr>
 			<tr><td>Proposed by</td><td>{{block.miner}}</td></tr>
 			<tr><td>Reward</td><td>_</td></tr>
 			<tr><td>Gas Used</td><td>{{block.gasUsed}}</td></tr>
