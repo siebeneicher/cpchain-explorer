@@ -1,8 +1,9 @@
 
 <br>
-<section class="section" *ngIf="kpi.isLoaded('dashboard')">
+
+<section class="section top">
 <div class="container">
-  <div class="columns is-size-2-mobile is-size-2-desktop">
+  <div class="columns is-size-2-mobile is-size-2-desktop" *ngIf="kpi.isLoaded('dashboard')">
     <div class="column has-text-centered has-text-weight-light">{{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}} RNodes</div>
     <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_rewards','total_roi','dashboard.top-teaser')}}% ROI / Y</div>
     <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_transactions_sum','count','dashboard.top-teaser')}} Trx's / {{kpi.selectedOption('dashboard','last_transactions_sum','count','dashboard.top-teaser').abbrev}}</div>
@@ -12,7 +13,7 @@
 </section>
 
 
-<section class="section">
+<section class="section main">
 <div class="container">
 <div class="tile is-ancestor">
   <div class="tile is-vertical is-8">
@@ -249,7 +250,7 @@
 
 
 
-<section class="section">
+<section class="section blocks-squared">
 <div class="container">
 	<app-blocks-squared></app-blocks-squared>
 </div>

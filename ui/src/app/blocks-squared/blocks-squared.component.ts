@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import * as moment from 'moment';
@@ -12,6 +12,9 @@ import * as moment from 'moment';
 export class BlocksSquaredComponent implements OnInit {
 	blocksByHour:Array<any>;
 
+	//showComponent:boolean = false;
+	initiated:boolean = false;
+
 	ts:number;
 	unit:string = "day";
 	mouse_x:number;
@@ -22,22 +25,59 @@ export class BlocksSquaredComponent implements OnInit {
 
 	//@ViewChild('hovertooltip') hovertooltip; 
 
-	constructor(private httpClient: HttpClient, private ref: ChangeDetectorRef) { }
+	constructor(private httpClient: HttpClient, private ref: ChangeDetectorRef, private elementRef: ElementRef) { }
 
 	ngOnInit() {
 		// the timestamp needs to be the exact start of the day
 		let today = moment.utc();
 		today.second(0).minute(0).hour(0);
 		this.ts = today.unix()*1000;
-
 		this.blocksByHour = [];
-		this.loadBlocksSquared();
+		this.attachTooltipToDocument();
+
+		setTimeout(() => {
+			this.loadBlocksSquared();
+		}, 1500);
 
 		setInterval(() => {
 			this.loadBlocksSquared();
 		}, 10000);
 
-		this.attachTooltipToDocument();
+/*		setInterval(() => {
+			const options = {
+			  root: null,
+			  rootMargin: '0px',
+			  threshold: 1.0,
+			  trackVisibility: true,
+			  delay: 100
+			}
+
+			const observer = new IntersectionObserver((what) => {
+				let box = what[0];
+				if (box.isVisible) debugger;
+			}, options);
+
+			observer.observe(this.elementRef.nativeElement.querySelector('.initial-loading-placeholder'));
+		}, 2000);*/
+
+
+	}
+
+	ngOnDestroy() {
+		this.destroyTooltip();
+	}
+
+	ngAfterViewInit () {
+
+	}
+
+	visible () {
+		if (this.initiated) return;
+		//this.loadBlocksSquared();
+		setInterval(() => {
+			this.loadBlocksSquared();
+		}, 10000);
+		this.initiated = true;
 	}
 
 	async loadBlocksSquared (changed = false) {
@@ -85,6 +125,11 @@ export class BlocksSquaredComponent implements OnInit {
 	attachTooltipToDocument () {
 		document.body.appendChild(document.querySelector("#hovertooltip"));
 		this.hover_tooltip = document.querySelector("#hovertooltip");
+	}
+
+	destroyTooltip () {
+		const ele = document.querySelector("#hovertooltip");
+		ele.parentNode.removeChild(ele);
 	}
 
 	mousemove (h, $e) {

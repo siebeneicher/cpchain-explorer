@@ -9,7 +9,7 @@ import { RnodesComponent } from './rnodes/rnodes.component';
 import { AddressComponent } from './address/address.component';
 
 const routes: Routes = [
-	{ path: '', component: DashboardComponent, data: {animation: 'dashboardPage'} },
+	{ path: '', /*redirectTo: '', pathMatch: '',*/ component: DashboardComponent, data: {animation: 'dashboardPage'} },
 	{ path: 'blocks', component: BlocksComponent, data: {animation: 'blocksPage'} },
 	{ path: 'block/:number', component: BlockComponent, data: {animation: 'blockPage'} },
 	{ path: 'transactions', component: TransactionsComponent, data: {animation: 'transactionsPage'} },
@@ -19,7 +19,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { enableTracing: false, onSameUrlNavigation: 'reload' } )],
+  imports: [RouterModule.forRoot(routes, { enableTracing: false, onSameUrlNavigation: 'reload', scrollPositionRestoration: 'enabled' } )],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

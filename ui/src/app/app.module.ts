@@ -22,6 +22,8 @@ import { TransactionComponent } from './transaction/transaction.component';
 import { AddressComponent } from './address/address.component';
 import { RnodesComponent } from './rnodes/rnodes.component';
 
+import { DeferLoadModule } from '@trademe/ng-defer-load';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,6 +48,7 @@ import { RnodesComponent } from './rnodes/rnodes.component';
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
+    DeferLoadModule 
   ],
   providers: [CookieService],
   bootstrap: [AppComponent]

@@ -22,6 +22,7 @@
     "@angular/platform-browser": "~8.1.0",
     "@angular/platform-browser-dynamic": "~8.1.0",
     "@angular/router": "~8.1.0",
+    "@trademe/ng-defer-load": "^3.0.1",
     "bulma": "~0.7.x",
     "bulma-pageloader": "~2.1.x",
     "bulma-tooltip": "~2.0.x",

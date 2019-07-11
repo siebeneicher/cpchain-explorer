@@ -4,6 +4,10 @@ $color-validated: green;
 $color-unsynced: orange;
 $color-future: lightgrey;
 
+.main-container {
+	min-height: 550px;
+}
+
 .blocks-by-hour {
 	display: flex;
 	flex-flow: row wrap;
@@ -88,3 +92,12 @@ $color-future: lightgrey;
 		visibility: hidden;
 	}
 }
+
+.initial-loading-placeholder {
+	.typcn {
+		font-size: 240px;
+		animation: blink normal 1.15s infinite ease-in-out;
+	}
+}
+
+@keyframes blink {0%{opacity:1;} 50%{opacity:0.45;} 100%{opacity:1;}}

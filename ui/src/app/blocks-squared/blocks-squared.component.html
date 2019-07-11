@@ -1,40 +1,47 @@
-<div *ngIf="blocksByHour.length">
-	<h1 class="title">
-		Blocks of {{this.ts | date:'dd-MM-yyyy'}}
-		<a class="button {{loading ? 'is-loading' : ''}}" (click)="dateBackward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
-		<a class="button {{loading ? 'is-loading' : ''}}" (click)="dateForward()"><i class="typcn typcn-chevron-right"></i></a>
-	</h1>
+<div class="main-container">
 
-	<div class="blocks-by-hour" (mouseout)="mouseout()">
-		<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
-			<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
-			<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
-				<a [routerLink]="['/block', block.number]"
-					*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
-					class="block"
-					[attr.data-index]="i"
-					[class.linebreak]="block.sec == 0 && block.min == 0"
-					[class.synced]="block.synced"
-					[class.sync-should]="block.sync_should"
-					[class.impeached]="block.impeached"></a>
-			</div>
-		</div>
+	<div *ngIf="!blocksByHour.length" class="initial-loading-placeholder has-text-centered">
+		<span class="typcn typcn-chart-area-outline" ></span>
 	</div>
 
-	<br><br>
+	<div *ngIf="blocksByHour.length">
+		<h1 class="title">
+			Blocks of {{this.ts | date:'dd-MM-yyyy'}}
+			<a class="button {{loading ? 'is-loading' : ''}}" (click)="dateBackward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
+			<a class="button {{loading ? 'is-loading' : ''}}" (click)="dateForward()"><i class="typcn typcn-chevron-right"></i></a>
+		</h1>
 
-	<div class="columns legend">
-		<div class="column is-one-fifth">
-			<span class="colorbox validated"></span><span class="desc">Validated Block</span>
+		<div class="blocks-by-hour" (mouseout)="mouseout()">
+			<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
+				<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
+				<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
+					<a [routerLink]="['/block', block.number]"
+						*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
+						class="block"
+						[attr.data-index]="i"
+						[class.linebreak]="block.sec == 0 && block.min == 0"
+						[class.synced]="block.synced"
+						[class.sync-should]="block.sync_should"
+						[class.impeached]="block.impeached"></a>
+				</div>
+			</div>
 		</div>
-		<div class="column is-one-fifth">
-			<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
-		</div>
-		<div class="column is-one-fifth">
-			<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
-		</div>
-		<div class="column is-one-fifth">
-			<span class="colorbox future"></span><span class="desc">Future Block</span>
+
+		<br><br>
+
+		<div class="columns legend">
+			<div class="column is-one-fifth">
+				<span class="colorbox validated"></span><span class="desc">Validated Block</span>
+			</div>
+			<div class="column is-one-fifth">
+				<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
+			</div>
+			<div class="column is-one-fifth">
+				<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
+			</div>
+			<div class="column is-one-fifth">
+				<span class="colorbox future"></span><span class="desc">Future Block</span>
+			</div>
 		</div>
 	</div>
 </div>
