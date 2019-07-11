@@ -110,7 +110,7 @@ async function get (number) {
 		mongo.db(config.mongo.db.sync).collection('blocks')
 			.findOne({number})
 			.then((block, err) => {
-				console.log(block, err);
+				//console.log(block, err);
 				if (err) return reject(err);
 				else if (!block) return reject(null);
 				resolve(block);

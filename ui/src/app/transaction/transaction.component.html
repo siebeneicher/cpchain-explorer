@@ -8,9 +8,9 @@
 			<tr><td>Tx Hash</td><td>{{txHash}}</td></tr>
 			<tr><td>Timestamp</td><td>TODO</td></tr>
 			<tr><td>Block Hash</td><td>{{trx.blockHash}}</td></tr>
-			<tr><td>Block Number</td><td><a href="/block/{{trx.blockNumber}}">{{trx.blockNumber}}</a></td></tr>
-			<tr><td>From</td><td>{{trx.from}}</td></tr>
-			<tr><td>To</td><td>{{trx.to}}</td></tr>
+			<tr><td>Block Number</td><td><a [routerLink]="['/block', trx.blockNumber]">{{trx.blockNumber}}</a></td></tr>
+			<tr><td>From</td><td><a [routerLink]="['/address', trx.from]">{{trx.from}}</a></td></tr>
+			<tr><td>To</td><td><a [routerLink]="['/address', trx.to]">{{trx.to}}</a></td></tr>
 			<tr><td>Value</td><td>{{trx.value}}</td></tr>
 			<tr><td>gas</td><td>{{trx.gas}}</td></tr>
 			<tr><td>gasPrice</td><td>{{trx.gasPrice}}</td></tr>

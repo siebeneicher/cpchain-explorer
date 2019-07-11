@@ -31,7 +31,7 @@
               <div class="item">Impeached</div>
             </div>
             <div class="values-container is-size-5">
-              <div class="item"><a href="/block/{{kpi.datasets.dashboard.data.last_block.number}}" class="number-mono">{{kpi.datasets.dashboard.data.last_block.number}}</a> ({{ago(kpi.datasets.dashboard.data.last_block.timestamp)}})</div>
+              <div class="item"><a [routerLink]="['/block', kpi.datasets.dashboard.data.last_block.number]" class="number-mono">{{kpi.datasets.dashboard.data.last_block.number}}</a> ({{ago(kpi.datasets.dashboard.data.last_block.timestamp)}})</div>
               <div class="item"><span class="number-mono">{{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}}</span></div>
               <div class="item onhover">
                 <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_transactions_sum','count','dashboard.health')}}</span> / {{kpi.selectedOption('dashboard','last_transactions_sum','count','dashboard.health').full}}</span>

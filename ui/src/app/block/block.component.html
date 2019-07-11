@@ -1,14 +1,21 @@
 <section class="section">
 <div class="container">
 
-	<h3 class="title">Block {{number}}</h3>
+	<h3 class="title">
+		Block #{{number}}
+		&nbsp;
+		<a class="button" [routerLink]="['/block',number-1]"><i class="typcn typcn-chevron-left"></i></a>
+		<a class="button" [routerLink]="['/block',number+1]"><i class="typcn typcn-chevron-right"></i></a>
+	</h3>
 
 	<table class="table table is-hoverable table is-fullwidth is-striped">
 		<tbody>
-			<tr><td>Height</td><td>{{number}}</td></tr>
+			<tr><td>Height</td><td>
+				{{number}}
+			</td></tr>
 			<tr><td>Timestamp</td><td>{{block.timestamp}}</td></tr>
 			<tr><td>Transactions</td><td>
-				<div *ngFor="let trx of block.transactions"><a href="/trx/{{trx}}">{{trx}}x</a></div>
+				<div *ngFor="let trx of block.transactions"><a [routerLink]="['/trx', trx]">{{trx}}x</a></div>
 			</td></tr>
 			<tr><td>Proposed by</td><td>{{block.miner}}</td></tr>
 			<tr><td>Reward</td><td>_</td></tr>

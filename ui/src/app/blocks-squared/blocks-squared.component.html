@@ -9,7 +9,7 @@
 		<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
 			<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
 			<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
-				<a href="/block/{{block.number}}"
+				<a [routerLink]="['/block', block.number]"
 					*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
 					class="block"
 					[attr.data-index]="i"
@@ -22,7 +22,6 @@
 	</div>
 
 	<br><br>
-
 
 	<div class="columns legend">
 		<div class="column is-one-fifth">

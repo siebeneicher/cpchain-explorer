@@ -28,6 +28,8 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await blocks.get(req.params.number));
 }).get('/api/v1/trx/:hash', async function (req, res) {
 	res.json(await transactions.get(req.params.hash));
+}).get('/api/v1/address/:addr', async function (req, res) {
+	res.json(await addresses.get(req.params.addr));
 });
 
 
@@ -42,6 +44,7 @@ app.get('/aggregate', async function (req, res) {
 }).get('/updateAll', async function (req, res) {
 	res.json(await updateAll());
 });
+
 
 // UI (ORDER AFTER API ROUTES)
 app.use('/', express.static(__dirname + '/../ui-build'));

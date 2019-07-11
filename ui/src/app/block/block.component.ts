@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DateAgoPipe } from '../pipes/date-ago.pipe';
 import { ConvertTsPipe } from '../pipes/convert-ts.pipe';
@@ -26,13 +27,16 @@ export class BlockComponent implements OnInit {
 		private convertTs: ConvertTsPipe,
 		private cookieService: CookieService,
 		public kpi: KpiService,
-		private route: ActivatedRoute
+		private route: ActivatedRoute,
+		private location: Location
 	) {
-		this.number = parseInt(this.route.snapshot.paramMap.get("number"));
+		this.route.params.subscribe((params) => {
+			this.number = parseInt(params.number);
+			this.load();
+		});
 	}
 
 	ngOnInit() {
-		this.load();
 	}
 
 	async load () {
