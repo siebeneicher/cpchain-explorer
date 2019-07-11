@@ -15,9 +15,9 @@
 			</td></tr>
 			<tr><td>Timestamp</td><td>{{block.timestamp}}</td></tr>
 			<tr><td>Transactions</td><td>
-				<div *ngFor="let trx of block.transactions"><a [routerLink]="['/trx', trx]">{{trx}}x</a></div>
+				<div *ngFor="let trx of block.transactions"><a [routerLink]="['/trx', trx]">{{trx}}</a></div>
 			</td></tr>
-			<tr><td>Proposed by</td><td>{{block.miner}}</td></tr>
+			<tr><td>Proposed by</td><td><a [routerLink]="['/address', block.miner]">{{block.miner}}</a></td></tr>
 			<tr><td>Reward</td><td>_</td></tr>
 			<tr><td>Gas Used</td><td>{{block.gasUsed}}</td></tr>
 			<tr><td>Gas Limit</td><td>{{block.gasLimit}}</td></tr>

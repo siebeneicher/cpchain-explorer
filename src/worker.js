@@ -7,6 +7,15 @@ const http = require('http');
 const config = require('./app/config');
 const {aggregate, updateAll} = require('./app/middleware');
 
+
+// REWRITE STAGING DOMAIN
+app.use(function forceLiveDomain(req, res, next) {
+	if (req.get('Host') === 'http://af87f51.online-server.cloud/') {
+		return res.redirect(301, 'http://rnodes.io/' + req.originalUrl);
+	}
+	return next();
+});
+
 app.use('/app', express.static(__dirname + '/app'));
 app.use('/libs', express.static(__dirname + '/libs'));
 app.use('/resources', express.static(__dirname + '/resources'));
