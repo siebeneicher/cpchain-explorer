@@ -15,8 +15,8 @@
 			<tr><td>Transactions</td><td>
 				{{block.transactions.length}} trx's
 			</td></tr>
-			<tr><td>Proposed by</td><td><a [routerLink]="['/address', block.miner]">{{block.miner}}</a></td></tr>
-			<tr><td>Reward</td><td>{{block.__reward}}</td></tr>
+			<tr><td>Proposer</td><td><a [routerLink]="['/address', block.miner]">{{block.miner}}</a></td></tr>
+			<tr><td>Reward</td><td>{{block.__reward}} CPC ({{block.__fixed_reward}} fixed + {{block.__fee}} fee)</td></tr>
 			<tr><td>Gas Used</td><td>{{block.gasUsed}}</td></tr>
 			<tr><td>Gas Limit</td><td>{{block.gasLimit}}</td></tr>
 			<tr><td>Size</td><td>{{block.size}}</td></tr>
@@ -25,9 +25,9 @@
 		</tbody>
 	</table>
 
-	<h2 class="title">Transactions</h2>
+	<h2 class="title" *ngIf="transactions.length">Transactions</h2>
 
-	<table class="table table is-hoverable table is-fullwidth is-striped">
+	<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="transactions.length">
 		<thead>
 			<th>TxHash</th>
 			<th>From</th>
@@ -36,12 +36,12 @@
 			<th>TxFee</th>
 		</thead>
 		<tbody>
-			<tr *ngFor="let trx of block.transactions">
-				<td><a [routerLink]="['/trx', trx]">{{trx | slice:0:10}}...</a></td>
-				<td>{{trx}}</td>
-				<td>{{trx}}</td>
-				<td>{{trx}}</td>
-				<td>{{trx}}</td>
+			<tr *ngFor="let trx of transactions">
+				<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:15}}...</a></td>
+				<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:15}}...</a></td>
+				<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:15}}...</a></td>
+				<td>{{trx.value | convertCpc }} CPC</td>
+				<td>TODO</td>
 			</tr>
 		</tbody>
 	</table>

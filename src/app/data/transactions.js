@@ -3,7 +3,7 @@ const config = require('../config');
 const now = require('performance-now');
 const {convert_ts, last_unit_ts} = require('../helper');
 
-module.exports = {last_sum, items, get}
+module.exports = {last_sum, items, get, ofBlock, ofAddress}
 
 async function last_sum (unit, times = 1) {
 	return new Promise(async function (resolve, reject) {
@@ -61,10 +61,88 @@ async function get (trxHash) {
 		mongo.db(config.mongo.db.sync).collection('transactions')
 			.findOne({hash: trxHash})
 			.then((block, err) => {
-				console.log(block, err);
+				//console.log(block, err);
 				if (err) return reject(err);
 				else if (!block) return reject(null);
 				resolve(block);
+			});
+	});
+}
+
+async function ofBlock (blockNumber) {
+	return new Promise((resolve, reject) => {
+		mongo.db(config.mongo.db.sync).collection('transactions')
+			.find({blockNumber})
+			.toArray((err, trxs) => {
+				//console.log(trxs, err);
+				if (err) return reject(err);
+				else if (!trxs) return reject(null);
+				resolve(trxs);
+			});
+	});
+}
+
+async function ofAddress (addrHash) {
+	return new Promise((resolve, reject) => {
+		mongo.db(config.mongo.db.sync).collection('balances')
+			.aggregate([
+				{ $match: {address: addrHash} },
+				{
+					$lookup:{
+						from: "transactions",
+						localField: "address",
+						foreignField: "from",
+						as: "transactions_from"
+					}
+				},
+				{
+					$lookup:{
+						from: "transactions",
+						localField: "address",
+						foreignField: "to",
+						as: "transactions_to"
+					}
+				},
+/*				{
+					$lookup:{
+						from: "blocks",
+						localField: "address",
+						foreignField: "miner",
+						as: "blocks_mined"
+					}
+				},*/
+				{ $project: {
+					address:1,
+					'transactions_from.hash':1,
+					//'transactions_from.ts':1,
+					'transactions_from.value':1,
+					'transactions_from.to':1,
+					'transactions_from.from':1,
+					'transactions_from.blockNumber':1,
+					'transactions_to.hash':1,
+					//'transactions_to.ts':1,
+					'transactions_to.value':1,
+					'transactions_to.to':1,
+					'transactions_to.from':1,
+					'transactions_to.blockNumber':1,
+				} }
+			])
+			.toArray((err, addr) => {
+
+				if (err) return reject(err);
+				else if (!addr || !addr.length) return reject(null);
+
+				// merge from/to transactions
+				const trxs = addr[0].transactions_from.concat(addr[0].transactions_to);
+
+				// sort
+				//trxs.sort((a,b) => (a.ts > b.ts) ? 1 : ((b.ts > a.ts) ? -1 : 0));
+
+				addr[0].transactions = trxs;
+				delete addr[0].transactions_from;
+				delete addr[0].transactions_to;
+
+				resolve(addr[0]);
 			});
 	});
 }

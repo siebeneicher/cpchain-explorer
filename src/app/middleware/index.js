@@ -2,6 +2,7 @@ const mongo = require('../mongo');
 const config = require('../config');
 const dashboard = require('./dashboard');
 const aggregate = require('./aggregate');
+const addresses = require('./addresses');
 const blocks = require('./blocks');
 const transactions = require('./transactions');
 const rnodes = require('./rnodes');
@@ -32,6 +33,7 @@ module.exports = {
 	dashboard,
 	blocks,
 	aggregate,
+	addresses,
 	rnodes,
 	kpi,
 	transactions

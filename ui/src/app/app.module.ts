@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { DateAgoPipe } from './pipes/date-ago.pipe';
+import { ConvertCpcPipe } from './pipes/convert-cpc.pipe';
 import { ConvertTsPipe } from './pipes/convert-ts.pipe';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { BlocksComponent } from './blocks/blocks.component';
@@ -28,6 +29,7 @@ import { DeferLoadModule } from '@trademe/ng-defer-load';
   declarations: [
     AppComponent,
     DateAgoPipe,
+    ConvertCpcPipe,
     ConvertTsPipe,
     DashboardComponent,
     BlocksComponent,

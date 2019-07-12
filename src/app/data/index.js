@@ -5,4 +5,5 @@ module.exports = {
 	rnodes: require('./rnodes'),
 	transactions: require('./transactions'),
 	balances: require('./balances'),
+	addresses: require('./addresses'),
 };

@@ -113,4 +113,27 @@ async function get (trxHash) {
 	});
 }
 
-module.exports = {streamgraph, get};
+async function ofBlock (blockNumber) {
+	return new Promise(async function (resolve, reject) {
+		try {
+			resolve(await transactions.ofBlock(parseInt(blockNumber)));
+		} catch (err) {
+			if (!err) resolve({empty: true});
+			else resolve({err});
+		}
+	});
+}
+
+async function ofAddress (addrHash) {
+	debugger;
+	return new Promise(async function (resolve, reject) {
+		try {
+			resolve(await transactions.ofAddress(addrHash));
+		} catch (err) {
+			if (!err) resolve({empty: true});
+			else resolve({err});
+		}
+	});
+}
+
+module.exports = {streamgraph, get, ofAddress, ofBlock};

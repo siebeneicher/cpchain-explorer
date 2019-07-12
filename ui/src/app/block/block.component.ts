@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DateAgoPipe } from '../pipes/date-ago.pipe';
 import { ConvertTsPipe } from '../pipes/convert-ts.pipe';
+import { ConvertCpcPipe } from '../pipes/convert-cpc.pipe';
 import { environment } from '../../environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { KpiService } from '../kpi.service';
@@ -19,6 +20,7 @@ export class BlockComponent implements OnInit {
 
 	number:number;
 	block:any = {};
+	transactions:Array<any> = [];
 
 	constructor (
 		private httpClient: HttpClient,
@@ -30,21 +32,33 @@ export class BlockComponent implements OnInit {
 		private route: ActivatedRoute,
 		private location: Location
 	) {
-		this.route.params.subscribe((params) => {
+		this.route.params.subscribe(async (params) => {
 			this.number = parseInt(params.number);
-			this.load();
+			await this.loadBlock();
+			this.loadTransactions();
 		});
 	}
 
 	ngOnInit() {
 	}
 
-	async load () {
+	async loadBlock () {
 		let url = environment.backendBaseUrl + '/block/' + this.number;
 
 		return new Promise((resolve, reject) => {
 			return this.httpClient.get(url).subscribe(res => {
 				this.block = res;
+				resolve();
+			});
+		});
+	}
+
+	async loadTransactions () {
+		let url = environment.backendBaseUrl + '/block/transactions/' + this.number;
+
+		return new Promise((resolve, reject) => {
+			return this.httpClient.get(url).subscribe(res => {
+				this.transactions = <Array<any>> res;
 				resolve();
 			});
 		});

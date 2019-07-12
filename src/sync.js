@@ -237,6 +237,7 @@ async function syncBlock (targetBlockNum = null) {
 
 	try {
 		for (let i in trxs) {
+			trxs[i].__ts = b.timestamp;	// block timestamp
 			await mongo_db_transactions.updateOne({hash: trxs[i].hash}, {$set: trxs[i]}, { upsert: true });			// insert transaction into mongo, if not yet done so
 			console.log("added transaction:", trxs[i].hash);
 		}
@@ -429,7 +430,6 @@ function trxFee (trx) {
 
 async function backwardsCalculateTrxAndattachBlockFeeReward () {
 	// this function can be called to recalculate fees
-
 	return new Promise((resolve, reject) => {
 		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1}).toArray(async function (err, blocks) {
 			for (let i in blocks) {
