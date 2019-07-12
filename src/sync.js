@@ -7,7 +7,7 @@ const {convert_ts, last_unit_ts} = require('./app/helper');
 const {messaging} = require('./app');
 
 // shortcut to collections
-let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_generation, mongo_db_balances;
+let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_balances;
 
 let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
@@ -221,6 +221,8 @@ async function syncBlock (targetBlockNum = null) {
 		by_year: false
 	};
 
+	attachBlockFeeReward(b);
+
 	sanitizeBlock(b);
 
 	// split transactions into different db.collection
@@ -300,7 +302,7 @@ async function syncRNodes () {
 	});
 }
 
-async function syncGeneration () {
+/*async function syncGeneration () {
 	const ts = Math.floor(new Date() / 1000);
 
 	return generation().then(async (_generation) => {
@@ -313,7 +315,7 @@ async function syncGeneration () {
 		}
 		return false;
 	});
-}
+}*/
 
 /*async function sendTestTrx () {
 	let from = "0x6026ab99f0345e57c7855a790376b47eb308cb40";
@@ -337,7 +339,7 @@ async function clearAll () {
 	await mongo_db_blocks.drop();
 	await mongo_db_transactions.drop();
 	await mongo_db_rnodes.drop();
-	await mongo_db_generation.drop();
+	//await mongo_db_generation.drop();
 }
 
 function ensure_indexes () {
@@ -364,7 +366,7 @@ function ensure_indexes () {
 		})
 	}
 
-	if (mongo_db_generation) {
+/*	if (mongo_db_generation) {
 		mongo_db_generation.indexInformation(async (err, indexes) => {
 			if (err) return;
 			if (!indexes.ts_1)
@@ -372,7 +374,7 @@ function ensure_indexes () {
 			if (!indexes['generation.BlockNumber_1'])
 				await mongo_db_generation.createIndex({ 'generation.BlockNumber': -1 }, { unique: false });
 		})
-	}
+	}*/
 
 	if (mongo_db_rnodes) {
 		mongo_db_rnodes.indexInformation(async (err, indexes) => {
@@ -407,6 +409,52 @@ function ensure_indexes () {
 	}
 }
 
+function attachBlockFeeReward (b) {
+	let price = 0;
+
+	if (b.transactions && b.transactions.length && b.transactions[0]) {
+		// b.transactions.forEach(trx => fee += trxFee(trx));
+		price = b.transactions[0].gasPrice / config.cpc.unit_convert;
+	}
+
+	b.__gasPrice = price;
+	b.__fee = price * b.gasUsed;						// does not include fixed reward / block
+	b.__fixed_reward = config.cpc.rewardsPerBlock;		
+	b.__reward = b.__fixed_reward + b.__fee;			// gas_fees + fixed reward
+}
+
+function trxFee (trx) {
+	return trx.gasPrice * trx.gas / config.cpc.unit_convert;
+}
+
+async function backwardsCalculateTrxAndattachBlockFeeReward () {
+	// this function can be called to recalculate fees
+
+	return new Promise((resolve, reject) => {
+		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1}).toArray(async function (err, blocks) {
+			for (let i in blocks) {
+				await new Promise((resolve2, reject) => {
+					mongo_db_transactions.findOne({hash: blocks[i].transactions[0]}).then(async function (trx, err) {
+						blocks[i].transactions = [trx];
+						attachBlockFeeReward(blocks[i]);
+						delete blocks[i].transactions;
+						delete blocks[i].gasUsed;
+
+						mongo_db_blocks
+							.updateOne({ _id: blocks[i]._id }, { $set: blocks[i] }, { upsert: false })
+							.then(async (result, err) => {
+								resolve2();
+							});
+					});
+				});
+			};
+
+			console.log("Recalculated block fee+reward for blocks:", blocks.length);
+			resolve();
+		});
+	});
+}
+
 async function init (clearAll = false) {
 	return new Promise((resolve, reject) => {
 		mongo.on('connect', async function(err, client) {
@@ -417,7 +465,7 @@ async function init (clearAll = false) {
 			mongo_db_transactions = mongo_db.collection('transactions');
 			mongo_db_rnodes = mongo_db.collection('rnodes');
 			mongo_db_balances = mongo_db.collection('balances');
-			mongo_db_generation = mongo_db.collection('generation');
+			//mongo_db_generation = mongo_db.collection('generation');
 
 			// clear all data
 			if (clearAll) {
@@ -432,4 +480,4 @@ async function init (clearAll = false) {
 	});
 }
 
-init(false).then(collect);
+init(false).then(backwardsCalculateTrxAndattachBlockFeeReward).then(collect);
