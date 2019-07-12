@@ -480,4 +480,4 @@ async function init (clearAll = false) {
 	});
 }
 
-init(false).then(backwardsCalculateTrxAndattachBlockFeeReward).then(collect);
+init(false)/*.then(backwardsCalculateTrxAndattachBlockFeeReward)*/.then(collect);

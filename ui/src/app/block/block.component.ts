@@ -49,4 +49,8 @@ export class BlockComponent implements OnInit {
 			});
 		});
 	}
+
+	ago (ts) {
+		return this.dateAgo.transform(this.convertTs.transform(ts, 13));
+	}
 }
