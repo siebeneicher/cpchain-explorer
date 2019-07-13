@@ -143,7 +143,7 @@
       <div class="content">
         <p class="title is-size-3">My RNode Stats</p>
         <p class="subtitle is-size-4" *ngIf="user_rnode_addr" >
-          <span class="">{{user_rnode_addr | slice:0:22}}...</span>
+          <span class=""><a [routerLink]="['/address',user_rnode_addr]">{{user_rnode_addr | slice:0:20}}...</a></span>
           &nbsp;
           <span (click)="resetUserRNode()" class="is-size-3 typcn typcn-backspace is-clickable"></span>
         </p>
@@ -159,6 +159,11 @@
               <a class="button is-info" (click)="addUserRNode()">Register</a>
             </div>
           </div>
+        </div>
+        <div class="content my-rnode-loading-placeholder has-text-centered" *ngIf="user_rnode_addr && !kpi.isLoaded('myrnode')">
+          <span>
+            <i class="typcn typcn-chart-area-outline"></i>
+          </span>
         </div>
         <div class="content" *ngIf="user_rnode_addr && kpi.isLoaded('myrnode')">
            <div class="keys-values-container is-size-5">

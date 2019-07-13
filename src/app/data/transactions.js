@@ -114,13 +114,13 @@ async function ofAddress (addrHash) {
 				{ $project: {
 					address:1,
 					'transactions_from.hash':1,
-					//'transactions_from.ts':1,
+					'transactions_from.__ts':1,
 					'transactions_from.value':1,
 					'transactions_from.to':1,
 					'transactions_from.from':1,
 					'transactions_from.blockNumber':1,
 					'transactions_to.hash':1,
-					//'transactions_to.ts':1,
+					'transactions_to.__ts':1,
 					'transactions_to.value':1,
 					'transactions_to.to':1,
 					'transactions_to.from':1,
@@ -136,7 +136,7 @@ async function ofAddress (addrHash) {
 				const trxs = addr[0].transactions_from.concat(addr[0].transactions_to);
 
 				// sort
-				//trxs.sort((a,b) => (a.ts > b.ts) ? 1 : ((b.ts > a.ts) ? -1 : 0));
+				trxs.sort((a,b) => (a.__ts > b.__ts) ? 1 : ((b.__ts > a.__ts) ? -1 : 0));
 
 				addr[0].transactions = trxs;
 				delete addr[0].transactions_from;

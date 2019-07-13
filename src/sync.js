@@ -15,8 +15,8 @@ let last_blockNumber = 0;			// most recent block number
 let last_blockNumber_synced = 0;	// most recent synced
 
 const sync_delay = 500;
-const backwards_delay = 25000;
-const balance_delay = 10000;
+const backwards_delay = 25200;
+const balance_delay = 195000;
 const maxNewBlocksBackwardsPerCycle = 15;
 
 
