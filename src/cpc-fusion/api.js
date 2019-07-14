@@ -26,7 +26,9 @@ async function call (action, ...params) {
 
 	return new Promise ((resolve, reject) => {
 		exec(cmd, async function (err, data) {
-			console.log(cmd, err, data, (now()-t).toFixed(2), "ms");
+			//console.log(cmd, err, data, (now()-t).toFixed(2), "ms");
+
+			if (err) console.error(cmd, err);
 
 			if (err)
 				return reject(err);
