@@ -13,11 +13,15 @@
 					{{addr}}
 				</td></tr>
 				<tr><td>Balance</td><td>{{info.balance}} CPC</td></tr>
+				<tr><td>Rank</td><td>TODO</td></tr>
 				<tr><td>Type</td><td>TODO</td></tr>
 			</tbody>
 		</table>
 
-		<h3 class="title">Transactions</h3>
+		<h3 class="title">
+			Transactions
+			<span *ngIf="transactions">({{transactions.length}})</span>
+		</h3>
 
 		<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="transactions.length">
 			<thead>
@@ -29,16 +33,22 @@
 				<th>TxFee</th>
 			</thead>
 			<tbody>
-				<tr *ngFor="let trx of transactions">
-					<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:15}}...</a></td>
-					<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'full' : 'UTC' }}</td>
-					<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:15}}...</a></td>
-					<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:15}}...</a></td>
-					<td>{{trx.value | convertCpc }} CPC</td>
-					<td>TODO</td>
-				</tr>
+				<ng-container *ngFor="let trx of transactions; let i = index">
+					<tr *ngIf="i < trx_limit">
+						<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:15}}...</a></td>
+						<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'full' : 'UTC' }}</td>
+						<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:15}}...</a></td>
+						<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:15}}...</a></td>
+						<td>{{trx.value | convertCpc }} CPC</td>
+						<td>TODO</td>
+					</tr>
+				</ng-container>
 			</tbody>
 		</table>
+
+		<div class="container has-text-centered">
+			<a class="button is-small" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> Show more</a>
+		</div>
 
 	</div>
 

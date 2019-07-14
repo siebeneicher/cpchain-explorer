@@ -11,10 +11,10 @@ import { KpiService } from '../kpi.service';
 import { ActivatedRoute } from "@angular/router";
 
 @Component({
-  selector: 'app-address',
-  templateUrl: './address.component.html',
-  styleUrls: ['./address.component.scss'],
-  providers: [DateAgoPipe, ConvertTsPipe, ConvertCpcPipe]
+	selector: 'app-address',
+	templateUrl: './address.component.html',
+	styleUrls: ['./address.component.scss'],
+	providers: [DateAgoPipe, ConvertTsPipe, ConvertCpcPipe]
 })
 export class AddressComponent implements OnInit {
 
@@ -22,6 +22,8 @@ export class AddressComponent implements OnInit {
 	info:any = {};
 	transactions:Array<any> = [];
 	invalidAddress:boolean = false;
+
+	trx_limit:number;
 
 	constructor (
 		private httpClient: HttpClient,
@@ -39,6 +41,7 @@ export class AddressComponent implements OnInit {
 			this.info = {};
 			await this.load();
 
+			this.trx_limit = 15;
 			setTimeout(() => this.loadTrxs(), 500);
 		});
 	}
@@ -71,16 +74,19 @@ export class AddressComponent implements OnInit {
 		let url = environment.backendBaseUrl + '/address/transactions/' + this.addr;
 
 		return new Promise((resolve, reject) => {
-			return this.httpClient.get(url).subscribe(res => {
+			return this.httpClient.get(url).subscribe((res: any) => {
 /*				if (res.empty || res.err) {
 // TODO show error
 					return;
 				}*/
 
-				this.transactions = <Array<any>> (<any> res).transactions;
+				this.transactions = <Array<any>> res.transactions;
 				resolve();
 			});
 		});
 	}
 
+	showMore () {
+		this.trx_limit += 15;
+	}
 }
