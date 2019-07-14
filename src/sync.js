@@ -227,7 +227,7 @@ async function updateBalancesByBlock (block, trxs) {
 	const changeByAddr = {};
 
 	// always update proposer balance; proposer getting balance increased via smart contract, not via transaction
-	try { await balances.update(block.miner); } catch () {}
+	try { await balances.update(block.miner); } catch (err) {}
 
 
 	if (trxs.length == 0) return Promise.resolve(null);
