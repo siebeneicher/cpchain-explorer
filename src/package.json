@@ -15,6 +15,7 @@
     "body-parser": "~1.18.x",
     "compression": "~1.7.0",
     "connect-redis": "~3.4.x",
+    "crypto-js": "^3.1.9-1",
     "dotenv": "~7.0.x",
     "ethrpc": "~6.1.5",
     "express": "4.15.2",
@@ -29,6 +30,7 @@
     "object-assign-deep": "^0.4.0",
     "performance-now": "~2.1.0",
     "redis": "~2.8.x",
+    "sha3": "^2.0.6",
     "socket.io": "~2.2.x",
     "socket.io-redis": "~5.2.x",
     "web3": "^1.0.0-beta.55"

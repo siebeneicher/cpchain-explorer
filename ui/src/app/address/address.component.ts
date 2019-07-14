@@ -21,6 +21,7 @@ export class AddressComponent implements OnInit {
 	addr:string;
 	info:any = {};
 	transactions:Array<any> = [];
+	invalidAddress:boolean = false;
 
 	constructor (
 		private httpClient: HttpClient,
@@ -50,12 +51,17 @@ export class AddressComponent implements OnInit {
 
 		return new Promise((resolve, reject) => {
 			return this.httpClient.get(url).subscribe(res => {
-/*				if (res.empty || res.err) {
-// TODO show error
-					return;
-				}*/
+				let addr = <any> res;
 
-				this.info = res;
+				if (addr.invalidAddress) {
+					this.invalidAddress = true;
+					resolve();
+					return;
+				}
+
+				this.invalidAddress = false;
+
+				this.info = addr;
 				resolve();
 			});
 		});

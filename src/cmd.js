@@ -4,9 +4,16 @@ const {python_exe} = require('./app/helper');
 const {versions} = require('./cpc-fusion/api');
 
 setTimeout(async () => {
-	await aggregate.reset();
-	await aggregate.run();
+	//await aggregate.reset();
+	//await aggregate.run();
 	//await aggregate.test();
+
+	try {
+		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F");
+		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2f");
+		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2d");
+		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2");
+	} catch (err) { console.error(err); }
 
 /*	console.log(await kpi.options('last_rewards'));
 	console.log(await kpi.get('last_rewards', 'hour'));

@@ -15,7 +15,7 @@ export class KpiService {
 		this.datasets = {
 			"dashboard": {
 				required: false,
-				interval: 10000,
+				interval: 3500,
 				api: '/dashboard',
 				data: null,
 				defaults: {

@@ -9,15 +9,14 @@ const { exec } = require('child_process');
 let python;
 
 
-async function call_web3 (action, ...params) {
+/*async function call_web3 (action, ...params) {
 	return web3.eth.getBlockNumber();
-}
+}*/
 
 async function call (action, ...params) {
 
 	// check web3
 	//return call_web3();
-
 
 	if (!python)
 		python = await python_exe();
@@ -27,7 +26,7 @@ async function call (action, ...params) {
 
 	return new Promise ((resolve, reject) => {
 		exec(cmd, async function (err, data) {
-			//console.log(cmd, (now()-t).toFixed(2), "ms");
+			console.log(cmd, err, data, (now()-t).toFixed(2), "ms");
 
 			if (err)
 				return reject(err);

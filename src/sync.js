@@ -1,5 +1,6 @@
 const {blockNumber, versions, rnodes, block, generation, transaction, web3, balance} = require('./cpc-fusion/api');
 const mongo = require('./app/mongo');
+const { balances } = require('./app/data');
 const config = require('./app/config');
 const now = require('performance-now');
 const moment = require('moment');
@@ -16,7 +17,7 @@ let last_blockNumber_synced = 0;	// most recent synced
 
 const sync_delay = 500;
 const backwards_delay = 25200;
-const balance_delay = 195000;
+const balance_delay = 5000;
 const maxNewBlocksBackwardsPerCycle = 15;
 
 
@@ -35,13 +36,22 @@ function subscribe () {
 async function collect () {
 	_snapshot();
 	_syncBackwards();
-	_syncBalances();
+	_syncMissingBalances();
 
 	function _snapshot () {
 		setTimeout(async () => {
 			try {
-				if (await snapshot()) {
+				let newBlock = await syncBlock();
+				if (newBlock) {
+					// inform aggregation to process
 					messaging.emit('SYNC-SNAPSHOT-PERFORMED', {});
+
+					// rnodes and balance update can be performed after aggregation, in parallel
+					await Promise.all([
+						syncRNodes(),
+						updateBalancesByBlock(newBlock.b, newBlock.trxs)
+					]);
+					messaging.emit('SYNC-RNODES-BALANCES-PERFORMED', {});
 				}
 			} catch (err) {
 				console.error(err);
@@ -65,86 +75,56 @@ async function collect () {
 		}, backwards_delay);
 	}
 
-	function _syncBalances () {
+	function _syncMissingBalances () {
 		setTimeout(async () => {
 			try {
-				if (await syncBalances()) {
+				if (await syncMissingBalances()) {
 					messaging.emit('SYNC-BALANCES-PERFORMED', {});
 				}
 			} catch (err) {
 				console.error(err);
 			}
 
-			_syncBalances();	// loop
+			_syncMissingBalances();	// loop
 		}, balance_delay);
 	}
 }
 
-async function syncBalances () {
+async function syncMissingBalances () {
 	return new Promise ((resolve, reject) => {
 		const t_start = now();
-		const from_ts = moment().subtract('1', 'week').unix();
 
-		// fetch rnode IDs
-		mongo.db(config.mongo.db.sync).collection('rnodes')
-			.aggregate([
-				{ $match: { ts: { $gte: from_ts } } },
-				{ $unwind: '$rnodes' },
-				{ $group: {
-					_id: '$rnodes.Address'
-				} },
-				{ $project: { _id: 0, address: '$_id' } }
-			])
-			.toArray((err, result) => {
-				if (err) {
-					reject();
-					console.error(err);
-				} else if (result.length == 0) {
-					resolve(null);
-				} else {
-					console.log("syncBalances() mongo-request found "+result.length+" rnodes, took:", now() - t_start);
-					resolve(result);
-				}
-			});
-	}).then(async (rnodes) => {
-		const t_start = now();
+		// fetch known addresses
+		mongo_db_balances.find({}, { address:1 }).toArray(async (err, addresses) => {
 
-		// get balances from node
-		for (let k in rnodes) {
-			let ts = convert_ts(new Date().getTime(), 10);
-			let _balance = await balance(rnodes[k].address);
+			let ignore_addresses = addresses.map(_ => _.address);
 
-			// insert only new rnode address
-			// update last_balance + ts
-			// push new balanace history element
-			await mongo_db_balances.updateOne({
-				address: rnodes[k].address
-			}, {
-				$set: { address: rnodes[k].address, latest_balance: _balance }
-			}, { upsert: true }).then(async (result, err) => {
-				if (err) {
-					console.error(err);
-					return Promise.reject(err);
-				}
+			// fetch new addresses
+			mongo.db(config.mongo.db.sync).collection('transactions')
+				.aggregate([
+					{ $project: { "addresses": {
+						$split: [{$concat: ["$from","---","$to"]}, '---']
+					} } },
+					{ $unwind: '$addresses' },
+					{ $match: { addresses: { $nin: ignore_addresses } } },
+					{ $group: { _id: '$addresses' } }
+				])
+				.toArray(async (err, addresses) => {
+					console.log("syncMissingBalances() get new addresses, took:", now() - t_start);
+					//console.log(addresses);
+					if (!err && addresses && addresses.length) {
+						for (let i in addresses) {
+							let address = addresses[i]._id;
+							let latest_balance = await balance(address);
+							await mongo_db_balances.insertOne({ address, latest_balance });
+							console.log("new address added:",address,"balance:",latest_balance);
+						}
+					}
 
-				if (result.upsertedId || result.modifiedCount) {
-					// either initial insert or update occured (= balance has changed since last update)
-					// then go and push new history
-					return mongo_db_balances.updateOne({
-						address: rnodes[k].address
-					}, {
-						$push: { history: { ts, balance: _balance } }
-					}, { upsert: true }).then((result, err) => {
-						console.log("pushed balance history to addr", rnodes[k].address, "new balance:", _balance);
-					});
-				}
-			});
-		}
+					resolve();
+				});
 
-		//console.log(rnodes);
-		console.log("syncBalances() total time:", now() - t_start);
-
-		return rnodes.length;
+		});
 	});
 }
 
@@ -182,14 +162,7 @@ async function syncBackwards () {
 		});
 	});
 }
-async function snapshot () {
-	let has_new = await syncBlock();
 
-	if (!has_new)
-		return Promise.resolve(false);
-
-	return syncRNodes();  //Promise.all([syncRNodes(), syncGeneration()]);
-}
 async function syncBlock (targetBlockNum = null) {
 	const t_start = now();
 	const cur_blockNum = await blockNumber();
@@ -233,10 +206,11 @@ async function syncBlock (targetBlockNum = null) {
 	await mongo_db_blocks.updateOne({ number: number }, { $set: b }, { upsert: true });			// insert block into mongo, if not yet done so
 	console.log("added block (generation: "+!!b.__generation+"):", number, "took:", now()-t_start);
 
-	if (!trxs || !trxs.length) return Promise.resolve(true);
+	if (!trxs || !trxs.length) return Promise.resolve({b, trxs: []});
 
 	try {
 		for (let i in trxs) {
+			// add transaction
 			trxs[i].__ts = b.timestamp;	// block timestamp
 			await mongo_db_transactions.updateOne({hash: trxs[i].hash}, {$set: trxs[i]}, { upsert: true });			// insert transaction into mongo, if not yet done so
 			console.log("added transaction:", trxs[i].hash);
@@ -245,7 +219,65 @@ async function syncBlock (targetBlockNum = null) {
 		console.error(err);
 	}
 
-	return Promise.resolve(true);	
+	return Promise.resolve({b, trxs});	
+}
+
+async function updateBalancesByBlock (block, trxs) {
+	// calculate balance changes in bulk, without actually requesting balance from the node (to save request time)
+	const changeByAddr = {};
+
+	// always update proposer balance; proposer getting balance increased via smart contract, not via transaction
+	try { await balances.update(block.miner); } catch () {}
+
+
+	if (trxs.length == 0) return Promise.resolve(null);
+
+	// update addresses balance via found transactions
+	for (let i in trxs) {
+		let trx = trxs[i];
+
+		// 0 value is not relevant
+		if (trx.value == 0) continue;
+
+		if (changeByAddr[trx.from] === undefined) changeByAddr[trx.from] = 0;
+		if (changeByAddr[trx.to] === undefined) changeByAddr[trx.to] = 0;
+
+		changeByAddr[trx.from] = -trx.value;
+		changeByAddr[trx.to] = trx.value;
+	}
+
+	// execute in bulk
+
+	// get first all adresses balances
+	const addresses = Object.keys(changeByAddr);
+
+	return new Promise((resolve, reject) => {
+		mongo_db_balances.find({ address: { $in: addresses } }, { address:1, latest_balance:1 }).toArray(async (err, items) => {
+			for (let i in addresses) {
+				let addr = addresses[i];
+				let latest_balance = null;
+				let found = items.filter(_ => _.address == addr);
+
+				if (found.length) {		// update balance
+					latest_balance = found[0].latest_balance + changeByAddr[addr];
+				} else {				// new address: get latest balance from node
+					latest_balance = await balance(addr);		// expensive node call
+				}
+
+				const _balance = {
+					latest_balance,
+					address: addr
+				};
+
+// TODO: faster bulk update
+				// update/insert
+				await mongo_db_balances.updateOne({ address: addr }, { $set: _balance }, { upsert: true });
+				console.log("balance updated,",addr,"to",latest_balance);
+			}
+
+			resolve();
+		});
+	});
 }
 
 function sanitizeBlock (block) {

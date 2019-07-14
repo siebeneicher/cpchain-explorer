@@ -2,36 +2,63 @@ const mongo = require('../mongo');
 const config = require('../config');
 const now = require('performance-now');
 const moment = require('moment');
-const {web3} = require('../../cpc-fusion/api');
+const {web3, balance} = require('../../cpc-fusion/api');
+const {isAddress} = require('../helper');
 
-module.exports = {getByUnit, latest};
 
+module.exports = {getByUnit, latest, update};
+
+async function update (addr) {
+	const t_start = now();
+
+	// is address
+	if (!isAddress(addr))
+		return Promise.reject({invalidAddress: true});
+
+	// sanitize given addr
+	addr = web3.utils.toChecksumAddress(addr);
+
+	return new Promise(async (resolve, reject) => {
+		try {
+			let b = await balance(addr);
+			await mongo.db(config.mongo.db.sync).collection('balances')
+				.updateOne({ address: addr }, { $set: { address: addr, latest_balance: b} }, { upsert: true });
+			console.log("balance updated,",addr,"to",b);
+			resolve(b);
+		} catch (err) {
+			reject(err.message);
+		}
+	});
+}
 
 async function latest (addr) {
 	const t_start = now();
+
+	// is address
+	if (!isAddress(addr))
+		return Promise.reject({invalidAddress: true});
 
 	// sanitize given addr
 	addr = web3.utils.toChecksumAddress(addr);
 
 	return new Promise((resolve, reject) => {
-		mongo.db(config.mongo.db.sync).collection('balances').find({address: addr}).project({history: 0}).toArray((err, result) => {
-			//console.log('balances: ', err, result);
+		mongo.db(config.mongo.db.sync).collection('balances')
+			.find({address: addr})
+			.project({history: 0})
+			.toArray((err, result) => {
+				//console.log('balances: ', err, result);
 
-			if (!result || result.length == 0) {
-				resolve(null);
-				return;
-			}
+				if (result && result.length) {
+					return resolve(result[0].latest_balance);
+				}
 
-			if (err || result[0] === undefined) {
-				console.error(err);
-				reject(null /*balance(node, blockNum)*/);
-				return;
-			}
+				try {
+					resolve(update(addr));
+				} catch (err) {
+					reject(err);
+				}
 
-			//console.log("balances.latest for", addr, " found: "+result[0].latest_balance+" took", now()-t_start);
-
-			resolve(result[0].latest_balance);
-		});
+			});
 	});
 }
 
