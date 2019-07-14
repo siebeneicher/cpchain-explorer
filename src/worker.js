@@ -6,8 +6,10 @@ const now = require('performance-now');
 const http = require('http');
 const config = require('./app/config');
 const {aggregate, updateAll} = require('./app/middleware');
+const compression = require('compression')
 
 
+//app.use(compression({}));
 
 app.use('/app', express.static(__dirname + '/app'));
 app.use('/libs', express.static(__dirname + '/libs'));
