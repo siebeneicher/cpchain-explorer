@@ -1,6 +1,6 @@
 const express = require('express');
 const app = module.exports = express();
-const {rnodes, dashboard, aggregate, updateAll, blocks, transactions, addresses} = require('./middleware');
+const {rnodes, dashboard, aggregate, updateAll, blocks, transactions, addresses, search} = require('./middleware');
 const {promisify} = require('util');
 const fs = require('fs');
 const path = require('path');
@@ -34,6 +34,8 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await transactions.ofAddress(req.params.addr));
 }).get('/api/v1/address/:addr', async function (req, res) {
 	res.json(await addresses.get(req.params.addr));
+}).get('/api/v1/search/:term', async function (req, res) {
+	res.json(await search.typeOf(req.params.term));
 });
 
 

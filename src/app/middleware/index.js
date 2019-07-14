@@ -6,6 +6,7 @@ const addresses = require('./addresses');
 const blocks = require('./blocks');
 const transactions = require('./transactions');
 const rnodes = require('./rnodes');
+const search = require('./search');
 const kpi = require('./kpi');
 const moment = require('moment');
 
@@ -36,5 +37,6 @@ module.exports = {
 	addresses,
 	rnodes,
 	kpi,
-	transactions
+	transactions,
+	search
 };
