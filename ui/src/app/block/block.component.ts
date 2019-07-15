@@ -21,6 +21,7 @@ export class BlockComponent implements OnInit {
 	number:number;
 	block:any = {};
 	transactions:Array<any> = [];
+	loadingTrx:boolean = false;
 
 	constructor (
 		private httpClient: HttpClient,
@@ -54,11 +55,13 @@ export class BlockComponent implements OnInit {
 	}
 
 	async loadTransactions () {
+		this.loadingTrx = true;
 		let url = environment.backendBaseUrl + '/block/transactions/' + this.number;
 
 		return new Promise((resolve, reject) => {
 			return this.httpClient.get(url).subscribe(res => {
 				this.transactions = <Array<any>> res;
+				this.loadingTrx = false;
 				resolve();
 			});
 		});

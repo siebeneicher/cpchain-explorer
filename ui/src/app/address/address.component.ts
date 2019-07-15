@@ -22,6 +22,7 @@ export class AddressComponent implements OnInit {
 	info:any = {};
 	transactions:Array<any> = [];
 	invalidAddress:boolean = false;
+	loadingTrx:boolean = false;
 
 	trx_limit:number;
 
@@ -39,10 +40,10 @@ export class AddressComponent implements OnInit {
 			this.addr = params.addr;
 			this.transactions = [];
 			this.info = {};
-			await this.load();
-
+			this.loadingTrx = true;
 			this.trx_limit = 15;
-			setTimeout(() => this.loadTrxs(), 500);
+			await this.load();
+			setTimeout(() => this.loadTrxs(), 50);
 		});
 	}
 
@@ -63,7 +64,6 @@ export class AddressComponent implements OnInit {
 				}
 
 				this.invalidAddress = false;
-
 				this.info = addr;
 				resolve();
 			});
@@ -81,6 +81,7 @@ export class AddressComponent implements OnInit {
 				}*/
 
 				this.transactions = <Array<any>> res.transactions;
+				this.loadingTrx = false;
 				resolve();
 			});
 		});

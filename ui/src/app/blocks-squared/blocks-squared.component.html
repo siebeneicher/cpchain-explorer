@@ -19,6 +19,7 @@
 						*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
 						class="block"
 						[attr.data-index]="i"
+						[class.has-trx]="block.trx_count > 0"
 						[class.linebreak]="block.sec == 0 && block.min == 0"
 						[class.synced]="block.synced"
 						[class.sync-should]="block.sync_should"
@@ -30,20 +31,23 @@
 		<br><br>
 
 		<div class="columns legend">
-			<div class="column is-one-fifth">
-				<span class="colorbox validated"></span><span class="desc">Validated Block</span>
+			<div class="column">
+				<span class="colorbox validated-empty"></span><span class="desc">Validated Block (empty)</span>
 			</div>
-			<div class="column is-one-fifth">
+			<div class="column">
+				<span class="colorbox validated"></span><span class="desc">Validated Block (has Trx's)</span>
+			</div>
+			<div class="column">
 				<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
 			</div>
-			<div class="column is-one-fifth">
+			<div class="column">
 				<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
 			</div>
-			<div class="column is-one-fifth">
+			<div class="column">
 				<span class="colorbox future"></span><span class="desc">Future Block</span>
 			</div>
 		</div>
 	</div>
 </div>
 
-<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}">Block: {{hovered_block ? hovered_block.number : '-'}} // Time: {{hovered_block ? hovered_block.time_pretty : ''}}<!--  // Transactions: TODO --></div>
+<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}">Block: {{hovered_block ? hovered_block.number : '-'}} / Trx's: {{hovered_block.trx_count}} / Time: {{hovered_block ? hovered_block.time_pretty : ''}}</div>

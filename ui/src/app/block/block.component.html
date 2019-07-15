@@ -25,9 +25,10 @@
 		</tbody>
 	</table>
 
-	<h2 class="title" *ngIf="transactions.length">
+	<h2 class="title">
 		Transactions
-		<span *ngIf="transactions">({{transactions.length}})</span>
+		<span *ngIf="!loadingTrx && transactions">({{transactions.length}})</span>
+		<span *ngIf="loadingTrx" class="">(Loading)</span>
 	</h2>
 
 	<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="transactions.length">

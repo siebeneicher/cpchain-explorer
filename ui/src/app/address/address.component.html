@@ -20,7 +20,8 @@
 
 		<h3 class="title">
 			Transactions
-			<span *ngIf="transactions">({{transactions.length}})</span>
+			<span *ngIf="!loadingTrx && transactions">({{transactions.length}})</span>
+			<span *ngIf="loadingTrx" class="">(Loading)</span>
 		</h3>
 
 		<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="transactions.length">

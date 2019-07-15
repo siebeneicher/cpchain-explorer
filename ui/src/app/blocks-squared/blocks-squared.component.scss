@@ -3,6 +3,7 @@ $color-impeached: red;
 $color-validated: green;
 $color-unsynced: orange;
 $color-future: lightgrey;
+$color-validated-empty: rgba(18, 159, 67, 0.4);
 
 .main-container {
 	min-height: 550px;
@@ -27,23 +28,33 @@ $color-future: lightgrey;
 			flex-flow: row wrap;
 
 			.block {
-				background-color: $color-future;
 				margin: 1px;
-				width: 5px;
-				height: 5px;
+				width: 6px;
+				height: 6px;
+
+				// future
+				background-color: $color-future;
+				border: 1px solid $color-future;
 
 				&.linebreak {
 					flex-basis: 100%;
 					height: 0;
 				}
 				&.synced {
-					background-color: $color-validated !important;
+					background-color: $color-validated-empty !important;
+					border: 1px solid $color-validated-empty !important;
+
+					&.has-trx {
+						background-color: $color-validated !important;
+					}
 				}
 				&.sync-should {
 					background-color: $color-unsynced;
+					border: 1px solid $color-unsynced;
 				}
 				&.impeached.impeached {
 					background-color: $color-impeached !important;
+					border: 1px solid $color-impeached;
 				}
 			}
 		}
@@ -62,16 +73,19 @@ $color-future: lightgrey;
 			height: 12px;
 
 			&.validated {
-				background-color: green;
+				background-color: $color-validated;
+			}
+			&.validated-empty {
+				background-color: $color-validated-empty;
 			}
 			&.impeached {
-				background-color: red;
+				background-color: $color-impeached;
 			}
 			&.unsynced {
-				background-color: orange;
+				background-color: $color-unsynced;
 			}
 			&.future {
-				background-color: lightgrey;
+				background-color: $color-future;
 			}
 		}
 		.desc {

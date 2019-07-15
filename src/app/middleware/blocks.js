@@ -60,7 +60,9 @@ const squared = {
 
 					// make sure we find block even with timestamp not matching
 					const find_block = data.filter(_ => _.timestamp >= assumed_time && !(_.timestamp > (config.cpc.block_each_second*1000)+assumed_time));
-					const block = find_block.length ? find_block[0] : {number: calculate_future_block_number(last_synced_block, assumed_time), impeached: null};
+					const block = find_block.length ?
+						find_block[0] :
+						{number: calculate_future_block_number(last_synced_block, assumed_time), impeached: null};
 					block.synced = !!find_block.length;
 
 					if (block.synced) {
@@ -71,6 +73,9 @@ const squared = {
 
 					block.i = i;
 					block.time_pretty = time_pretty;
+
+					block.trx_count = block.transactions ? block.transactions.length : 0;
+					delete block.transactions;
 
 					_blocks.push(block);
 				}
