@@ -6,22 +6,27 @@ const fs = require('fs');
 const path = require('path');
 const redis = require('./redis');
 const config = require('./config');
-const cache = require('express-redis-cache')({ client: redis.client, prefix: config.redis.prefix });
+const cache = require('express-redis-cache')({ client: redis.client, prefix: config.redis.prefix_express });
+const now = require('performance-now');
 
 
-/*	cache.get(function (error, entries) {
-		if ( error ) throw error;
-		entries.forEach(console.log.bind(console));
-	});*/
-/*	let d = await redis.get(config.redis.prefix+':dashboard');
-	console.log(d);*/
 
 app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await rnodes.user.get(req.params.addr));
 }).get('/api/v1/dashboard', /*cache.route('dashboard'), */async function (req, res) {
 	res.json(await dashboard.get());
-}).get('/api/v1/blocks-squared', async function (req, res) {
-	res.json(await blocks.squared.get(req.query.unit, parseInt(req.query.ts)));
+}).get('/api/v1/blocks-squared/:unit/:ts', /*decideNoCache, cache.route(),*/ async function (req, res) {
+	res.json(await blocks.squared.get(req.params.unit, parseInt(req.params.ts)));
+
+// TODO: forcefully overwriting the cache value, via the decideNoCache() does not work, it is not using cache, but also not setting it!
+// Desired behavior: cache gzipped response, not just the raw content
+
+/*	const data = await blocks.squared.get(req.params.unit, parseInt(req.params.ts));
+//	data.cached = now();
+let t = now();
+	console.log("=====>",t);
+	res.use_express_redis_cache = true;
+	res.json({now: t});*/
 }).get('/api/v1/rnodes-streamgraph', async function (req, res) {
 	res.json(await rnodes.streamgraph.get(req.query.unit, parseInt(req.query.times)));
 }).get('/api/v1/block/transactions/:number', async function (req, res) {
@@ -63,3 +68,14 @@ app.get(/\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode)/, as
 app.get('/*', async function (req, res) {
 	res.status(404).json({error: 404});
 })
+
+
+
+
+
+// cache middleware to decide using cache or not
+function decideNoCache (req, res, next) {
+	// Use only cache if user not signed in
+	res.use_express_redis_cache = !req.headers['cpc-explorer-force-no-cache'];
+	next();
+}

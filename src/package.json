@@ -30,6 +30,8 @@
     "object-assign-deep": "^0.4.0",
     "performance-now": "~2.1.0",
     "redis": "~2.8.x",
+    "request": "^2.88.0",
+    "response-time": "^2.3.2",
     "sha3": "^2.0.6",
     "socket.io": "~2.2.x",
     "socket.io-redis": "~5.2.x",

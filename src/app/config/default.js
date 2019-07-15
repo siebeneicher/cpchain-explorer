@@ -2,13 +2,15 @@ const block_each_second = 10;
 
 module.exports = {
 	server: {
+		scheme: 'http',
 		host: 'localhost',
 		port: 8080
 	},
 	redis: {
 		host: 'localhost',
 		port: '6379',
-		prefix: 'cpc.explorer'
+		prefix: 'cpc.explorer.data',
+		prefix_express: 'cpc.explorer.express'
 	},
 	mongo: {
 		url: 'mongodb://localhost:27017',

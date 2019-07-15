@@ -7,9 +7,12 @@ const http = require('http');
 const config = require('./app/config');
 const {aggregate, updateAll} = require('./app/middleware');
 const compression = require('compression')
+const responseTime = require('response-time')
+const redis = require('./app/redis');
 
 
 app.use(compression({}));
+app.use(responseTime());
 
 app.use('/app', express.static(__dirname + '/app'));
 app.use('/libs', express.static(__dirname + '/libs'));
@@ -39,6 +42,11 @@ async function init () {
 				resolve();
 			});
 		}, 2500);
+
+		// DEBUG REDIS
+/*		setInterval(async () => {
+			console.log(await redis.keys(config.redis.prefix_express));
+		}, 2000);*/
 	});
 }
 
@@ -48,4 +56,4 @@ async function tests () {
 	});
 }
 
-init().then(/*aggregate.reset*/);
+init();

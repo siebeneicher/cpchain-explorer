@@ -23,6 +23,8 @@ export class BlocksSquaredComponent implements OnInit {
 	hover_tooltip:any;
 	loading:boolean = false;
 
+	intervalId:any;
+
 	//@ViewChild('hovertooltip') hovertooltip; 
 
 	constructor(private httpClient: HttpClient, private ref: ChangeDetectorRef, private elementRef: ElementRef) { }
@@ -39,7 +41,7 @@ export class BlocksSquaredComponent implements OnInit {
 			this.loadBlocksSquared();
 		}, 1500);
 
-		setInterval(() => {
+		this.intervalId = setInterval(() => {
 			this.loadBlocksSquared();
 		}, 10000);
 
@@ -59,11 +61,10 @@ export class BlocksSquaredComponent implements OnInit {
 
 			observer.observe(this.elementRef.nativeElement.querySelector('.initial-loading-placeholder'));
 		}, 2000);*/
-
-
 	}
 
 	ngOnDestroy() {
+		clearInterval(this.intervalId);
 		this.destroyTooltip();
 	}
 
@@ -84,7 +85,7 @@ export class BlocksSquaredComponent implements OnInit {
 		if (changed)		// show loading spinner only when date has been manually changed
 			this.loading = true;
 
-		this.httpClient.get(environment.backendBaseUrl+`/blocks-squared?unit=${this.unit}&ts=${this.ts}`).subscribe(res => {
+		this.httpClient.get(environment.backendBaseUrl+`/blocks-squared/${this.unit}/${this.ts}`).subscribe(res => {
 			this.blocksByHour.length = 0;
 
 			let ts_now = moment.utc().unix()*1000;

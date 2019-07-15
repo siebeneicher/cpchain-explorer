@@ -73,6 +73,13 @@ const self = {
 	expire: (what, expire) => {
 		redis.expire(what, expire);
 	},
+	keys: async (prefix = "") => {
+		return new Promise((resolve, reject) => {
+			redis.keys(prefix+'*', (err, keys) => {
+				resolve(keys);
+			});
+		});
+	},
 	client: redis
 };
 

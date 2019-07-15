@@ -13,7 +13,7 @@
 			<tr><td>Height</td><td>{{number}}</td></tr>
 			<tr><td>Timestamp</td><td>{{ago(block.timestamp)}} | {{block.timestamp | date: 'full' : 'UTC' }}</td></tr>
 			<tr><td>Transactions</td><td>
-				{{block.transactions.length}} trx's
+				{{block.transactions ? block.transactions.length : '-'}} trx's
 			</td></tr>
 			<tr><td>Proposer</td><td><a [routerLink]="['/address', block.miner]">{{block.miner}}</a></td></tr>
 			<tr><td>Reward</td><td>{{block.__reward}} CPC ({{block.__fixed_reward}} fixed + {{block.__fee}} fee)</td></tr>

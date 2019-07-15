@@ -81,6 +81,8 @@ async function getByUnit (addr, unit, ts) {
 				reject(null /*balance(node, blockNum)*/);
 				return;
 			}
+// TODO: make history mandatory
+return resolve(result[0].latest_balance);
 
 			// only during the timespan and 1st before is relevant
 			// after is not relevant, as we store only changes in history

@@ -54,7 +54,7 @@ export class KpiService {
 			},
 			myrnode: {
 				required: false,
-				interval: 10000,
+				interval: 60000,
 				api: '/rnode/user/$addr',
 				data: null,
 				defaults: {
