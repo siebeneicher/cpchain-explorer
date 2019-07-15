@@ -15,7 +15,19 @@ async function get (hash) {
 			}
 
 			let b = await balances.latest(hash);
-			resolve({address: hash, balance: b});
+			resolve({address: hash, balance: b, rank: await rankings(hash)});
+		} catch (err) {
+			if (!err) resolve({empty: true});
+			else resolve({err: err.message});
+		}
+	});
+}
+
+async function rankings (addr = null) {
+	return new Promise(async function (resolve, reject) {
+		try {
+			let r = await balances.ranking(addr);
+			resolve(r);
 		} catch (err) {
 			if (!err) resolve({empty: true});
 			else resolve({err: err.message});

@@ -44,6 +44,7 @@ const user = {
 				const rnode = {
 					last_rpt: await rnodes.last_rpt(addr),		// incl. rank
 					last_balance: await balances.latest(addr),
+					last_balance_rank: await balances.ranking(addr),
 					last_blocks: {
 						minute: {
 							option: await kpi.options('last_blocks', 'minute'),

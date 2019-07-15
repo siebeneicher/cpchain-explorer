@@ -6,7 +6,44 @@ const {web3, balance} = require('../../cpc-fusion/api');
 const {isAddress} = require('../helper');
 
 
-module.exports = {getByUnit, latest, update};
+module.exports = {getByUnit, latest, update, ranking};
+
+async function ranking (addr = null) {
+	const t_start = now();
+
+	// is address
+	if (!isAddress(addr))
+		return Promise.reject({invalidAddress: true});
+
+	// sanitize given addr
+	addr = web3.utils.toChecksumAddress(addr);
+
+	return new Promise((resolve, reject) => {
+		mongo.db(config.mongo.db.sync).collection('balances')
+			.aggregate([
+				{ $sort: { latest_balance: -1 } },
+				{ $project: { address:1, latest_balance:1 } }
+			])
+			.toArray((err, all) => {
+				if (err) return reject(err);
+				else if (!all || !all.length) return reject(null);
+
+				for (let i in all) {
+					all[i].rank = {pos: parseInt(i)+1, of: all.length};
+				}
+
+				console.log("balances.ranks("+addr+") took", now()-t_start);
+
+				if (addr) {
+					let found = all.filter(_ => _.address == addr);
+					if (found && found.length)
+						return resolve(found[0].rank);
+				}
+
+				resolve(all);
+			});
+	});
+}
 
 async function update (addr) {
 	const t_start = now();

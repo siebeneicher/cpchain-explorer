@@ -536,4 +536,4 @@ async function init (clearAll = false) {
 	});
 }
 
-init(false).then(backwardsCalculateTrxTimeOfBlock).then(collect);
+init(false)/*.then(backwardsCalculateTrxTimeOfBlock)*/.then(collect);

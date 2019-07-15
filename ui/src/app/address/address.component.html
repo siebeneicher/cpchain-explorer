@@ -13,14 +13,14 @@
 					{{addr}}
 				</td></tr>
 				<tr><td>Balance</td><td>{{info.balance}} CPC</td></tr>
-				<tr><td>Rank</td><td>TODO</td></tr>
+				<tr><td>Rank</td><td>{{info.rank.pos}} of {{info.rank.of}}</td></tr>
 				<tr><td>Type</td><td>TODO</td></tr>
 			</tbody>
 		</table>
 
 		<h3 class="title">
 			Transactions
-			<span *ngIf="!loadingTrx && transactions">({{transactions.length}})</span>
+			<span *ngIf="!loadingTrx">({{transactions.length}})</span>
 			<span *ngIf="loadingTrx" class="">(Loading)</span>
 		</h3>
 
@@ -38,9 +38,9 @@
 				<ng-container *ngFor="let trx of transactions; let i = index">
 					<tr *ngIf="i < trx_limit">
 						<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:15}}...</a></td>
-						<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'full' : 'UTC' }}</td>
+						<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'long' : 'UTC' }}</td>
 						<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:15}}...</a></td>
-						<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'primary' : 'warning' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
+						<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'warning' : 'success' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
 						<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:15}}...</a></td>
 						<td>{{trx.value | convertCpc }} CPC</td>
 						<td>TODO</td>

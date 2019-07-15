@@ -80,7 +80,7 @@ export class AddressComponent implements OnInit {
 					return;
 				}*/
 
-				this.transactions = <Array<any>> res.transactions;
+				this.transactions = res && res.transactions ? <Array<any>> res.transactions : [];
 				this.loadingTrx = false;
 				resolve();
 			});

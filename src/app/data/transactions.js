@@ -2,6 +2,8 @@ const mongo = require('../mongo');
 const config = require('../config');
 const now = require('performance-now');
 const {convert_ts, last_unit_ts} = require('../helper');
+const {web3, balance} = require('../../cpc-fusion/api');
+
 
 module.exports = {last_sum, items, get, ofBlock, ofAddress}
 
@@ -83,7 +85,7 @@ async function ofBlock (blockNumber) {
 }
 
 async function ofAddress (addrHash) {
-		// sanitize given addr
+	// sanitize given addr
 	addrHash = web3.utils.toChecksumAddress(addrHash);
 
 	return new Promise((resolve, reject) => {

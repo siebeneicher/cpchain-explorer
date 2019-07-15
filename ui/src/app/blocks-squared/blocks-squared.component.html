@@ -19,7 +19,7 @@
 						*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
 						class="block"
 						[attr.data-index]="i"
-						[class.has-trx]="block.trx_count > 0"
+						[class.has-trx]="block.trx_count"
 						[class.linebreak]="block.sec == 0 && block.min == 0"
 						[class.synced]="block.synced"
 						[class.sync-should]="block.sync_should"
