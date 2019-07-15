@@ -29,6 +29,7 @@
 				<th>TxHash</th>
 				<th>When</th>
 				<th>From</th>
+				<th></th>
 				<th>To</th>
 				<th>Value</th>
 				<th>TxFee</th>
@@ -39,6 +40,7 @@
 						<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:15}}...</a></td>
 						<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'full' : 'UTC' }}</td>
 						<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:15}}...</a></td>
+						<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'primary' : 'warning' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
 						<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:15}}...</a></td>
 						<td>{{trx.value | convertCpc }} CPC</td>
 						<td>TODO</td>

@@ -125,7 +125,6 @@ async function ofBlock (blockNumber) {
 }
 
 async function ofAddress (addrHash) {
-	debugger;
 	return new Promise(async function (resolve, reject) {
 		try {
 			resolve(await transactions.ofAddress(addrHash));

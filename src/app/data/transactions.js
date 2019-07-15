@@ -83,6 +83,9 @@ async function ofBlock (blockNumber) {
 }
 
 async function ofAddress (addrHash) {
+		// sanitize given addr
+	addrHash = web3.utils.toChecksumAddress(addrHash);
+
 	return new Promise((resolve, reject) => {
 		mongo.db(config.mongo.db.sync).collection('balances')
 			.aggregate([

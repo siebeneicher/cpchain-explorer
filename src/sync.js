@@ -487,6 +487,30 @@ async function backwardsCalculateTrxAndattachBlockFeeReward () {
 	});
 }
 
+async function backwardsCalculateTrxTimeOfBlock () {
+	// this function can be called to set ts of trx from its block
+	// only used once, after new feature of trx.ts in sync got implemented
+	return new Promise((resolve, reject) => {
+		mongo_db_transactions.aggregate([
+				{ $lookup: {
+					from: 'blocks',
+					localField: 'blockNumber',
+					foreignField: 'number',
+					as: 'block'
+				} },
+				{ $project: { _id:1, hash:1, 'ts':'$block.timestamp' } }
+			]).toArray(async function (err, trxs) {
+
+				for (let i in trxs) {
+					await mongo_db_transactions.updateOne({_id: trxs[i]._id}, {$set: { __ts: trxs[i].ts[0] }}, { upsert: true });
+				};
+
+				console.log("Set timestamp for each trx from its block:", trxs.length);
+				resolve();
+			});
+	});
+}
+
 async function init (clearAll = false) {
 	return new Promise((resolve, reject) => {
 		mongo.on('connect', async function(err, client) {
@@ -512,4 +536,4 @@ async function init (clearAll = false) {
 	});
 }
 
-init(false)/*.then(backwardsCalculateTrxAndattachBlockFeeReward)*/.then(collect);
+init(false).then(backwardsCalculateTrxTimeOfBlock).then(collect);
