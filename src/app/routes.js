@@ -9,7 +9,10 @@ const config = require('./config');
 const cache = require('express-redis-cache')({ client: redis.client, prefix: config.redis.prefix_express });
 const now = require('performance-now');
 
-
+app.use((req, res, next)=> {
+  console.log("REQ: ", req.url);
+  next();
+})
 
 app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await rnodes.user.get(req.params.addr));
@@ -60,12 +63,13 @@ app.get('/aggregate', async function (req, res) {
 // UI (ORDER AFTER API ROUTES)
 app.use('/', express.static(__dirname + '/../ui-build'));
 
-app.get(/\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode)/, async function (req, res) {
+app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode)/, async function (req, res) {
 	res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
 })
 
 // last one, as its wildcard
 app.get('/*', async function (req, res) {
+	console.error("404:", req.url);
 	res.status(404).json({error: 404});
 })
 
