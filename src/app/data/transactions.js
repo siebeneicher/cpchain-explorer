@@ -85,6 +85,8 @@ async function ofBlock (blockNumber) {
 }
 
 async function ofAddress (addrHash) {
+	const t_start = now();
+
 	// sanitize given addr
 	addrHash = web3.utils.toChecksumAddress(addrHash);
 
@@ -130,7 +132,7 @@ async function ofAddress (addrHash) {
 					'transactions_to.to':1,
 					'transactions_to.from':1,
 					'transactions_to.blockNumber':1,
-				} }
+				} },
 			])
 			.toArray((err, addr) => {
 
@@ -141,11 +143,13 @@ async function ofAddress (addrHash) {
 				const trxs = addr[0].transactions_from.concat(addr[0].transactions_to);
 
 				// sort
-				trxs.sort((a,b) => (a.__ts > b.__ts) ? 1 : ((b.__ts > a.__ts) ? -1 : 0));
+				trxs.sort((a,b) => (a.__ts > b.__ts) ? -1 : ((b.__ts > a.__ts) ? 1 : 0));
 
 				addr[0].transactions = trxs;
 				delete addr[0].transactions_from;
 				delete addr[0].transactions_to;
+
+				console.log("transactions.ofAddress(", addrHash, ") took", now() - t_start);
 
 				resolve(addr[0]);
 			});

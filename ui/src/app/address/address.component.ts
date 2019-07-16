@@ -23,7 +23,6 @@ export class AddressComponent implements OnInit {
 	transactions:Array<any> = [];
 	invalidAddress:boolean = false;
 	loadingTrx:boolean = false;
-
 	trx_limit:number;
 
 	constructor (
@@ -40,8 +39,9 @@ export class AddressComponent implements OnInit {
 			this.addr = params.addr;
 			this.transactions = [];
 			this.info = {};
-			this.loadingTrx = true;
 			this.trx_limit = 15;
+			this.invalidAddress = false;
+			this.loadingTrx = true;
 			await this.load();
 			setTimeout(() => this.loadTrxs(), 50);
 		});

@@ -41,9 +41,9 @@
 		</thead>
 		<tbody>
 			<tr *ngFor="let trx of transactions">
-				<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:15}}...</a></td>
-				<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:15}}...</a></td>
-				<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:15}}...</a></td>
+				<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:12}}...</a></td>
+				<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:12}}...</a></td>
+				<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:12}}...</a></td>
 				<td>{{trx.value | convertCpc }} CPC</td>
 				<td>TODO</td>
 			</tr>

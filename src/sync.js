@@ -229,6 +229,7 @@ async function updateBalancesByBlock (block, trxs) {
 	// always update proposer balance; proposer getting balance increased via smart contract, not via transaction
 	try { await balances.update(block.miner); } catch (err) {}
 
+// TODO: update emitter balance as well
 
 	if (trxs.length == 0) return Promise.resolve(null);
 
@@ -245,6 +246,7 @@ async function updateBalancesByBlock (block, trxs) {
 		changeByAddr[trx.from] = -trx.value;
 		changeByAddr[trx.to] = trx.value;
 	}
+
 
 	// execute in bulk
 
@@ -423,7 +425,7 @@ function ensure_indexes () {
 			if (!indexes.ts_1)
 				await mongo_db_balances.createIndex({ ts: -1 }, { unique: false });
 			if (!indexes.balance_1)
-				await mongo_db_balances.createIndex({ balance: 1 }, { unique: false });
+				await mongo_db_balances.createIndex({ balance: -1 }, { unique: false });
 			if (!indexes.address_1)
 				await mongo_db_balances.createIndex({ address: 1 }, { unique: true });
 		})
@@ -432,12 +434,14 @@ function ensure_indexes () {
 	if (mongo_db_transactions) {
 		mongo_db_transactions.indexInformation(async (err, indexes) => {
 			if (err) return;
-			if (!indexes.blockHash_1)
-				await mongo_db_transactions.createIndex({ blockHash: 1 }, { unique: false });
+/*			if (!indexes.blockHash_1)
+				await mongo_db_transactions.createIndex({ blockHash: 1 }, { unique: false });*/
 			if (!indexes.blockNumber_1)
 				await mongo_db_transactions.createIndex({ blockNumber: -1 }, { unique: false });
 			if (!indexes.hash_1)
 				await mongo_db_transactions.createIndex({ hash: 1 }, { unique: true });
+			if (!indexes.to_1_from_1)
+				await mongo_db_transactions.createIndex({ to: 1, from: 1 }, { unique: false });
 		})
 	}
 }

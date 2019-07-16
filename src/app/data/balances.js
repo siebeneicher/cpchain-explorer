@@ -63,7 +63,7 @@ async function update (addr) {
 			console.log("balance updated,",addr,"to",b);
 			resolve(b);
 		} catch (err) {
-			reject(err.message);
+			reject(err);
 		}
 	});
 }
