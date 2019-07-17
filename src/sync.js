@@ -535,8 +535,10 @@ async function backwardsFindNewAddresses () {
 		]).toArray(async (err, result) => {
 			if (result) {
 				for (let i in result) {
-					await balances.update(result[i]._id)
-					known.push(result[i]._id);
+					try {
+						await balances.update(result[i]._id)
+						known.push(result[i]._id);
+					} catch (err) { console.error(err); }
 				}
 				console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
 			}
@@ -551,8 +553,10 @@ async function backwardsFindNewAddresses () {
 			]).toArray(async (err, result) => {
 				if (result) {
 					for (let i in result) {
-						await balances.update(result[i]._id)
-						known.push(result[i]._id);
+						try {
+							await balances.update(result[i]._id)
+							known.push(result[i]._id);
+						} catch (err) { console.error(err); }
 					}
 					console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
 				}
@@ -568,8 +572,10 @@ async function backwardsFindNewAddresses () {
 			]).toArray(async (err, result) => {
 				if (result) {
 					for (let i in result) {
-						await balances.update(result[i]._id)
-						known.push(result[i]._id);
+						try {
+							await balances.update(result[i]._id)
+							known.push(result[i]._id);
+						} catch (err) { console.error(err); }
 					}
 					console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
 				}
@@ -587,8 +593,10 @@ async function backwardsFindNewAddresses () {
 				debugger;
 				if (result) {
 					for (let i in result) {
-						await balances.update(result[i]._id)
-						known.push(result[i]._id);
+						try {
+							await balances.update(result[i]._id)
+							known.push(result[i]._id);
+						} catch (err) { console.error(err); }
 					}
 					console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
 				}
