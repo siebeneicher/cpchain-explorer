@@ -1,6 +1,6 @@
 const {blockNumber, versions, rnodes, block, generation, transaction, web3, balance} = require('./cpc-fusion/api');
 const mongo = require('./app/mongo');
-const { balances } = require('./app/data');
+const { balances, addresses } = require('./app/data');
 const config = require('./app/config');
 const now = require('performance-now');
 const moment = require('moment');
@@ -464,8 +464,10 @@ function trxFee (trx) {
 	return trx.gasPrice * trx.gas / config.cpc.unit_convert;
 }
 
+/**
+ * This function can be called to recalculate fees
+ */
 async function backwardsCalculateTrxAndattachBlockFeeReward () {
-	// this function can be called to recalculate fees
 	return new Promise((resolve, reject) => {
 		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1}).toArray(async function (err, blocks) {
 			for (let i in blocks) {
@@ -491,9 +493,12 @@ async function backwardsCalculateTrxAndattachBlockFeeReward () {
 	});
 }
 
+/**
+ * this function can be called to set ts of trx from its block
+ * only used once, after new feature of trx.ts in sync got implemented
+ */
 async function backwardsCalculateTrxTimeOfBlock () {
-	// this function can be called to set ts of trx from its block
-	// only used once, after new feature of trx.ts in sync got implemented
+
 	return new Promise((resolve, reject) => {
 		mongo_db_transactions.aggregate([
 				{ $lookup: {
@@ -514,6 +519,85 @@ async function backwardsCalculateTrxTimeOfBlock () {
 			});
 	});
 }
+
+/**
+ * Backwards find unknown addresses in trx's and blocks
+ */
+async function backwardsFindNewAddresses () {
+
+	let known = await addresses.all();
+
+	return new Promise((resolve, reject) => {
+		mongo_db_transactions.aggregate([
+			{ $match: { from: { $nin: known } } },
+			{ $project: { from: 1} },
+			{ $group: { _id: '$from' }}
+		]).toArray(async (err, result) => {
+			if (result) {
+				for (let i in result) {
+					await balances.update(result[i]._id)
+					known.push(result[i]._id);
+				}
+				console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
+			}
+			resolve();
+		});
+	}).then(() => {
+		return new Promise((resolve, reject) => {
+			mongo_db_transactions.aggregate([
+				{ $match: { to: { $nin: known } } },
+				{ $project: { to: 1} },
+				{ $group: { _id: '$to' }}
+			]).toArray(async (err, result) => {
+				if (result) {
+					for (let i in result) {
+						await balances.update(result[i]._id)
+						known.push(result[i]._id);
+					}
+					console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
+				}
+				resolve();
+			});
+		});
+	}).then(() => {
+		return new Promise((resolve, reject) => {
+			mongo_db_blocks.aggregate([
+				{ $match: { miner: { $nin: known } } },
+				{ $project: { miner: 1} },
+				{ $group: { _id: '$miner' }}
+			]).toArray(async (err, result) => {
+				if (result) {
+					for (let i in result) {
+						await balances.update(result[i]._id)
+						known.push(result[i]._id);
+					}
+					console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
+				}
+				resolve();
+			});
+		});
+	}).then(() => {
+		return new Promise((resolve, reject) => {
+			mongo_db_rnodes.aggregate([
+				{ $project: { addresses: "$rnodes.Address" } },
+				{ $unwind: '$addresses' },
+				{ $group: { _id: '$addresses' } },
+				{ $match: { _id: { $nin: known } }}
+			]).toArray(async (err, result) => {
+				debugger;
+				if (result) {
+					for (let i in result) {
+						await balances.update(result[i]._id)
+						known.push(result[i]._id);
+					}
+					console.log('backwardsFindNewAddresses() found new address:',result.map(_ => _._id));
+				}
+				resolve();
+			});
+		});
+	});
+}
+
 
 async function init (clearAll = false) {
 	return new Promise((resolve, reject) => {
@@ -540,4 +624,4 @@ async function init (clearAll = false) {
 	});
 }
 
-init(false)/*.then(backwardsCalculateTrxTimeOfBlock)*/.then(collect);
+init(false).then(backwardsFindNewAddresses).then(collect);

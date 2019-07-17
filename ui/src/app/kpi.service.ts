@@ -39,12 +39,15 @@ export class KpiService {
 							'dashboard.rewards': 'day'
 						}
 					},
-					last_transactions_sum: {
+					last_transactions: {
 						count: {
 							'dashboard.top-teaser': 'day',
 							'dashboard.health': 'day'
 						},
 						volume: {
+							'dashboard.health': 'day'
+						},
+						fee_avg: {
 							'dashboard.health': 'day'
 						}
 					}

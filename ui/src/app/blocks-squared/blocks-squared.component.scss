@@ -34,7 +34,7 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 
 				// future
 				background-color: $color-future;
-				border: 1px solid $color-future;
+				//border: 1px solid $color-future;
 
 				&.linebreak {
 					flex-basis: 100%;
@@ -42,7 +42,7 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 				}
 				&.synced {
 					background-color: $color-validated-empty !important;
-					border: 1px solid $color-validated-empty !important;
+					//border: 1px solid $color-validated-empty !important;
 
 					&.has-trx {
 						background-color: $color-validated !important;
@@ -50,11 +50,11 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 				}
 				&.sync-should {
 					background-color: $color-unsynced;
-					border: 1px solid $color-unsynced;
+					//border: 1px solid $color-unsynced;
 				}
 				&.impeached.impeached {
 					background-color: $color-impeached !important;
-					border: 1px solid $color-impeached;
+					//border: 1px solid $color-impeached;
 				}
 			}
 		}

@@ -50,4 +50,4 @@
 	</div>
 </div>
 
-<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}">Block: {{hovered_block ? hovered_block.number : '-'}} / Trx's: {{hovered_block.trx_count}} / Time: {{hovered_block ? hovered_block.time_pretty : ''}}</div>
+<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}"><span *ngIf="hovered_block">#{{hovered_block.number}} / Trx's: {{hovered_block.trx_count}} / {{hovered_block.time_pretty}}</span></div>

@@ -51,7 +51,7 @@ const kpis = {
 			year: async (params) => rewards.last_merged('day', 365, params.addr || null),
 		}
 	},
-	last_transactions_sum: {
+	last_transactions: {
 		options: {
 			minute: { short: 'Minute', abbrev: 'm', full: 'Last Minute' },
 			hour: { short: 'Hour', abbrev: 'h', full: 'Last Hour' },
@@ -62,13 +62,13 @@ const kpis = {
 			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
-			minute: async () => transactions.last_sum('minute', 1),
-			hour: async () => transactions.last_sum('minute', 60),
-			day: async () => transactions.last_sum('minute', 60*24),
-			week: async () => transactions.last_sum('hour', 24*7),
-			month: async () => transactions.last_sum('hour', 24*30),
-			//quarter: async () => transactions.last_sum('day', 31+30+31),
-			year: async () => transactions.last_sum('day', 365),
+			minute: async () => transactions.last('minute', 1),
+			hour: async () => transactions.last('minute', 60),
+			day: async () => transactions.last('minute', 60*24),
+			week: async () => transactions.last('hour', 24*7),
+			month: async () => transactions.last('hour', 24*30),
+			//quarter: async () => transactions.last('day', 31+30+31),
+			year: async () => transactions.last('day', 365),
 		}
 	}
 };
@@ -88,7 +88,7 @@ async function get (key, unit, params = {}, forceUpdate = false) {
 			let data = await redis.get(cache_key);
 
 			if (!forceUpdate && data) {
-				console.log("Serving kpi (",key,unit,params,") from cache");
+				//console.log("Serving kpi (",key,unit,params,") from cache");
 				resolve(data);
 			} else {
 				data = await kpis[key].get[unit](params);

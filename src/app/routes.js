@@ -9,27 +9,23 @@ const config = require('./config');
 const cache = require('express-redis-cache')({ client: redis.client, prefix: config.redis.prefix_express });
 const now = require('performance-now');
 
+
+
 app.use((req, res, next)=> {
-  console.log("REQ: ", req.url);
-  next();
+	//res.setHeader('X-Used-Frontend-Cache', 'yes');
+	//console.log("REQ: ", req.url);
+	next();
 })
+
 
 app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await rnodes.user.get(req.params.addr));
 }).get('/api/v1/dashboard', /*cache.route('dashboard'), */async function (req, res) {
+	//res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await dashboard.get());
-}).get('/api/v1/blocks-squared/:unit/:ts', /*decideNoCache, cache.route(),*/ async function (req, res) {
+}).get('/api/v1/blocks-squared/:unit/:ts', cache.route(), async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await blocks.squared.get(req.params.unit, parseInt(req.params.ts)));
-
-// TODO: forcefully overwriting the cache value, via the decideNoCache() does not work, it is not using cache, but also not setting it!
-// Desired behavior: cache gzipped response, not just the raw content
-
-/*	const data = await blocks.squared.get(req.params.unit, parseInt(req.params.ts));
-//	data.cached = now();
-let t = now();
-	console.log("=====>",t);
-	res.use_express_redis_cache = true;
-	res.json({now: t});*/
 }).get('/api/v1/rnodes-streamgraph', async function (req, res) {
 	res.json(await rnodes.streamgraph.get(req.query.unit, parseInt(req.query.times)));
 }).get('/api/v1/block/transactions/:number', async function (req, res) {

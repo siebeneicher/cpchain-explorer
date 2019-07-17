@@ -63,7 +63,7 @@ async function run () {
 		// create/ensure indexes
 		await ensure_indexes();
 
-		console.log("Run aggregation took", now() - t_start);
+		console.log("Aggregation took", now() - t_start);
 
 		return result;
 	}

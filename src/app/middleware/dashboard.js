@@ -66,34 +66,34 @@ async function update () {
 						data: await kpi.get('last_blocks', 'year')
 					}
 				},
-				last_transactions_sum: {
+				last_transactions: {
 					minute: {
-						option: await kpi.options('last_transactions_sum', 'minute'),
-						data: await kpi.get('last_transactions_sum', 'minute')
+						option: await kpi.options('last_transactions', 'minute'),
+						data: await kpi.get('last_transactions', 'minute')
 					},
 					hour: {
-						option: await kpi.options('last_transactions_sum', 'hour'),
-						data: await kpi.get('last_transactions_sum', 'hour')
+						option: await kpi.options('last_transactions', 'hour'),
+						data: await kpi.get('last_transactions', 'hour')
 					},
 					day: {
-						option: await kpi.options('last_transactions_sum', 'day'),
-						data: await kpi.get('last_transactions_sum', 'day')
+						option: await kpi.options('last_transactions', 'day'),
+						data: await kpi.get('last_transactions', 'day')
 					},
 					week: {
-						option: await kpi.options('last_transactions_sum', 'week'),
-						data: await kpi.get('last_transactions_sum', 'week')
+						option: await kpi.options('last_transactions', 'week'),
+						data: await kpi.get('last_transactions', 'week')
 					},
 					month: {
-						option: await kpi.options('last_transactions_sum', 'month'),
-						data: await kpi.get('last_transactions_sum', 'month')
+						option: await kpi.options('last_transactions', 'month'),
+						data: await kpi.get('last_transactions', 'month')
 					},
 /*					quarter: {
-						option: await kpi.options('last_transactions_sum', 'quarter'),
-						data: await kpi.get('last_transactions_sum', 'quarter')
+						option: await kpi.options('last_transactions', 'quarter'),
+						data: await kpi.get('last_transactions', 'quarter')
 					},*/
 					year: {
-						option: await kpi.options('last_transactions_sum', 'year'),
-						data: await kpi.get('last_transactions_sum', 'year')
+						option: await kpi.options('last_transactions', 'year'),
+						data: await kpi.get('last_transactions', 'year')
 					}
 				},
 				last_rewards: {
@@ -127,7 +127,7 @@ async function update () {
 				last_rnodes: await rnodes.last(),
 			};
 
-			console.log("dashboard took:", now() - t_start);
+			console.log("dashboard.update() took:", now() - t_start);
 			//console.log(data.last_rewards.year);
 
 			redis.set(CACHE_KEY_DASHBOARD, data);

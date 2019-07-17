@@ -94,7 +94,7 @@ return resolve(null);
 				redis.set(streamgraph.cache_key(unit, times, ts_start, options), data);
 				redis.expire(streamgraph.cache_key(unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);
 
-				console.log('rnodes.streamgraph.update took', now()-t_start);
+				//console.log('rnodes.streamgraph.update took', now()-t_start);
 
 				resolve(data);
 			});

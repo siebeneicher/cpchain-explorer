@@ -59,7 +59,7 @@ const self = {
 	},
 	del: async (what) => {
 		return new Promise((resolve, reject) => {
-			redis.del(what, () => resolve);
+			redis.del(what, resolve);
 		});
 	},
 	delPrefix: async (prefix) => {

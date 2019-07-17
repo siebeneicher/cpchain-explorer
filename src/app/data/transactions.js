@@ -5,9 +5,38 @@ const {convert_ts, last_unit_ts} = require('../helper');
 const {web3, balance} = require('../../cpc-fusion/api');
 
 
-module.exports = {last_sum, items, get, ofBlock, ofAddress}
+module.exports = {last, items, get, ofBlock, ofAddress}
 
-async function last_sum (unit, times = 1) {
+async function last (unit, times = 1) {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+		const last_ts = last_unit_ts(unit, times);
+
+		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
+			.aggregate([
+				{ $match: { ts: { $gte: last_ts } } },
+				{ $group: {
+					_id: 'sum',
+					count: { $sum: '$transactions_count' },
+					volume: { $sum: '$transactions_volume' },
+					fee: { $sum: '$transactions_fee' },
+				} },
+			])
+			.toArray((err, result) => {
+				//console.log("transactions.last(",unit, times,")", now() - t_start);
+
+				if (err || result.length == 0) {
+					console.error("transactions.last(",unit, times,"):", err);
+					resolve({count: 0, volume: 0, fee: 0, fee_avg: 0});
+				} else {
+					result[0].fee_avg = result[0].fee / result[0].count;
+					resolve(result[0]);
+				}
+			});
+	});
+}
+
+async function last_feeByTrx (unit, times = 1) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
 		const last_ts = last_unit_ts(unit, times);
@@ -22,7 +51,7 @@ async function last_sum (unit, times = 1) {
 				} },
 			])
 			.toArray((err, result) => {
-				console.log("transactions.last_sum(",unit, times,")", now() - t_start);
+				//console.log("transactions.last_sum(",unit, times,")", now() - t_start);
 
 				if (err || result.length == 0) {
 					console.error("transactions.last_sum(",unit, times,"):", err, result);
@@ -46,7 +75,7 @@ async function items (unit, times, ts_start) {
 				{ $limit: times },
 			])
 			.toArray((err, result) => {
-				console.log("transactions.items(", unit, times, ts_start, ")", now() - t_start);
+				//console.log("transactions.items(", unit, times, ts_start, ")", now() - t_start);
 
 				if (err || result.length == 0) {
 					console.error("transactions.items(",unit, times ,") error:", err);
@@ -149,7 +178,7 @@ async function ofAddress (addrHash) {
 				delete addr[0].transactions_from;
 				delete addr[0].transactions_to;
 
-				console.log("transactions.ofAddress(", addrHash, ") took", now() - t_start);
+				//console.log("transactions.ofAddress(", addrHash, ") took", now() - t_start);
 
 				resolve(addr[0]);
 			});

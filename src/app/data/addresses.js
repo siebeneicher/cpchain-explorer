@@ -22,4 +22,21 @@ async function get (hash) {
 	});
 }
 
-module.exports = {get}
+async function all () {
+	return new Promise((resolve, reject) => {
+		mongo.db(config.mongo.db.sync).collection('balances')
+			.aggregate([
+				{ $project: {
+					_id:0,
+					address:1
+				} }
+			])
+			.toArray((err, addrs) => {
+				if (err) return reject(err);
+				else if (!addrs || !addrs.length) return resolve([]);
+				resolve(addrs.map(_ => _.address));
+			});
+	});
+}
+
+module.exports = {get, all}
