@@ -90,7 +90,7 @@ export class BlocksSquaredComponent implements OnInit {
 
 		const _this = this;
 
-		this.httpClient.get(environment.backendBaseUrl+`/blocks-squared/${this.unit}/${this.ts}`).subscribe(res => {
+		this.httpClient.get(environment.backendBaseUrl+`/blocks-squared/${this.unit}/${this.ts}`).subscribe((res: any) => {
 			const t = performance.now();
 
 			// manual change of date, reset blocks
