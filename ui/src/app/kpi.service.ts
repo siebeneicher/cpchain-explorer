@@ -15,7 +15,7 @@ export class KpiService {
 		this.datasets = {
 			"dashboard": {
 				required: false,
-				interval: 3500,
+				interval: 2500,
 				api: '/dashboard',
 				data: null,
 				defaults: {
@@ -24,7 +24,7 @@ export class KpiService {
 							'dashboard.health': 'day'
 						},
 						fees: {
-							'dashboard.health': 'day'
+							'dashboard.rewards': 'day'
 						},
 					},
 					last_rewards: {

@@ -24,6 +24,7 @@ import { AddressComponent } from './address/address.component';
 import { RnodesComponent } from './rnodes/rnodes.component';
 
 import { DeferLoadModule } from '@trademe/ng-defer-load';
+import { SystemStatusComponent } from './system-status/system-status.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { DeferLoadModule } from '@trademe/ng-defer-load';
     TransactionComponent,
     AddressComponent,
     RnodesComponent,
+    SystemStatusComponent,
   ],
   imports: [
     FormsModule,

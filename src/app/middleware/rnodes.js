@@ -7,26 +7,21 @@ const now = require('performance-now');
 const moment = require('moment');
 const kpi = require('./kpi');
 
-
+const CACHE_KEY = 'CPC-DATA-RNODES-USER_';
 const CACHE_EXPIRE_FOREVER = 99999999999;			// redis cache lives forever, values are updated via aggregate.js
 
 const user = {
 	update_promise_chain: Promise.resolve(),
 
 	cache_key: function (addr) {
-		return 'CPC-DATA-RNODES-USER_'+addr;
+		return CACHE_KEY+addr;
 	},
 	cache_flush_all: async function () {
-		return redis.delPrefix('CPC-DATA-RNODES-USER_');
+		return redis.delPrefix(CACHE_KEY);
 	},
 	get: async function (addr, forceUpdate = false) {
-		let data = await redis.get(user.cache_key(addr));
-
-		if (!forceUpdate && data) console.log("Serving rnodes.user from redis");
-		if (forceUpdate || !data)
-			data = await user.update(addr);
-
-		return data;
+		let data = !forceUpdate ? await redis.get(user.cache_key(addr)) : null;
+		return data || await user.update(addr);
 	},
 	update: async function (addr) {
 		// avoid parallel calls, instead chain them
@@ -36,11 +31,6 @@ const user = {
 			return new Promise(async function (resolve, reject) {
 				const t_start = now();
 
-				/*
-				ROI / Year: 12.5% (rank)
-				See blocks + trxs
-				Industry/Team/Community RNode
-				*/
 				const rnode = {
 					last_rpt: await rnodes.last_rpt(addr),		// incl. rank
 					last_balance: await balances.latest(addr),
@@ -104,6 +94,10 @@ const user = {
 		}
 	}
 }
+
+
+
+
 
 const streamgraph = {
 	update_promise_chain: Promise.resolve(),

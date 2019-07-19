@@ -65,7 +65,7 @@ const self = {
 	delPrefix: async (prefix) => {
 		return new Promise((resolve, reject) => {
 			redis.keys(prefix+'*', (err, keys) => {
-				console.log("redis, deleting keys: ", keys);
+				//console.log("redis, deleting keys: ", keys);
 				redis.del(keys, (err, res) => resolve(res));
 			});
 		});

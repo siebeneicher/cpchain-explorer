@@ -5,4 +5,9 @@ module.exports = {
 		host: 'rnodes.io',
 		port: 80
 	},
+	mongo: {
+		profiling: {
+			level: 'off'
+		}
+	}
 };

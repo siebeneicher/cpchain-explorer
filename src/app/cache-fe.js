@@ -7,7 +7,7 @@ module.exports = {invalidate};
 
 async function invalidate (what) {
 	//console.log(await redis.keys());
-	console.log("invalidating cache-fe:", what);
+	//console.log("invalidating cache-fe:", what);
 	await cache.del(what, () => {});
 	//console.log(await redis.keys());
 }

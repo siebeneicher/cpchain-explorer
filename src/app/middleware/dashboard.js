@@ -12,19 +12,12 @@ const CACHE_EXPIRE_FOREVER = 99999999999;			// redis cache lives forever, values
 
 let update_promise = Promise.resolve();			
 
-module.exports = {get: dashboard, update};
+module.exports = {get, update};
 
 
-async function dashboard (forceUpdate = false) {
-/*	let data = await redis.get(CACHE_KEY_DASHBOARD);
-
-	if (!forceUpdate && data) console.log("Serving dashboard from redis");
-	if (forceUpdate || !data)
-		data = await update();
-
-	return data;*/
-
-	return this.update();
+async function get (forceUpdate = false) {
+	let data = !forceUpdate ? await redis.get(CACHE_KEY_DASHBOARD) : null;
+	return data || await update();
 }
 
 async function update () {

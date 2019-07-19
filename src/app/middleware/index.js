@@ -30,8 +30,8 @@ async function updateAll () {
 
 			return Promise.all([
 				update_blocksSquared(),
-				await dashboard.update(),
-				rnodes.user.cache_flush_all(),		// instead of updating, we flush the existing entries
+				update_dashboard(),
+				update_rnodes_watched(),
 				rnodes.streamgraph.cache_flush_all(),
 				transactions.streamgraph.cache_flush_all(),
 			]);
@@ -64,6 +64,25 @@ async function update_blocksSquared () {
 	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
 	return cache_fe.invalidate("/api/v1/blocks-squared/"+unit+"/*");
 }
+
+
+async function update_dashboard () {
+	await dashboard.update(true);
+
+	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
+	return cache_fe.invalidate("/api/v1/dashboard");
+}
+
+
+
+async function update_rnodes_watched () {
+	rnodes.user.cache_flush_all();		// instead of updating, we flush the existing entries
+
+	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
+	return cache_fe.invalidate("/api/v1/rnode/user/*");
+}
+
+
 
 
 

@@ -44,7 +44,7 @@ const squared = {
 				const t_start = now();
 				const select = ['timestamp','number','transactions','miner'];
 				const data = await blocks.byUnit(unit, ts, select);
-				console.log("blocks.squared took:", now() - t_start);
+				//console.log("blocks.squared took:", now() - t_start);
 
 				const sec_per_block = config.cpc.block_each_second;
 				const from_ = convert_ts(ts,13);

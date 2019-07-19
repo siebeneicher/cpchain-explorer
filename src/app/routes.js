@@ -12,33 +12,41 @@ const now = require('performance-now');
 
 
 app.use((req, res, next)=> {
-	//res.setHeader('X-Used-Frontend-Cache', 'yes');
+	res.setHeader('X-Used-Frontend-Cache', 'yes');
 	//console.log("REQ: ", req.url);
 	next();
 })
 
 
 app.get('/api/v1/rnode/user/:addr', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await rnodes.user.get(req.params.addr));
-}).get('/api/v1/dashboard', /*cache.route('dashboard'), */async function (req, res) {
-	//res.setHeader('X-Used-Frontend-Cache', 'no');
+}).get('/api/v1/dashboard', cache.route(), async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await dashboard.get());
 }).get('/api/v1/blocks-squared/:unit/:ts', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await blocks.squared.get(req.params.unit, parseInt(req.params.ts)));
 }).get('/api/v1/rnodes-streamgraph', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await rnodes.streamgraph.get(req.query.unit, parseInt(req.query.times)));
 }).get('/api/v1/block/transactions/:number', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.ofBlock(req.params.number));
 }).get('/api/v1/block/:number', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await blocks.get(req.params.number));
 }).get('/api/v1/trx/:hash', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.get(req.params.hash));
 }).get('/api/v1/address/transactions/:addr', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.ofAddress(req.params.addr));
 }).get('/api/v1/address/:addr', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await addresses.get(req.params.addr));
 }).get('/api/v1/search/:term', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await search.typeOf(req.params.term));
 });
 

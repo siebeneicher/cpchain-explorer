@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { slideInAnimation } from './animations'
+import { fadeAnimation } from './animations'
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from "@angular/router";
 import { environment } from '../environments/environment';
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  animations: [ slideInAnimation ]
+  animations: [ fadeAnimation ]
 })
 export class AppComponent implements OnInit {
 	searchLoading:boolean = false;

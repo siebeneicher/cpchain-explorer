@@ -25,6 +25,9 @@ module.exports = {
 		db: {
 			sync: 'cpc_sync',
 			aggregation: 'cpc_aggregations'
+		},
+		profiling: {
+			level: 'all'			// https://mongodb.github.io/node-mongodb-native/2.0/api/Admin.html
 		}
 	},
 	cpc: {

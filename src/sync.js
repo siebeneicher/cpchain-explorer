@@ -604,6 +604,8 @@ async function backwardsFindNewAddresses () {
 			});
 		});
 	});
+
+	// invalid address: 0x45621603C070b051C0FC337294cAa7b4a21a8b79
 }
 
 

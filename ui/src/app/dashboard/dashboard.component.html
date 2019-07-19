@@ -28,7 +28,7 @@
               <div class="item">Active RNodes</div>
               <div class="item">Transactions</div>
               <div class="item">Trx. Volume</div>
-              <div class="item">Trx. Fees</div>
+              <div class="item">Fee (avg.)</div>
               <div class="item">Impeached</div>
             </div>
             <div class="values-container is-size-5">
@@ -54,15 +54,8 @@
                     (click)="kpi.selectUnit('dashboard','last_transactions', 'volume', 'dashboard.health', option.unit)">{{option.abbrev}}</a>
                 </div>
               </div>
-              <div class="item onhover">
-                <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_blocks','fees','dashboard.health') | number : '1.2-2'}}</span> CPC / {{kpi.selectedOption('dashboard','last_blocks','fees','dashboard.health').abbrev}}</span>
-
-                <div class="buttons has-addons onhover-show">
-                  <a *ngFor="let option of kpi.options('dashboard','last_blocks')"
-                    class="button is-small {{kpi.unitSelected('dashboard','last_blocks', 'fees', 'dashboard.health') == option.unit ? 'is-info is-selected' : ''}} tooltip"
-                    [attr.data-tooltip]="option.full"
-                    (click)="kpi.selectUnit('dashboard','last_blocks', 'fees', 'dashboard.health', option.unit)">{{option.abbrev}}</a>
-                </div>
+              <div class="item">
+                <span class=""><span class="number-mono">{{kpi.data('dashboard','last_transactions','fee_avg','dashboard.health') | number : '1.4-4'}}</span> / Trx</span>
               </div>
               <div class="item onhover">
                 <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_blocks','impeached','dashboard.health')}}</span> / {{kpi.selectedOption('dashboard','last_blocks','impeached','dashboard.health').full}}</span>
@@ -88,7 +81,7 @@
               <!-- <div class="item">ROI ENode (avg.)</div> -->
               <div class="item">Reward (fix)</div>
               <div class="item">Total Rewards</div>
-              <div class="item">Fee (avg.)</div>
+              <div class="item">Trx. Fees</div>
               <div class="item">Lockup Season</div>
               <!-- <div class="item">Rewards / Year</div> -->
             </div>
@@ -115,8 +108,15 @@
                     (click)="kpi.selectUnit('dashboard','last_rewards', 'total_rewards', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
                 </div>
               </div>
-              <div class="item">
-                <span class=""><span class="number-mono">{{kpi.data('dashboard','last_transactions','fee_avg','dashboard.health') | number : '1.4-4'}}</span> / Trx</span>
+              <div class="item onhover">
+                <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_blocks','fees','dashboard.rewards') | number : '1.2-2'}}</span> CPC / {{kpi.selectedOption('dashboard','last_blocks','fees','dashboard.rewards').abbrev}}</span>
+
+                <div class="buttons has-addons onhover-show">
+                  <a *ngFor="let option of kpi.options('dashboard','last_blocks')"
+                    class="button is-small {{kpi.unitSelected('dashboard','last_blocks', 'fees', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    [attr.data-tooltip]="option.full"
+                    (click)="kpi.selectUnit('dashboard','last_blocks', 'fees', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                </div>
               </div>
               <div class="item">Aug.-Oct. 2019</div>
               <!-- <div class="item">TODO (250k,500k,..)</div> -->
@@ -176,7 +176,7 @@
               <div class="item">ROI</div>
               <div class="item">RPT</div>
               <div class="item">Balance</div>
-              <div class="item">Proposer</div>
+              <!-- <div class="item">Proposer</div> -->
               <div class="item">Type of RNode</div>
             </div>
             <div class="values-container is-size-5">
@@ -237,9 +237,9 @@
               <div class="item">
                 <span class="number-mono">{{kpi.datasets.myrnode.data.last_balance | number : '1.2-2'}} ({{kpi.datasets.myrnode.data.last_balance_rank.pos}}/{{kpi.datasets.myrnode.data.last_balance_rank.of}})</span>
               </div>
-              <div class="item">
+<!--               <div class="item">
                 TODO
-              </div>
+              </div> -->
               <div class="item">
                 CPC-Team
               </div>

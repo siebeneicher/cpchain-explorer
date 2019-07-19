@@ -35,7 +35,7 @@ async function byUnit (unit, ts, select = []) {
 		mongo.db(config.mongo.db.sync).collection('blocks')
 			.aggregate(aggr)
 			.toArray((err, result) => {
-				console.log("blocks.byUnit(",unit, ts,")", now() - t_start);
+				//console.log("blocks.byUnit(",unit, ts,")", now() - t_start);
 
 				if (err || result.length == 0) {
 					console.error("blocks.byUnit(",unit, ts,"):", err, result);
@@ -84,7 +84,7 @@ async function last (unit = null, rnode_addr = null) {
 				{ $project: project },
 			])
 			.toArray((err, result) => {
-				console.log("blocks.last(", unit, rnode_addr, ")", now() - t_start);
+				//console.log("blocks.last(", unit, rnode_addr, ")", now() - t_start);
 
 				if (err || result.length == 0) {
 					console.error("overview data, mongo_db_aggregation_by."+unit+".find:", err, result);

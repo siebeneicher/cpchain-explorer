@@ -7,6 +7,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { TransactionComponent } from './transaction/transaction.component';
 import { RnodesComponent } from './rnodes/rnodes.component';
 import { AddressComponent } from './address/address.component';
+import { SystemStatusComponent } from './system-status/system-status.component';
 
 const routes: Routes = [
 	{ path: '', /*redirectTo: '', pathMatch: '',*/ component: DashboardComponent, data: {animation: 'dashboardPage'} },
@@ -16,6 +17,7 @@ const routes: Routes = [
 	{ path: 'trx/:txHash', component: TransactionComponent, data: {animation: 'trxPage'} },
 	//{ path: 'rnodes', component: RnodesComponent, data: {animation: 'rnodesPage'} },
 	{ path: 'address/:addr', component: AddressComponent, data: {animation: 'addressPage'} },
+	{ path: 'system-status', component: SystemStatusComponent, data: {animation: 'systemStatusPage'} },
 ];
 
 @NgModule({

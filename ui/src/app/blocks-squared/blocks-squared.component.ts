@@ -120,6 +120,7 @@ export class BlocksSquaredComponent implements OnInit {
 				return new Promise((resolve) => {
 					// chunk blocks and set state
 					let b, h;
+
 					for (let key = from; key <= to; key++) {
 						b = emptyBlocks ? res[key] : _this.blocksFlat[key];
 
@@ -135,6 +136,8 @@ export class BlocksSquaredComponent implements OnInit {
 
 							_this.blocksByHour[h].push(b);
 							_this.blocksFlat.push(b);			// keep reference easily accessable
+						} else {
+							Object.assign(b, res[key]);
 						}
 
 						// this is time relevant, so it should perform each block reload cycle

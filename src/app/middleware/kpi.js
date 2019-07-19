@@ -80,20 +80,22 @@ async function options (key, unit = null) {
 	});
 }
 
-async function get (key, unit, params = {}, forceUpdate = false) {
+async function get (key, unit, params = {}, forceUpdate = true) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			const cache_key = _cache_key(key, unit, params);
 
-			let data = await redis.get(cache_key);
+			let data = !forceUpdate ? await redis.get(cache_key) : null;
 
-			if (!forceUpdate && data) {
+			if (data) {
 				//console.log("Serving kpi (",key,unit,params,") from cache");
 				resolve(data);
 			} else {
+				let t = now();
 				data = await kpis[key].get[unit](params);
-				redis.set(cache_key, data);
+				await redis.set(cache_key, data);
 				redis.expire(cache_key, CACHE_EXPIRE_FOREVER);
+				//console.log("kpi.get(",key,unit,params,") generated data, took", now()-t);
 				resolve(data);
 			}
 		} catch (err) {

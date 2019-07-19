@@ -19,6 +19,7 @@ const units = {
 const fetch_balance_enabled = true;
 const max_blocks_per_aggregation = 500;		// limit blocks per aggregation, specially when aggregating from 0
 const cpc_digits = parseInt(1+("0".repeat(18)));
+let indexes_ensured = false;
 
 if (!fetch_balance_enabled) console.warn("warn: fetching balance is disabled");
 
@@ -61,7 +62,10 @@ async function run () {
 		}, Promise.resolve());
 
 		// create/ensure indexes
-		await ensure_indexes();
+		if (!indexes_ensured) {
+			await ensure_indexes();
+			indexes_ensured = true;
+		}
 
 		console.log("Aggregation took", now() - t_start);
 
@@ -81,7 +85,7 @@ async function aggregate_all (unit) {
 		if (new_blocks == 0) break;
 	}
 
-	console.log(unit+": aggregated, new blocks:", total_new_blocks, "took", now() - t_start);
+	//console.log(unit+": aggregated, new blocks:", total_new_blocks, "took", now() - t_start);
 
 	return Promise.resolve({new_blocks: total_new_blocks});
 }
@@ -97,7 +101,7 @@ async function aggregate_process_blocks (unit) {
 
 	const chunks = await chunkAggregationByBlockUnit(new_blocks, unit);
 
-	console.log(unit+": Clustered "+new_blocks.length+" blocks ("+new_blocks[0].number+" ... "+new_blocks[new_blocks.length-1].number+") into", Object.keys(chunks).length, "chunks");
+	//console.log(unit+": Clustered "+new_blocks.length+" blocks ("+new_blocks[0].number+" ... "+new_blocks[new_blocks.length-1].number+") into", Object.keys(chunks).length, "chunks");
 
 	// chunk by chunk / sequential & asynchronious
 	const p = Object.entries(chunks).reduce(async (previousPromise, chunk) => {
@@ -468,7 +472,7 @@ async function mergeTransactionsSenderReceiver (transactions, aggregate) {
 					//price_avg: { $avg: '$gasPrice' }
 				} },
 			]).toArray((err, value) => {
-				console.log("count/volume "+what+" of transactions took", now()-t_start);
+				//console.log("count/volume "+what+" of transactions took", now()-t_start);
 
 				value.forEach(_ => {
 					// init if no previous state
