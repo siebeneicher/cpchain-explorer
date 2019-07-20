@@ -3,7 +3,7 @@
 module.exports = {
 	server: {
 		host: 'rnodes.io',
-		port: 80
+		port: 8080
 	},
 	mongo: {
 		profiling: {
