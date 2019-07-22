@@ -63,13 +63,20 @@ async function last_feeByTrx (unit, times = 1) {
 	});
 }
 
-async function items (unit, times, ts_start) {
+async function items (unit, times, ts_start, select = []) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
 
+		let project = {_id:0};
+
+		if (select)
+			select.forEach(s => project[s] = 1)
+		else		// default
+			project = { _id:0, ts:1, 'transactions_receiver':1, 'transactions_sender':1, transactions_count:1, transactions_volume:1, transactions_fee:1 };
+
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
 			.aggregate([
-				{ $project: { _id:0, ts:1, 'transactions_receiver':1, 'transactions_sender':1, transactions_count:1, transactions_volume:1 } },
+				{ $project: project },
 				{ $sort: { ts: 1 } },
 				{ $match: { ts: { $gte: convert_ts(ts_start, 10) } } },
 				{ $limit: times },

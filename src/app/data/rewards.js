@@ -16,14 +16,19 @@ async function last_merged (unit, times, rnode_addr = null) {
 		rnodes: await last (unit, times, rnode_addr),
 		total_rnodes: 0,
 		total_mined: 0,
+		total_rewards_from_fixed: 0,
+		total_rewards_from_fee: 0,
 		total_rewards: 0,
 		total_balances: 0,
 		total_roi: 0,
+		avg_rewards_from_fixed: 0,
+		avg_rewards_from_fee: 0,
 		avg_rewards: 0,
 		avg_balance: 0,
 		avg_roi: 0,
 		total_roi_year: 0,
-		avg_roi_year: 0
+		avg_roi_year: 0,
+		total_reward_fixed_fee_ratio: 0,
 	}
 
 	let units_per_year = 0;
@@ -37,10 +42,15 @@ async function last_merged (unit, times, rnode_addr = null) {
 		merged.total_rnodes = merged.rnodes.length;
 		merged.total_balances = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.balance, 0);
 		merged.total_mined = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.mined, 0);
+		merged.total_rewards_from_fixed = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.rewards_from_fixed, 0);
+		merged.total_rewards_from_fee = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.rewards_from_fee, 0);
 		merged.total_rewards = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.rewards, 0);
 		merged.total_roi = (merged.total_rewards / merged.total_balances * 100).toFixed(2);
 		merged.total_roi_year = (time_multiply * merged.total_roi).toFixed(2);
+		merged.total_reward_fixed_fee_ratio = merged.total_rewards_from_fee / merged.total_rewards_from_fixed;
 
+		merged.avg_rewards_from_fixed = merged.total_rewards_from_fixed / merged.total_rnodes;
+		merged.avg_rewards_from_fee = merged.total_rewards_from_fee / merged.total_rnodes;
 		merged.avg_rewards = merged.total_rewards / merged.total_rnodes;
 		merged.avg_balance = merged.total_balances / merged.total_rnodes;
 		merged.avg_roi = merged.avg_rewards / merged.avg_balance * 100;
@@ -78,6 +88,9 @@ async function last (unit, times, rnode_addr = null) {
 				{ $group: {
 					_id: '$rnodes_.k',
 					mined: { $sum: '$rnodes_.v.mined' },
+					rewards_from_fixed: { $sum: '$rnodes_.v.rewards_from_fixed' },
+					rewards_from_fee: { $sum: '$rnodes_.v.rewards_from_fee' },
+					rewards: { $sum: '$rnodes_.v.rewards' },
 					impeached: { $sum: '$rnodes_.v.impeached' },
 					//fees: { $sum: '$rnodes_.v.transactions_fee' },
 					balance: { $last: '$rnodes_.v.balance' },
@@ -92,7 +105,9 @@ async function last (unit, times, rnode_addr = null) {
 						balance: 1,
 						//fees: 1,
 						//proposer: 1,
-						rewards: { $multiply: [ "$mined", config.cpc.rewardsPerBlock ] }
+						rewards_from_fixed: 1,
+						rewards_from_fee: 1,
+						rewards: 1,
 				} }
 			])
 			.toArray((err, result) => {

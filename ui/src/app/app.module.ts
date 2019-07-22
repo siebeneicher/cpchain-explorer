@@ -25,6 +25,7 @@ import { RnodesComponent } from './rnodes/rnodes.component';
 
 import { DeferLoadModule } from '@trademe/ng-defer-load';
 import { SystemStatusComponent } from './system-status/system-status.component';
+import { TrxGraphComponent } from './trx-graph/trx-graph.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { SystemStatusComponent } from './system-status/system-status.component';
     AddressComponent,
     RnodesComponent,
     SystemStatusComponent,
+    TrxGraphComponent,
   ],
   imports: [
     FormsModule,

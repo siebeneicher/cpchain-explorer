@@ -7,23 +7,23 @@ const now = require('performance-now');
 const moment = require('moment');
 const kpi = require('./kpi');
 
+const CACHE_EXPIRE_FOREVER = 9999999999999;
 
-
-const streamgraph = {
+const graph = {
 	update_promise_chain: Promise.resolve(),
 
 	cache_key: function (unit, times, ts_start, options = {}) {
-		return 'CPC-DATA-TRX-STREAMGRAPH_'+unit+'_'+times+'_'+ts_start+'_'+JSON.stringify(options);
+		return 'CPC-DATA-TRX-GRAPH_'+unit+'_'+times+'_'+ts_start+'_'+JSON.stringify(options);
 	},
 	cache_flush_all: async function () {
-		return redis.delPrefix('CPC-DATA-TRX-STREAMGRAPH_');
+		return redis.delPrefix('CPC-DATA-TRX-GRAPH_');
 	},
 	get: async function (unit, times, ts_start = 'latest', options = {}, forceUpdate = false) {
-		let data = await redis.get(streamgraph.cache_key(unit, times, ts_start, options));
+		let data = await redis.get(graph.cache_key(unit, times, ts_start, options));
 
-		if (!forceUpdate && data) console.log("Serving transactions.streamgraph from redis");
+		if (!forceUpdate && data) console.log("Serving transactions.graph from cache");
 		if (forceUpdate || !data)
-			data = await streamgraph.update(unit, times, ts_start, options);
+			data = await graph.update(unit, times, ts_start, options);
 
 		return data;
 	},
@@ -33,68 +33,37 @@ const streamgraph = {
 		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
 
 		// avoid parallel calls, instead chain them
-		return streamgraph.update_promise_chain = streamgraph.update_promise_chain.then(_update);
+		return graph.update_promise_chain = graph.update_promise_chain.then(_update);
 
 		async function _update () {
 			return new Promise(async function (resolve, reject) {
 				const t_start = now();
 
-				let items = await transactions.items(unit, times, ts);
-debugger;
-console.log(items);
-return resolve(null);
+				let items = await transactions.items(unit, times, ts, ['ts','transactions_count','transactions_volume']);
 
 				if (!items || !items.length)
 					resolve(null);
 
-				// TODO: discard from node.js 11+
-				require('array-flat-polyfill');
-				let all_rnodes = [...new Set(items.flatMap(item => Object.keys(item.rnodes)))];	// unique list of rnodes
-				let rnodes_sum = {};
-				let max_val = 0;
-				let max_total = 0;
+				let count_max = 0;
+				let count_sum = 0;
+
+				let volume_max = 0;
+				let volume_sum = 0;
 
 				items.forEach(item => {
-					let total = 0;
+					count_sum += item.transactions_count;
+					volume_sum += item.transactions_volume;
 
-					Object.entries(item.rnodes).forEach(rnode => {
-
-						const val = rnode[1][target];
-
-						// flatten rnodes array down to item object
-						item[rnode[0]] = val;
-
-						// total per unit
-						total += val;
-
-						// sum per rnode
-						if (!rnodes_sum[rnode[0]]) rnodes_sum[rnode[0]] = 0;
-						rnodes_sum[rnode[0]] += val;
-
-						if (max_val < val)
-							max_val = val;
-					});
-
-					if (max_total < total)
-						max_total = total;
-
-					// make sure to fill rnodes in all items, even non-existing
-					all_rnodes.forEach(rnode => {
-						if (!Object.keys(item).includes(rnode))
-							item[rnode] = 0;
-					});
-
-					// flatten, remove rnodes property
-					delete item.rnodes;
+					count_max = Math.max(item.transactions_count, count_max);
+					volume_max = Math.max(item.transactions_volume, volume_max);
 				});
 
-				let data = {data: items, columns: all_rnodes, max_val, max_total, rnodes_sum};
+				let data = {data: items, count_max, count_sum, volume_max, volume_sum};
 
+				redis.set(graph.cache_key(unit, times, ts_start, options), data);
+				redis.expire(graph.cache_key(unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);
 
-				redis.set(streamgraph.cache_key(unit, times, ts_start, options), data);
-				redis.expire(streamgraph.cache_key(unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);
-
-				//console.log('rnodes.streamgraph.update took', now()-t_start);
+				//console.log('rnodes.graph.update took', now()-t_start);
 
 				resolve(data);
 			});
@@ -135,4 +104,4 @@ async function ofAddress (addrHash) {
 	});
 }
 
-module.exports = {streamgraph, get, ofAddress, ofBlock};
+module.exports = {graph, get, ofAddress, ofBlock};

@@ -9,6 +9,14 @@ const {aggregate, updateAll} = require('./app/middleware');
 const compression = require('compression')
 const responseTime = require('response-time')
 const redis = require('./app/redis');
+const fs = require('fs');
+
+// https://github.com/expressjs/express/pull/3730
+/*const http2 = require('http2');
+const options = {
+ key: fs.readFileSync('./cert/localhost.key'),
+ cert: fs.readFileSync('./cert/localhost.cer')
+};*/
 
 
 app.use(compression({}));

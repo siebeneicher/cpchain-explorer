@@ -32,19 +32,24 @@ module.exports = {run, reset, test};
 
 
 
-async function reset () {
-	const blocks = await mongo.db(config.mongo.db.sync).collection('blocks');
+async function reset (unit = null) {
+	const blocks = mongo.db(config.mongo.db.sync).collection('blocks');
 
-	await mongo.db(config.mongo.db.aggregation).dropDatabase();
+	return Promise.all(Object.keys(units).map((_unit) => {
+		if (unit != null && _unit != unit) return Promise.resolve();
 
-	return blocks.updateMany({}, {$set: {
-		'__aggregated.by_minute': false,
-		'__aggregated.by_hour': false,
-		'__aggregated.by_day': false,
-		'__aggregated.by_month': false,
-		'__aggregated.by_year': false,
-	}}).then((result, err) => {
-		console.log("reset all blocks for aggregation:", result.modifiedCount, err);
+		try {
+			mongo.db(config.mongo.db.aggregation).collection('by_'+_unit).drop();
+		} catch (err) { console.error(err) }
+
+		return new Promise((resolve) => {
+			blocks.updateMany({}, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
+				console.log("reset aggregations."+_unit+":", result.modifiedCount, err);
+				resolve();
+			});
+		});
+	})).then(() => {
+		console.log("reset fin");
 	});
 }
 
@@ -85,7 +90,7 @@ async function aggregate_all (unit) {
 		if (new_blocks == 0) break;
 	}
 
-	//console.log(unit+": aggregated, new blocks:", total_new_blocks, "took", now() - t_start);
+	console.log(unit+": aggregated, new blocks:", total_new_blocks, "took", now() - t_start);
 
 	return Promise.resolve({new_blocks: total_new_blocks});
 }
@@ -180,7 +185,6 @@ async function aggregate_unit (unit, ts, chunk) {
 			block_max: null,				// block number
 			blocks_mined: 0,
 			blocks_impeached: 0,
-			blocks_mined_by_node: {},
 			transactions_count: 0,
 			transactions_volume: 0,
 			transactions_fee: 0,
@@ -198,6 +202,9 @@ async function aggregate_unit (unit, ts, chunk) {
 			impeached: 0,
 			proposer: 0,
 			balance: null,
+			rewards_from_fixed: 0,
+			rewards_from_fee: 0,
+			rewards: 0,
 			//locked_cpc: 0,
 			//rewards_cpc_estimated: 0
 		};
@@ -252,8 +259,11 @@ async function aggregate_unit (unit, ts, chunk) {
 			aggregate.transactions_count += b.transactions.length;
 
 			// transactions volume, fee
+			let trx_volume = 0, trx_fee = 0;
 			try {
-				const {volume: trx_volume, fee: trx_fee} = await transactionsVolumeFee(b.transactions);
+				const _trx = await transactionsVolumeFee(b.transactions);
+				trx_volume = _trx.volume;
+				trx_fee = _trx.fee;
 				aggregate.transactions_volume += trx_volume;
 				aggregate.transactions_fee += trx_fee;
 			} catch (err) {
@@ -289,6 +299,12 @@ async function aggregate_unit (unit, ts, chunk) {
 			// rnode balance cpc
 			if (_balances !== null && _balances.miner !== null) aggregate.rnodes[m].balance = _balances.miner;
 			if (_balances !== null && _balances.proposer !== null) aggregate.rnodes[proposer].balance = _balances.proposer;
+
+			// rnode rewards, fixed, fees
+			aggregate.rnodes[m].rewards_from_fixed += config.cpc.rewardsPerBlock;
+			aggregate.rnodes[m].rewards_from_fee += trx_fee;
+			aggregate.rnodes[m].rewards += config.cpc.rewardsPerBlock + trx_fee;
+
 
 			// rnode locked cpc
 			// TODO
@@ -420,7 +436,7 @@ async function transactionsVolumeFee (transactions) {
 
 	const collection = mongo.db(config.mongo.db.sync).collection('transactions');
 
-	console.log("calculating volume of", transactions.length, "transactions");
+	//console.log("calculating volume of", transactions.length, "transactions");
 
 	return new Promise ((resolve, reject) => {
 		collection.aggregate([
@@ -428,7 +444,7 @@ async function transactionsVolumeFee (transactions) {
 			{ $project: { _id:1, value: { $divide: [ "$value", config.cpc.unit_convert ] }, fee: { $divide: [ { $multiply: [ "$gas", "$gasPrice" ] }, config.cpc.unit_convert ] } } },
 			{ $group: { _id: null, volume: { $sum: "$value" }, fee: { $sum: "$fee" } } },
 		]).toArray((err, value) => {
-			console.log("sum volume of", transactions.length, "transactions, took", now()-t_start);
+			//console.log("sum volume of", transactions.length, "transactions, took", now()-t_start);
 
 			if (err) throw err;
 			if (value === null) throw 'getTransaction('+txn+') unknown error: empty err and null value';

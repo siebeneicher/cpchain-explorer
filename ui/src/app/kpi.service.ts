@@ -35,7 +35,13 @@ export class KpiService {
 						total_rewards: {
 							'dashboard.rewards': 'day'
 						},
-						total_fees: {
+						total_rewards_from_fixed: {
+							'dashboard.rewards': 'day'
+						},
+						total_rewards_from_fee: {
+							'dashboard.rewards': 'day'
+						},
+						total_reward_fixed_fee_ratio: {
 							'dashboard.rewards': 'day'
 						}
 					},

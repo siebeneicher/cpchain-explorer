@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import * as d3 from 'd3';
 import * as moment from 'moment';
 import { environment } from '../../../environments/environment';
@@ -6,7 +6,8 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-trx-streamgraph',
   templateUrl: './trx-streamgraph.component.html',
-  styleUrls: ['./trx-streamgraph.component.scss']
+  styleUrls: ['./trx-streamgraph.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class TrxStreamgraphComponent implements OnInit {
 
@@ -16,6 +17,7 @@ export class TrxStreamgraphComponent implements OnInit {
 	limit:number = 10;
 	timerange:any;
 	timeranges:Array<any> = [];
+	axisTicks:number = 5;
 
 	unit:string;
 	times:number;
@@ -37,7 +39,7 @@ export class TrxStreamgraphComponent implements OnInit {
 		this.timeranges = [
 			{title: 'last day', unit: "hour", times: 24},
 			{title: 'last week', unit: "hour", times: 24*7},
-			{title: 'last month', unit: "day", times: 30},
+			{title: 'last month', unit: "hour", times: 24*30},
 			{title: 'last quarter', unit: "day", times: 31*3},
 			{title: 'last year', unit: "week", times: 53},
 			{title: 'last 3 days', unit: "hour", times: 3*24}
@@ -65,7 +67,6 @@ export class TrxStreamgraphComponent implements OnInit {
 
 	filter (res) {
 		// filter to top 10
-		let limit = 10;
 		let max_total = 0;
 
 		// sort, limit
@@ -73,7 +74,7 @@ export class TrxStreamgraphComponent implements OnInit {
 		rnodes_a.sort((a,b) => <any>b[1] - <any>a[1]);
 
 		// limit
-		let columns = rnodes_a.splice(0, limit).map(_ => _[0]);
+		let columns = rnodes_a.splice(0, this.limit).map(_ => _[0]);
 
 		// remove rnodes from data set
 		res.data.forEach(row => {
@@ -105,7 +106,6 @@ export class TrxStreamgraphComponent implements OnInit {
 
 		// List columns
 		let {columns: keys, data, max_total} = this.filter(res);
-		let axisTicks = 10;
 		let base_opacity = 0.9;
 
 		this.svg = d3.select("#stream-container")
@@ -120,7 +120,7 @@ export class TrxStreamgraphComponent implements OnInit {
 
 		this.svg.append("g")
 			.attr("transform", "translate(0," + this.height*0.8 + ")")
-			.call(d3.axisBottom(x).tickSize(-this.height*.7).ticks(axisTicks).tickFormat(d => moment.utc(d*1000).format('DD-MM HH:MM')+' (UTC)'))
+			.call(d3.axisBottom(x).tickSize(-this.height*.7).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format('DD MMMM')))
 			.select(".domain").remove()
 
 		this.svg

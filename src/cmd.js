@@ -8,12 +8,12 @@ setTimeout(async () => {
 	//await aggregate.run();
 	//await aggregate.test();
 
-	try {
+/*	try {
 		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F");
 		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2f");
 		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2d");
 		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2");
-	} catch (err) { console.error(err); }
+	} catch (err) { console.error(err); }*/
 
 /*	console.log(await kpi.options('last_rewards'));
 	console.log(await kpi.get('last_rewards', 'hour'));
@@ -29,7 +29,7 @@ setTimeout(async () => {
 	//let r = await rewards.last_merged('day', 1);
 	//console.log(r);
 
-	//await transactions.streamgraph.update('day', 365);
+	await transactions.graph.update('day', 20, 'latest');
 	//console.log(await blocks.squared.update('day', new Date().getTime()));
 
 	//let addr = '0x501f6cf7b2437671d770998e3b785474878fef1d';

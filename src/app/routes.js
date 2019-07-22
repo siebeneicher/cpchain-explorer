@@ -30,6 +30,9 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 }).get('/api/v1/rnodes-streamgraph', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await rnodes.streamgraph.get(req.query.unit, parseInt(req.query.times)));
+}).get('/api/v1/transactions-graph', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await transactions.graph.get(req.query.unit, parseInt(req.query.times)));
 }).get('/api/v1/block/transactions/:number', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.ofBlock(req.params.number));
