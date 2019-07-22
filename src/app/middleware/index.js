@@ -33,7 +33,7 @@ async function updateAll () {
 				update_dashboard(),
 				update_rnodes_watched(),
 				rnodes.streamgraph.cache_flush_all(),
-				transactions.streamgraph.cache_flush_all(),
+				transactions.graph.cache_flush_all(),
 			]);
 		}).then(() => {
 			console.log("updateAll() took", now()-t_start);
