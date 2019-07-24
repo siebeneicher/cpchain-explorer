@@ -32,7 +32,7 @@
               <div class="item">Impeached</div>
             </div>
             <div class="values-container is-size-5">
-              <div class="item"><a [routerLink]="['/block', kpi.datasets.dashboard.data.last_block.number]" class="number-mono">{{kpi.datasets.dashboard.data.last_block.number}}</a> ({{ago(kpi.datasets.dashboard.data.last_block.timestamp)}})</div>
+              <div class="item"><a [routerLink]="['/block', lastBlockService.last_block.number]" class="number-mono">{{lastBlockService.last_block.number}}</a> ({{ago(lastBlockService.last_block.timestamp)}})</div>
               <div class="item"><span class="number-mono">{{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}}</span></div>
               <div class="item onhover">
                 <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_transactions','count','dashboard.health')}}</span> / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.health').full}}</span>
@@ -253,7 +253,7 @@
                 <span class="number-mono">{{kpi.datasets.myrnode.data.last_rpt.rpt}}</span> (rank {{kpi.datasets.myrnode.data.last_rpt.rank}} of {{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}})
               </div>
               <div class="item">
-                <span class="number-mono">{{kpi.datasets.myrnode.data.last_balance | number : '1.2-2'}} ({{kpi.datasets.myrnode.data.last_balance_rank.pos}}/{{kpi.datasets.myrnode.data.last_balance_rank.of}})</span>
+                <span class="number-mono">{{kpi.datasets.myrnode.data.last_balance | number : '1.2-2'}} ({{kpi.datasets.myrnode.data.last_balance_rank}}th)</span>
               </div>
 <!--               <div class="item">
                 TODO

@@ -1,0 +1,24 @@
+<section class="section">
+<div class="container">
+
+	<h3 class="title">Rich List</h3>
+
+	<table class="table table is-hoverable table is-fullwidth is-striped">
+		<thead>
+			<th>Rank</th>
+			<th>Address</th>
+			<th>CPC Balance</th>
+			<th>Percentage</th>
+		</thead>
+		<tbody>
+			<tr *ngFor="let addr of addresses">
+				<td>#{{addr.rank}}</td>
+				<td><a [routerLink]="['/address', addr.address]">{{addr.address}}</a></td>
+				<td>{{addr.latest_balance}}</td>
+				<td>{{addr.balance_pct_of_total | number : '1.4-4'}}%</td>
+			</tr>
+		</tbody>
+	</table>
+
+</div>
+</section>

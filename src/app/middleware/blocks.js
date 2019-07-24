@@ -102,4 +102,21 @@ async function get (number) {
 	});
 }
 
-module.exports = {squared, get};
+async function last (forceUpdate = false) {
+	return new Promise(async function (resolve, reject) {
+		try {
+			let key = 'CPC-DATA-LAST-BLOCK';
+			let cached = await redis.get(key);
+			let block = forceUpdate ? await blocks.last() : cached || await blocks.last();
+
+			if (!cached || forceUpdate) await redis.set(key, block);
+
+			resolve(block);
+		} catch (err) {
+			if (!err) resolve({empty: true});
+			else resolve({err});
+		}
+	});
+}
+
+module.exports = {squared, get, last};

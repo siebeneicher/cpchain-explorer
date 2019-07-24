@@ -8,6 +8,7 @@ import { TransactionComponent } from './transaction/transaction.component';
 import { RnodesComponent } from './rnodes/rnodes.component';
 import { AddressComponent } from './address/address.component';
 import { SystemStatusComponent } from './system-status/system-status.component';
+import { RichListComponent } from './rich-list/rich-list.component';
 
 const routes: Routes = [
 	{ path: '', /*redirectTo: '', pathMatch: '',*/ component: DashboardComponent, data: {animation: 'dashboardPage'} },
@@ -18,6 +19,7 @@ const routes: Routes = [
 	//{ path: 'rnodes', component: RnodesComponent, data: {animation: 'rnodesPage'} },
 	{ path: 'address/:addr', component: AddressComponent, data: {animation: 'addressPage'} },
 	{ path: 'system-status', component: SystemStatusComponent, data: {animation: 'systemStatusPage'} },
+	{ path: 'rich-list', component: RichListComponent, data: {animation: 'richListPage'} },
 ];
 
 @NgModule({

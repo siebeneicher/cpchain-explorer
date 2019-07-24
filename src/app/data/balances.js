@@ -6,17 +6,10 @@ const {web3, balance} = require('../../cpc-fusion/api');
 const {isAddress} = require('../helper');
 
 
-module.exports = {getByUnit, latest, update, ranking};
+module.exports = {getByUnit, latest, update, ranking_update};
 
-async function ranking (addr = null) {
+async function ranking_update () {
 	const t_start = now();
-
-	// is address
-	if (!isAddress(addr))
-		return Promise.reject({invalidAddress: true});
-
-	// sanitize given addr
-	addr = web3.utils.toChecksumAddress(addr);
 
 	return new Promise((resolve, reject) => {
 		mongo.db(config.mongo.db.sync).collection('balances')
@@ -24,26 +17,29 @@ async function ranking (addr = null) {
 				{ $sort: { latest_balance: -1 } },
 				{ $project: { address:1, latest_balance:1 } }
 			])
-			.toArray((err, all) => {
+			.toArray(async (err, items) => {
 				if (err) return reject(err);
-				else if (!all || !all.length) return reject(null);
+				else if (!items || !items.length) return resolve();
 
-				for (let i in all) {
-					all[i].rank = {pos: parseInt(i)+1, of: all.length};
+				// total
+				let sum = 0;
+				for (let i in items) sum += items[i].latest_balance;
+
+				for (let i in items) {
+					let addr = items[i];
+					addr.rank = parseInt(i)+1;
+					addr.balance_pct_of_total = addr.latest_balance / sum * 100;
+					await mongo.db(config.mongo.db.sync).collection('balances')
+						.updateOne({ address: addr.address }, { $set: addr }, { upsert: true });
 				}
 
-				console.log("balances.ranks("+addr+") took", now()-t_start);
+				console.log("data.balances.ranking_update() took", now()-t_start);
 
-				if (addr) {
-					let found = all.filter(_ => _.address == addr);
-					if (found && found.length)
-						return resolve(found[0].rank);
-				}
-
-				resolve(all);
+				resolve();
 			});
-	});
+		});
 }
+
 
 async function update (addr) {
 	const t_start = now();
@@ -81,7 +77,7 @@ async function latest (addr) {
 	return new Promise((resolve, reject) => {
 		mongo.db(config.mongo.db.sync).collection('balances')
 			.find({address: addr})
-			.project({history: 0})
+			//.project({history: 0})
 			.toArray((err, result) => {
 				//console.log('balances: ', err, result);
 

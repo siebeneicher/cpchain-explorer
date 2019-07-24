@@ -7,10 +7,12 @@
       RNodes.io
     </a>
 
-    <a class="navbar-item">Health</a>
-    <a class="navbar-item">Rewards</a>
-    <a class="navbar-item">Wealth</a>
-    <a class="navbar-item">My RNode</a>
+    <a [routerLink]="['/block', lastBlockService.last_block.number]" class="navbar-item number-mono">{{lastBlockService.last_block.number}}</a>
+
+    <a class="navbar-item" [routerLink]="['/rich-list']">Rich List</a>
+
+    <a class="navbar-item">Stats</a>
+    <a class="navbar-item">Watch List</a>
     <a class="navbar-item">Instructions</a>
     <a class="navbar-item">EN</a>
 

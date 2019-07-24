@@ -1,7 +1,7 @@
 const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
-const {balances, rnodes, blocks, rewards} = require('../data');
+const {balances, addresses, rnodes, blocks, rewards} = require('../data');
 const {convert_ts, clone, unique_array, unit_ts, last_unit_ts} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
@@ -31,10 +31,12 @@ const user = {
 			return new Promise(async function (resolve, reject) {
 				const t_start = now();
 
+				const addr_ = await addresses.get(addr);
+
 				const rnode = {
 					last_rpt: await rnodes.last_rpt(addr),		// incl. rank
-					last_balance: await balances.latest(addr),
-					last_balance_rank: await balances.ranking(addr),
+					last_balance: addr_.latest_balance,
+					last_balance_rank: addr_.rank,
 					last_blocks: {
 						minute: {
 							option: await kpi.options('last_blocks', 'minute'),

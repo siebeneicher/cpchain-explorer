@@ -18,40 +18,75 @@ app.use((req, res, next)=> {
 })
 
 
+
+
 app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await rnodes.user.get(req.params.addr));
-}).get('/api/v1/dashboard', cache.route(), async function (req, res) {
+})
+
+.get('/api/v1/dashboard', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await dashboard.get());
-}).get('/api/v1/blocks-squared/:unit/:ts', cache.route(), async function (req, res) {
+})
+
+.get('/api/v1/blocks-squared/:unit/:ts', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await blocks.squared.get(req.params.unit, parseInt(req.params.ts)));
-}).get('/api/v1/rnodes-streamgraph', async function (req, res) {
+})
+
+.get('/api/v1/rnodes-streamgraph', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await rnodes.streamgraph.get(req.query.unit, parseInt(req.query.times)));
-}).get('/api/v1/transactions-graph', async function (req, res) {
+})
+
+.get('/api/v1/transactions-graph', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.graph.get(req.query.unit, parseInt(req.query.times)));
-}).get('/api/v1/block/transactions/:number', async function (req, res) {
+})
+
+.get('/api/v1/block/transactions/:number', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.ofBlock(req.params.number));
-}).get('/api/v1/block/:number', async function (req, res) {
+})
+
+.get('/api/v1/block/last', cache.route(), async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await blocks.last());
+})
+
+.get('/api/v1/block/:number', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await blocks.get(req.params.number));
-}).get('/api/v1/trx/:hash', async function (req, res) {
+})
+
+.get('/api/v1/trx/:hash', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.get(req.params.hash));
-}).get('/api/v1/address/transactions/:addr', async function (req, res) {
+})
+
+.get('/api/v1/address/transactions/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await transactions.ofAddress(req.params.addr));
-}).get('/api/v1/address/:addr', async function (req, res) {
+})
+
+.get('/api/v1/address/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await addresses.get(req.params.addr));
-}).get('/api/v1/search/:term', async function (req, res) {
+})
+
+.get('/api/v1/addresses', cache.route(), async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await addresses.all());
+})
+
+.get('/api/v1/search/:term', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await search.typeOf(req.params.term));
 });
+
+
+
 
 
 // TODO: remove in production
@@ -67,10 +102,14 @@ app.get('/aggregate', async function (req, res) {
 });
 
 
+
+
+// TODO: duplicate in nginx for production
+
 // UI (ORDER AFTER API ROUTES)
 app.use('/', express.static(__dirname + '/../ui-build'));
 
-app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode)/, async function (req, res) {
+app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list)/, async function (req, res) {
 	res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
 })
 

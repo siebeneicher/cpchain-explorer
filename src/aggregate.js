@@ -6,14 +6,13 @@ async function run () {
 	// initial
 	middleware.updateAll();
 
-	messaging.on('SYNC-SNAPSHOT-PERFORMED', function(data) {
-		console.log('SYNC-SNAPSHOT-PERFORMED');
 
+	messaging.on('SYNC-SNAPSHOT-PERFORMED', async function(data) {
+		console.log('SYNC-SNAPSHOT-PERFORMED');
 		middleware.updateAll();
 	});
 	messaging.on('SYNC-BACKWARDS-PERFORMED', function(data) {
 		console.log('SYNC-BACKWARDS-PERFORMED');
-
 		middleware.updateAll();
 	});
 	messaging.on('SYNC-BALANCES-PERFORMED', function(data) {

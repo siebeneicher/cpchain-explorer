@@ -6,6 +6,7 @@ import { ConvertTsPipe } from '../pipes/convert-ts.pipe';
 import { environment } from '../../environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { KpiService } from '../kpi.service';
+import { LastBlockService } from '../services/last-block.service';
 
 @Component({
 	selector: 'app-dashboard',
@@ -29,7 +30,8 @@ export class DashboardComponent implements OnInit {
 		private dateAgo: DateAgoPipe,
 		private convertTs: ConvertTsPipe,
 		private cookieService: CookieService,
-		public kpi: KpiService
+		public kpi: KpiService,
+		public lastBlockService: LastBlockService
 	) {
 		setInterval(() => {
 			this.tick();

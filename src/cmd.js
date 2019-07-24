@@ -4,6 +4,9 @@ const {python_exe} = require('./app/helper');
 const {versions} = require('./cpc-fusion/api');
 
 setTimeout(async () => {
+
+	//await balances.ranking_update();
+
 	//await aggregate.reset();
 	//await aggregate.run();
 	//await aggregate.test();
@@ -29,7 +32,11 @@ setTimeout(async () => {
 	//let r = await rewards.last_merged('day', 1);
 	//console.log(r);
 
-	await transactions.graph.update('day', 20, 'latest');
+/*	await blocks.last();
+	await blocks.last(true);
+	await blocks.last();*/
+
+	//await transactions.graph.update('day', 20, 'latest');
 	//console.log(await blocks.squared.update('day', new Date().getTime()));
 
 	//let addr = '0x501f6cf7b2437671d770998e3b785474878fef1d';

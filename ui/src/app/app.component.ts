@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from "@angular/router";
 import { environment } from '../environments/environment';
 import { Router } from '@angular/router';
+import { LastBlockService } from './services/last-block.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,8 @@ export class AppComponent implements OnInit {
 	constructor (
 		private httpClient: HttpClient,
 		private route: ActivatedRoute,
-		private router: Router
+		private router: Router,
+		public lastBlockService: LastBlockService
 	) {
 	}
 

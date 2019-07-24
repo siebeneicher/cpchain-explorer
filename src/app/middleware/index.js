@@ -7,6 +7,7 @@ const blocks = require('./blocks');
 const transactions = require('./transactions');
 const rnodes = require('./rnodes');
 const search = require('./search');
+const data = require('./../data');
 const kpi = require('./kpi');
 const moment = require('moment');
 const request = require('request');
@@ -28,10 +29,15 @@ async function updateAll () {
 
 		return aggregate.run().then(async () => {
 
+			// last block has priority over all other stats
+			await update_lastBlock();
+
 			return Promise.all([
 				update_blocksSquared(),
 				update_dashboard(),
 				update_rnodes_watched(),
+				update_balance_ranks(),
+
 				rnodes.streamgraph.cache_flush_all(),
 				transactions.graph.cache_flush_all(),
 			]);
@@ -41,6 +47,13 @@ async function updateAll () {
 	}
 }
 
+async function update_lastBlock () {
+	// 1. update middleware cache
+	await blocks.last(true);
+
+	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
+	return cache_fe.invalidate("/api/v1/block/last");
+}
 
 async function update_blocksSquared () {
 	// blocks-squared/:unit/:ts
@@ -59,7 +72,6 @@ async function update_blocksSquared () {
 	// 1. regenerate fresh data, cache in middleware-cache
 	await blocks.squared.update('day', today);
 	await blocks.squared.update('day', yesterday);
-	await blocks.squared.update('day', yesterday2);
 
 	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
 	return cache_fe.invalidate("/api/v1/blocks-squared/"+unit+"/*");
@@ -74,7 +86,6 @@ async function update_dashboard () {
 }
 
 
-
 async function update_rnodes_watched () {
 	rnodes.user.cache_flush_all();		// instead of updating, we flush the existing entries
 
@@ -83,12 +94,21 @@ async function update_rnodes_watched () {
 }
 
 
+async function update_balance_ranks () {
+	await data.balances.ranking_update();
+
+	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
+	return cache_fe.invalidate("/api/v1/addresses");
+}
+
 
 
 
 
 module.exports = {
 	updateAll,
+	update_lastBlock,
+
 	dashboard,
 	blocks,
 	aggregate,

@@ -116,7 +116,6 @@ async function update () {
 					},
 				},
 				reward_per_block: config.cpc.rewardsPerBlock,
-				last_block: await blocks.last(),
 				last_rnodes: await rnodes.last(),
 			};
 

@@ -14,8 +14,7 @@ async function get (hash) {
 				return resolve({invalidAddress: true});
 			}
 
-			let b = await balances.latest(hash);
-			resolve({address: hash, balance: b, rank: await rankings(hash)});
+			resolve(await addresses.get(hash));
 		} catch (err) {
 			if (!err) resolve({empty: true});
 			else resolve({err: err.message});
@@ -23,10 +22,10 @@ async function get (hash) {
 	});
 }
 
-async function rankings (addr = null) {
+async function all () {
 	return new Promise(async function (resolve, reject) {
 		try {
-			let r = await balances.ranking(addr);
+			let r = await addresses.all();
 			resolve(r);
 		} catch (err) {
 			if (!err) resolve({empty: true});
@@ -35,4 +34,4 @@ async function rankings (addr = null) {
 	});
 }
 
-module.exports = {get};
+module.exports = {get, all};
