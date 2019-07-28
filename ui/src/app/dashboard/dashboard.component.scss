@@ -1,3 +1,39 @@
+
+.section.top {
+	.titles {
+		margin: 10px 0 0 15px;
+	}
+	.title {
+		font-size: 2.5em;
+	}
+	.subtitle {
+		
+		font-size: 1.7em;
+	}
+
+	.search {
+		width: 100%;
+
+		.search-input {
+			width: 100%;
+
+			input {
+				width: 100%;
+			}
+		}
+	}
+}
+
+.cpc-logo {
+	width: 110px;
+}
+
+
+
+
+//----------------------
+
+/*
 .section.top {
 	min-height: 60px;
 }
@@ -67,3 +103,5 @@
 }
 
 @keyframes blink {0%{opacity:1;} 50%{opacity:0.45;} 100%{opacity:1;}}
+
+*/

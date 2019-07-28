@@ -1,7 +1,41 @@
 
-<br>
 
 <section class="section top">
+<div class="container">
+
+  <div class="columns">
+    <div class="column is-2 has-text-right">
+      <img src="assets/logo_only.png" class="cpc-logo">
+    </div>
+    <div class="column is-10 titles">
+      <h2 class="subtitle">rnodes.io</h2>
+      <h1 class="title">CPChain Blockchain Explorer</h1>
+    </div>
+  </div>
+
+  <div class="field has-addons search">
+    <p class="control has-icons-left search-input">
+      <input class="input is-large" type="text" placeholder="Tx Hash, Block Number, Address" id="app_search_input" (keyup.enter)="search()" >
+      <span class="icon is-left">
+        <i class="typcn typcn-zoom"></i>
+      </span>
+    </p>
+    <div class="control">
+      <a class="button is-large is-info" (click)="search()">Go</a>
+    </div>
+  </div>
+
+</div>
+</section>
+
+
+
+<hr>
+
+
+<br>
+
+<section class="section">
 <div class="container">
   <div class="columns is-size-2-mobile is-size-2-desktop" *ngIf="kpi.isLoaded('dashboard')">
     <div class="column has-text-centered has-text-weight-light">{{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}} RNodes</div>
