@@ -1,0 +1,44 @@
+<footer class="footer" *ngIf="1">
+  <div class="container">
+  	<div class="columns">
+  		<div class="column site-links">
+  			<h3 class="title">Sitemap</h3>
+  			<ul>
+  				<li><a [routerLink]="['/']">Dashboard</a></li>
+  				<li><a [routerLink]="['/blocks']">Blocks</a></li>
+  				<li><a [routerLink]="['/stats']">Stats</a></li>
+  				<li><a [routerLink]="['/rich-list']">Rich List</a></li>
+  				<li><a [routerLink]="['/rnodes']">Rnodes</a></li>
+  				<li><a [routerLink]="['/system-status']">System Status</a></li>
+  			</ul>
+  		</div>
+  		<div class="column external-links">
+  			<h3 class="title">Links</h3>
+  			<ul>
+  				<li><a href="https://cpchain.io">cpchain.io</a></li>
+  				<li><a href="https://github.com/CPChain/chain">Github</a></li>
+  				<li><a href="https://twitter.com/cpchain_io">Twitter</a></li>
+  				<li><a href="https://docs.cpchain.io">Docs</a></li>
+  			</ul>
+  		</div>
+  		<div class="column lang">
+  			<h3 class="title">RNode</h3>
+  			<ul>
+  				<li>Current: <a href="{{latestRelease.html_url}}" target="blank">{{latestRelease.name}}</a></li>
+  				<li><a [routerLink]="['/']">Instructions</a></li>
+  			</ul>
+  		</div>
+  		<div class="column licence">
+  			<h3 class="title">Copyright</h3>
+			<p><a href="//rnodes.io">rnodes.io</a> is the <i>un</i>released <a href="https://cpchain.io">CPChain</a> blockchain explorer.</p>
+			<p>Designed by <a href="https://badass-consulting.eu">Markus Siebeneicher</a></p>
+  		</div>
+  		<div class="column lang">
+  			<h3 class="title">Language</h3>
+  			<p>
+	  			English | Chinese
+	  		</p>
+  		</div>
+  	</div>
+  </div>
+</footer>

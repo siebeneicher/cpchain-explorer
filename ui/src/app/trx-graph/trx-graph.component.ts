@@ -12,14 +12,13 @@ import { environment } from '../../environments/environment';
 })
 export class TrxGraphComponent implements OnInit {
 
-
-	width:number = 1400;
-	height:number = 600;
+	width:number;
+	height:number;
 	svg:any;
 	limit:number = 10;
 	timerange:any;
 	timeranges:Array<any> = [];
-	axisTicks:number = 5;
+	axisTicks:number = 3;
 
 	unit:string;
 	times:number;
@@ -81,47 +80,47 @@ export class TrxGraphComponent implements OnInit {
 			return;
 		}
 
-		const axisTicks = 5;
 		const target = 'transactions_count';
 		const {dataset, max} = this.filter(res);
 
 		const container = document.querySelector("#trx-graph-container");
+		//const computed = window.getComputedStyle(container);
 
-// 2. Use the margin convention practice 
-var margin = {top: 25, right: 50, bottom: 25, left: 25}
-  , width = container.clientWidth - margin.left - margin.right // Use the window's width 
-  , height = container.clientHeight - margin.top - margin.bottom; // Use the window's height
+		// 2. Use the margin convention practice 
+		const margin = {top: 25, right: 50, bottom: 25, left: 25};
+		this.width = container.clientWidth - margin.left - margin.right;	 // Use the prrents's width 
+		this.height = container.clientHeight - margin.top - margin.bottom;	 // Use the parents's height
 
 
-// 5. X scale will use the index of our data
-var xScale = d3.scaleLinear()
-    .domain(d3.extent(dataset, function(d) { return d.ts; })) // input
-    .range([0, width]); // output
+		// 5. X scale will use the index of our data
+		const xScale = d3.scaleLinear()
+		    .domain(d3.extent(dataset, function(d) { return d.ts; })) // input
+		    .range([0, this.width]); // output
 
-// 6. Y scale will use the randomly generate number 
-var yScale = d3.scaleLinear()
-    .domain([0, max]) // input 
-    .range([height, 0]); // output 
+		// 6. Y scale will use the randomly generate number 
+		const yScale = d3.scaleLinear()
+		    .domain([0, max]) // input 
+		    .range([this.height, 0]); // output 
 
-// 7. d3's line generator
-var line = d3.line()
-    .x(function(d, i) { return xScale(d.ts); }) // set the x values for the line generator
-    .y(function(d) { return yScale(d[target]); }) // set the y values for the line generator 
-    .curve(d3.curveMonotoneX) // apply smoothing to the line
+		// 7. d3's line generator
+		const line = d3.line()
+		    .x(function(d, i) { return xScale(d.ts); }) // set the x values for the line generator
+		    .y(function(d) { return yScale(d[target]); }) // set the y values for the line generator 
+		    .curve(d3.curveMonotoneX) // apply smoothing to the line
 
-// 1. Add the SVG to the page and employ #2
-var svg = d3.select("#trx-graph-container").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		// 1. Add the SVG to the page and employ #2
+		const svg = d3.select("#trx-graph-container").append("svg")
+		    .attr("width", this.width + margin.left + margin.right)
+		    .attr("height", this.height + margin.top + margin.bottom)
+		  .append("g")
+		    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// 3. Call the x axis in a group tag
-svg.append("g")
-	.attr("class", "x axis")
-	.attr("transform", "translate(0," + (height-25) + ")")
-	.call(d3.axisBottom(xScale).tickSize(25).ticks(axisTicks).tickFormat(d => moment.utc(d*1000).format('DD MMMM')))
-	.select(".domain").remove()
+		// 3. Call the x axis in a group tag
+		svg.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + (this.height-10) + ")")
+			.call(d3.axisBottom(xScale).tickSize(10).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format('DD MMMM')))
+			.select(".domain").remove()
 
 // 4. Call the y axis in a group tag
 /*svg.append("g")
@@ -130,7 +129,7 @@ svg.append("g")
 */
 /*svg.append("g")
 	.attr("class", "y axis")
-	.attr("transform", "translate("+(width-25) + ",0)")
+	.attr("transform", "translate("+(this.width-25) + ",0)")
 	.call(d3.axisLeft(yScale).tickSize(25).ticks(3).tickFormat(d => d[target]))*/
 
 /*svg
@@ -144,42 +143,44 @@ svg.append("g")
         .text("huhu"))
 */
 
-let last = list => list[list.length-1];
+		const last = list => list[list.length-1];
 
-// label last value
-const valueLabel = svg.selectAll(".label")
-	  .data(dataset)
-	.enter().append("g")
-	  .attr("transform", d => `translate(${xScale(last(dataset).ts)}, ${yScale(last(dataset)[target])})`);
+		// label last value
+		const valueLabel = svg.selectAll(".label")
+			  .data(dataset)
+			.enter().append("g")
+			  .attr("transform", d => `translate(${xScale(last(dataset).ts)}, ${yScale(last(dataset)[target])})`);
 
-valueLabel.append("circle")
-	.attr("r", 4)
-	.style("stroke", "white")
-	.style("fill", d => d.light);
+		valueLabel.append("circle")
+			.attr("r", 3)
+			.style("stroke", "white")
+			.style("fill", d => d.light);
 
-valueLabel.append("text")
-	.text(d => last(dataset)[target])
-	.attr("dy", 5)
-	.attr("dx", 10)
-	.style("font-family", "monospace")
-	.style("fill", d => d.dark);
+		valueLabel.append("text")
+			.text(d => last(dataset)[target])
+			.attr("dy", 5)
+			.attr("dx", 10)
+			.style("font-family", "Open Sans")
+			.style("font-weight", "300")
+			.style("fill", d => "#777");
 
 
 
-// 9. Append the path, bind the data, and call the line generator 
-svg.append("path")
-    .datum(dataset) // 10. Binds data to the line 
-    .attr("class", "line") // Assign a class for styling 
-    .attr("d", line); // 11. Calls the line generator 
+		// 9. Append the path, bind the data, and call the line generator 
+		svg.append("path")
+		    .datum(dataset) // 10. Binds data to the line 
+		    .attr("class", "line") // Assign a class for styling 
+		    .attr("d", line); // 11. Calls the line generator 
 
-// 12. Appends a circle for each datapoint 
-svg.selectAll(".dot")
-    .data(dataset)
-  .enter().append("circle") // Uses the enter().append() method
-    .attr("class", "dot") // Assign a class for styling
-    .attr("cx", function(d, i) { return xScale(d.ts) })
-    .attr("cy", function(d) { return yScale(d[target]) })
-    .attr("r", 5)
+		// 12. Appends a circle for each datapoint 
+		svg.selectAll(".dot")
+		    .data(dataset)
+		  .enter().append("circle") // Uses the enter().append() method
+		    .attr("class", "dot") // Assign a class for styling
+		    .attr("cx", function(d, i) { return xScale(d.ts) })
+		    .attr("cy", function(d) { return yScale(d[target]) })
+		    .attr("r", 4)
+
 /*      .on("mouseover", function(a, b, c) { 
   			console.log(a) 
         this.attr('class', 'focus')
@@ -200,8 +201,8 @@ svg.selectAll(".dot")
 
    svg.append("rect")
        .attr("class", "overlay")
-       .attr("width", width)
-       .attr("height", height)
+       .attr("width", this.width)
+       .attr("height", this.height)
        .on("mouseover", function() { focus.style("display", null); })
        .on("mouseout", function() { focus.style("display", "none"); })
        .on("mousemove", mousemove);

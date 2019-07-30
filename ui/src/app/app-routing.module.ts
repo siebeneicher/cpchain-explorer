@@ -9,10 +9,12 @@ import { RnodesComponent } from './rnodes/rnodes.component';
 import { AddressComponent } from './address/address.component';
 import { SystemStatusComponent } from './system-status/system-status.component';
 import { RichListComponent } from './rich-list/rich-list.component';
+import { StatsComponent } from './stats/stats.component';
 
 const routes: Routes = [
 	{ path: '', /*redirectTo: '', pathMatch: '',*/ component: DashboardComponent, data: {animation: 'dashboardPage'} },
 	{ path: 'blocks', component: BlocksComponent, data: {animation: 'blocksPage'} },
+	{ path: 'stats', component: StatsComponent, data: {animation: 'statsPage'} },
 	{ path: 'block/:number', component: BlockComponent, data: {animation: 'blockPage'} },
 	{ path: 'transactions', component: TransactionsComponent, data: {animation: 'transactionsPage'} },
 	{ path: 'trx/:txHash', component: TransactionComponent, data: {animation: 'trxPage'} },

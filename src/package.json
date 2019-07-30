@@ -31,6 +31,7 @@
     "performance-now": "~2.1.0",
     "redis": "~2.8.x",
     "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
     "response-time": "^2.3.2",
     "sha3": "^2.0.6",
     "socket.io": "~2.2.x",

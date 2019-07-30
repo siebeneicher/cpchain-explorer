@@ -6,6 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { environment } from '../environments/environment';
 import { Router } from '@angular/router';
 import { LastBlockService } from './services/last-block.service';
+import { SearchService } from './services/search.service';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,9 @@ export class AppComponent implements OnInit {
 		private httpClient: HttpClient,
 		private route: ActivatedRoute,
 		private router: Router,
-		public lastBlockService: LastBlockService
+		public lastBlockService: LastBlockService,
+		public searchService: SearchService,
+		private elementRef: ElementRef
 	) {
 	}
 
@@ -31,34 +34,10 @@ export class AppComponent implements OnInit {
 		return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];
 	}
 
-	search () {
-		this.searchLoading = true;
-
-		let input = <HTMLInputElement> document.querySelector('#app_search_input');
-		let str = (input.value+"").trim();
-		let url = environment.backendBaseUrl + '/search/' + str;
+	async search () {
+		let input = <HTMLInputElement> this.elementRef.nativeElement.querySelector('.app-search-input');
+		let goTo = <Array<any>> await this.searchService.search(input.value);
 		input.value = "";
-
-		this.httpClient.get(url).subscribe((data: any) => {
-			this.searchLoading = false;
-
-			if (data && data.type) {
-				if (data.type == "address") {
-					this.router.navigate(['/address', str]);
-				} else if (data.type == "blockNumber") {
-					this.router.navigate(['/block', str]);
-				} else if (data.type == "hash") {
-					this.router.navigate(['/trx', str]);
-				}
-// TODO:
-				/* else if (data.type == "trxHash") {
-					this.router.navigate(['/trx', str]);
-				} else if (data.type == "blockHash") {
-					this.router.navigate(['/block', data.blockNumber]);
-				}*/
-			} else {
-// TODO:
-			}
-		});
+		this.router.navigate(goTo);
 	}
 }

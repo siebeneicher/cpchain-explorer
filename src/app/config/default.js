@@ -43,5 +43,10 @@ module.exports = {
 		},
 		rewardsPerBlock: 12.65,
 		unit_convert: 1000000000000000000			// parseInt(1+("0".repeat(18)))
+	},
+	coinmarketcap: {
+		api_key: "0a7fbb6f-e1d1-4668-8f3f-0a1cd3001f10",
+		api_url: "https://pro-api.coinmarketcap.com",
+		cpc_id: 2482
 	}
 };

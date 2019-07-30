@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, ElementRef } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DateAgoPipe } from '../pipes/date-ago.pipe';
@@ -7,6 +7,9 @@ import { environment } from '../../environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { KpiService } from '../kpi.service';
 import { LastBlockService } from '../services/last-block.service';
+import { SearchService } from '../services/search.service';
+import { Router } from '@angular/router';
+
 
 @Component({
 	selector: 'app-dashboard',
@@ -18,20 +21,20 @@ import { LastBlockService } from '../services/last-block.service';
 export class DashboardComponent implements OnInit {
 	user_rnode_data:Object;
 	dashboard_data:any = null;
-	latestRelease:any = {};
-
 	user_rnode_addr:string;
-
 	COOKIE_USER_RNODE:string = "cpc-user-rnode-favorite";		// todo: env.
 
 	constructor (
 		private httpClient: HttpClient,
+		private router: Router,
 		private ref: ChangeDetectorRef,
 		private dateAgo: DateAgoPipe,
 		private convertTs: ConvertTsPipe,
 		private cookieService: CookieService,
 		public kpi: KpiService,
-		public lastBlockService: LastBlockService
+		public lastBlockService: LastBlockService,
+		public searchService: SearchService,
+		private elementRef: ElementRef
 	) {
 		setInterval(() => {
 			this.tick();
@@ -42,11 +45,6 @@ export class DashboardComponent implements OnInit {
 		this.kpi.require('dashboard');
 
 		this.updateUserRNode(this.cookieService.get(this.COOKIE_USER_RNODE));
-
-		this.loadReleases();
-		setInterval(() => {
-			this.loadReleases();
-		}, 1000 * 60 * 5);
 	}
 	ngOnDestroy () {
 		this.kpi.unrequire('dashboard');
@@ -84,10 +82,10 @@ export class DashboardComponent implements OnInit {
 		return this.dateAgo.transform(this.convertTs.transform(ts, 13));
 	}
 
-	loadReleases () {
-		this.httpClient.get(environment.githubCPChainReleasesAPIUrl).subscribe(res => {
-			if (!res) return;
-			this.latestRelease = res[0];
-		});
+	async search () {
+		let input = <HTMLInputElement> this.elementRef.nativeElement.querySelector('.app-search-input');
+		let goTo = <Array<any>> await this.searchService.search(input.value);
+		input.value = "";
+		this.router.navigate(goTo);
 	}
 }

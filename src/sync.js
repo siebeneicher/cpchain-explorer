@@ -4,11 +4,12 @@ const { balances, addresses } = require('./app/data');
 const config = require('./app/config');
 const now = require('performance-now');
 const moment = require('moment');
+const request = require('request-promise-native');
 const {convert_ts, last_unit_ts} = require('./app/helper');
 const {messaging} = require('./app');
 
 // shortcut to collections
-let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_balances;
+let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_balances, mongo_db_price_cmc;
 
 let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
@@ -16,6 +17,7 @@ let last_blockNumber = 0;			// most recent block number
 let last_blockNumber_synced = 0;	// most recent synced
 
 const sync_delay = 500;
+const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 25200;
 const balance_delay = 5000;
 const maxNewBlocksBackwardsPerCycle = 15;
@@ -33,10 +35,15 @@ function subscribe () {
 	});
 }
 
+
+
 async function collect () {
 	_snapshot();
 	_syncBackwards();
 	_syncMissingBalances();
+	_syncCPCPrice();
+
+	syncCPCPrice();
 
 	function _snapshot () {
 		setTimeout(async () => {
@@ -88,7 +95,44 @@ async function collect () {
 			_syncMissingBalances();	// loop
 		}, balance_delay);
 	}
+
+	function _syncCPCPrice () {
+		setTimeout(async () => {
+			try {
+				if (await syncCPCPrice()) {
+					messaging.emit('SYNC-CPC-PRICE', {});
+				}
+			} catch (err) {
+				console.error(err);
+			}
+
+			_syncCPCPrice();	// loop
+		}, cpc_price_delay);
+	}
 }
+
+async function syncCPCPrice () {
+	const opts = {
+		method: 'GET',
+		uri: config.coinmarketcap.api_url+'/v1/cryptocurrency/quotes/latest',
+		qs: {
+			'id': config.coinmarketcap.cpc_id
+		},
+		headers: {
+			'X-CMC_PRO_API_KEY': config.coinmarketcap.api_key
+		},
+		json: true,
+		gzip: true
+	};
+
+	return request(opts).then(async (res) => {
+		res.data[config.coinmarketcap.cpc_id].ts = moment.utc().unix();
+		return mongo_db_price_cmc.insertOne(res.data[config.coinmarketcap.cpc_id]);
+	}).catch((err) => {
+		console.log('Coinmarketcap API call error:', err.message);
+	});
+}
+
 
 async function syncMissingBalances () {
 	return new Promise ((resolve, reject) => {
@@ -419,6 +463,14 @@ function ensure_indexes () {
 		})
 	}
 
+	if (mongo_db_price_cmc) {
+		mongo_db_price_cmc.indexInformation(async (err, indexes) => {
+			if (err) return;
+			if (!indexes.ts_1)
+				await mongo_db_price_cmc.createIndex({ ts: -1 }, { unique: true });
+		})
+	}
+
 	if (mongo_db_balances) {
 		mongo_db_balances.indexInformation(async (err, indexes) => {
 			if (err) return;
@@ -619,6 +671,7 @@ async function init (clearAll = false) {
 			mongo_db_transactions = mongo_db.collection('transactions');
 			mongo_db_rnodes = mongo_db.collection('rnodes');
 			mongo_db_balances = mongo_db.collection('balances');
+			mongo_db_price_cmc = mongo_db.collection('price_cmc');
 			//mongo_db_generation = mongo_db.collection('generation');
 
 			// clear all data
@@ -634,4 +687,4 @@ async function init (clearAll = false) {
 	});
 }
 
-init(false).then(backwardsFindNewAddresses).then(collect);
+init(false)./*then(backwardsFindNewAddresses).*/then(collect);

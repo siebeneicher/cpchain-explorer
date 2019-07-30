@@ -5,22 +5,43 @@ $color-unsynced: orange;
 $color-future: lightgrey;
 $color-validated-empty: rgba(18, 159, 67, 0.4);
 
-.main-container {
-	min-height: 550px;
+// COLOR CODING
+
+.block {
+	// future
+	background-color: $color-future;
+	//border: 1px solid $color-future;
+
+	&.linebreak {
+		flex-basis: 100%;
+		height: 0;
+	}
+	&.synced {
+		background-color: $color-validated-empty !important;
+		//border: 1px solid $color-validated-empty !important;
+
+		&.has-trx {
+			background-color: $color-validated !important;
+		}
+	}
+	&.sync-should {
+		background-color: $color-unsynced;
+		//border: 1px solid $color-unsynced;
+	}
+	&.impeached.impeached {
+		background-color: $color-impeached !important;
+		//border: 1px solid $color-impeached;
+	}
 }
 
-.blocks-by-hour {
-	display: flex;
-	flex-flow: row wrap;
 
-	.hour {
-		flex-grow: 1;
-		flex-basis: 50px;
-		max-width: 4%;
 
-		.title {
+// UNIT HOUR
 
-		}
+.main-container.unit-hour {
+	.blocks {
+		display: flex;
+		flex-flow: row wrap;
 
 		.hour-container {
 			width: 100%;
@@ -28,39 +49,50 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 			flex-flow: row wrap;
 
 			.block {
-				margin: 1px;
-				width: 6px;
-				height: 6px;
+				margin: 2px;
+				width: 13px;
+				height: 13px;
+				border-radius:2px;
+			}
+		}
+	}
+}
 
-				// future
-				background-color: $color-future;
-				//border: 1px solid $color-future;
 
-				&.linebreak {
-					flex-basis: 100%;
-					height: 0;
-				}
-				&.synced {
-					background-color: $color-validated-empty !important;
-					//border: 1px solid $color-validated-empty !important;
 
-					&.has-trx {
-						background-color: $color-validated !important;
-					}
-				}
-				&.sync-should {
-					background-color: $color-unsynced;
-					//border: 1px solid $color-unsynced;
-				}
-				&.impeached.impeached {
-					background-color: $color-impeached !important;
-					//border: 1px solid $color-impeached;
+
+
+// UNIT DAY
+
+.main-container.unit-day {
+	min-height: 550px;
+
+	.blocks-by-hour {
+		display: flex;
+		flex-flow: row wrap;
+
+		.hour {
+			flex-grow: 1;
+			flex-basis: 50px;
+			max-width: 4%;
+
+			.title {
+
+			}
+
+			.hour-container {
+				width: 100%;
+				display: flex;
+				flex-flow: row wrap;
+
+				.block {
+					margin: 1px;
+					width: 6px;
+					height: 6px;
 				}
 			}
 		}
 	}
-
-
 }
 
 

@@ -1,22 +1,22 @@
-<div class="main-container">
+<div class="main-container unit-{{unit}}">
 
-	<div *ngIf="!blocksByHour.length" class="initial-loading-placeholder has-text-centered">
+	<div *ngIf="!initiated" class="initial-loading-placeholder has-text-centered">
 		<span class="typcn typcn-chart-area-outline" ></span>
 	</div>
 
-	<div *ngIf="blocksByHour.length">
-		<h1 class="title">
-			Blocks of {{this.ts | date:'dd-MM-yyyy'}}
-			<a class="button {{loading ? 'is-loading' : ''}}" (click)="dateBackward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
-			<a class="button {{loading ? 'is-loading' : ''}}" (click)="dateForward()"><i class="typcn typcn-chevron-right"></i></a>
-		</h1>
 
-		<div class="blocks-by-hour" (mouseout)="mouseout()">
-			<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
-				<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
+	<ng-container *ngIf="unit == 'hour'">
+		<div *ngIf="initiated">
+			<h1 class="subtitle">
+				Blocks Recent Hour
+				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>
+				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="forward()"><i class="typcn typcn-chevron-right"></i></a>
+			</h1>
+
+			<div class="blocks" (mouseout)="mouseout()">
 				<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
 					<a [routerLink]="['/block', block.number]"
-						*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
+						*ngFor="let block of blocksFlat; let i = index; trackBy: blocksTrackByFn"
 						class="block"
 						[attr.data-index]="i"
 						[class.has-trx]="block.trx_count"
@@ -28,26 +28,57 @@
 			</div>
 		</div>
 
-		<br><br>
+	</ng-container>
 
-		<div class="columns legend">
-			<div class="column">
-				<span class="colorbox validated-empty"></span><span class="desc">Validated Block (empty)</span>
+
+	<ng-container *ngIf="unit == 'day'">
+
+		<div *ngIf="initiated">
+			<h1 class="title">
+				Blocks of {{this.ts | date:'dd-MM-yyyy'}}
+				<a class="button {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
+				<a class="button {{loading ? 'is-loading' : ''}}" (click)="forward()"><i class="typcn typcn-chevron-right"></i></a>
+			</h1>
+
+			<div class="blocks-by-hour" (mouseout)="mouseout()">
+				<div class="hour has-text-center" *ngFor="let blocksHour of blocksByHour | keyvalue:sortNull">
+					<div class="is-size-3 has-text-centered">{{blocksHour.key}}</div>
+					<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
+						<a [routerLink]="['/block', block.number]"
+							*ngFor="let block of blocksHour.value; let i = index; trackBy: blocksTrackByFn"
+							class="block"
+							[attr.data-index]="i"
+							[class.has-trx]="block.trx_count"
+							[class.linebreak]="block.sec == 0 && block.min == 0"
+							[class.synced]="block.synced"
+							[class.sync-should]="block.sync_should"
+							[class.impeached]="block.impeached"></a>
+					</div>
+				</div>
 			</div>
-			<div class="column">
-				<span class="colorbox validated"></span><span class="desc">Validated Block (has Trx's)</span>
-			</div>
-			<div class="column">
-				<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
-			</div>
-			<div class="column">
-				<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
-			</div>
-			<div class="column">
-				<span class="colorbox future"></span><span class="desc">Future Block</span>
+
+			<br><br>
+
+			<div class="columns legend">
+				<div class="column">
+					<span class="colorbox validated-empty"></span><span class="desc">Validated Block (empty)</span>
+				</div>
+				<div class="column">
+					<span class="colorbox validated"></span><span class="desc">Validated Block (has Trx's)</span>
+				</div>
+				<div class="column">
+					<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
+				</div>
+				<div class="column">
+					<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
+				</div>
+				<div class="column">
+					<span class="colorbox future"></span><span class="desc">Future Block</span>
+				</div>
 			</div>
 		</div>
-	</div>
+	</ng-container>
+
 </div>
 
 <div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}"><span *ngIf="hovered_block">#{{hovered_block.number}} / Trx's: {{hovered_block.trx_count}} / {{hovered_block.time_pretty}}</span></div>

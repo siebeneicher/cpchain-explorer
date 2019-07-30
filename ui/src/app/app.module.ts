@@ -27,6 +27,8 @@ import { DeferLoadModule } from '@trademe/ng-defer-load';
 import { SystemStatusComponent } from './system-status/system-status.component';
 import { TrxGraphComponent } from './trx-graph/trx-graph.component';
 import { RichListComponent } from './rich-list/rich-list.component';
+import { StatsComponent } from './stats/stats.component';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +49,8 @@ import { RichListComponent } from './rich-list/rich-list.component';
     SystemStatusComponent,
     TrxGraphComponent,
     RichListComponent,
+    StatsComponent,
+    FooterComponent,
   ],
   imports: [
     FormsModule,

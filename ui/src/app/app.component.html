@@ -10,22 +10,20 @@
     <a [routerLink]="['/block', lastBlockService.last_block.number]" class="navbar-item number-mono">{{lastBlockService.last_block.number}}</a>
 
     <a class="navbar-item" [routerLink]="['/rich-list']">Rich List</a>
+    <a class="navbar-item" [routerLink]="['/blocks']">Blocks</a>
+    <a class="navbar-item" [routerLink]="['/stats']">Stats</a>
+    <!-- <a class="navbar-item">Watch List</a> -->
 
-    <a class="navbar-item">Stats</a>
-    <a class="navbar-item">Watch List</a>
-    <a class="navbar-item">Instructions</a>
-    <a class="navbar-item">EN</a>
-
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+<!--     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
-    </a>
+    </a> -->
 
     <span class="navbar-item">
       <div class="field has-addons">
         <p class="control has-icons-left">
-          <input class="input" type="text" placeholder="Txn, Block, Address" id="app_search_input" (keyup.enter)="search()" >
+          <input class="input app-search-input" type="text" placeholder="Txn, Block, Address" (keyup.enter)="search()" >
           <span class="icon is-small is-left">
             <i class="typcn typcn-zoom"></i>
           </span>
@@ -41,12 +39,3 @@
 <div [@fadeAnimation]="prepareRoute(outlet)" >
   <router-outlet #outlet="outlet"></router-outlet>
 </div>
-
-<footer class="footer" *ngIf="0">
-  <div class="content has-text-centered">
-    <p>
-      <a href="//rnodes.io">rnodes.io</a> is the <i>un</i>released <a href="https://cpchain.io">CPChain</a> blockchain explorer. <!-- Designed and operated by <a href="https://badass-consulting.eu">Badass Consulting</a> --><br>
-      Links: cpchain.io, Github, twitter, docs
-    </p>
-  </div>
-</footer>

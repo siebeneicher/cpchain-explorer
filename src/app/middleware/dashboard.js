@@ -5,7 +5,7 @@ const kpi = require('./kpi');
 const {convert_ts, clone, unique_array, last_unit_ts} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
-const {rewards, blocks, transactions, rnodes} = require('../data');
+const {rewards, blocks, transactions, rnodes, price} = require('../data');
 
 const CACHE_KEY_DASHBOARD = 'CPC-DATA-DASHBOARD';
 const CACHE_EXPIRE_FOREVER = 99999999999;			// redis cache lives forever, values are updated via sync.js
@@ -117,6 +117,7 @@ async function update () {
 				},
 				reward_per_block: config.cpc.rewardsPerBlock,
 				last_rnodes: await rnodes.last(),
+				last_price: await price.last()
 			};
 
 			console.log("dashboard.update() took:", now() - t_start);

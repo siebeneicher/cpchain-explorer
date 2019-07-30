@@ -12,6 +12,7 @@
 	}
 
 	.search {
+		margin-top: 30px;
 		width: 100%;
 
 		.search-input {
@@ -30,6 +31,30 @@
 
 
 
+.section.block-n-stats {
+	.column.blocks {
+		padding: 0 55px;
+	}
+
+	.column.stats {
+		.info {
+			display: block;
+			margin: 25px 0 0 0;
+		}
+
+		.graph {
+			display: block;
+			height: 100px;
+			width: 100%;
+			padding: 0 10px;
+		}
+	}
+}
+
+
+
+
+
 
 //----------------------
 
@@ -41,6 +66,9 @@
 .section.main {
 	min-height: 620px;
 }
+
+*/
+
 
 .keys-values-container {
 	width: 100%;
@@ -103,5 +131,3 @@
 }
 
 @keyframes blink {0%{opacity:1;} 50%{opacity:0.45;} 100%{opacity:1;}}
-
-*/

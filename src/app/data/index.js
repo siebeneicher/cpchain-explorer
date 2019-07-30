@@ -6,4 +6,5 @@ module.exports = {
 	transactions: require('./transactions'),
 	balances: require('./balances'),
 	addresses: require('./addresses'),
+	price: require('./price'),
 };

@@ -1,11 +1,13 @@
 const {dashboard, aggregate, updateAll, blocks, rnodes, kpi, transactions} = require('./app/middleware');
-const {rewards, balances} = require('./app/data');
+const {rewards, balances, price} = require('./app/data');
 const {python_exe} = require('./app/helper');
 const {versions} = require('./cpc-fusion/api');
 
 setTimeout(async () => {
 
 	//await balances.ranking_update();
+
+	console.log(await price.last());
 
 	//await aggregate.reset();
 	//await aggregate.run();

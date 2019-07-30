@@ -15,7 +15,7 @@
 
   <div class="field has-addons search">
     <p class="control has-icons-left search-input">
-      <input class="input is-large" type="text" placeholder="Tx Hash, Block Number, Address" id="app_search_input" (keyup.enter)="search()" >
+      <input class="input is-large app-search-input" type="text" placeholder="Tx Hash, Block Number, Address" (keyup.enter)="search()" >
       <span class="icon is-left">
         <i class="typcn typcn-zoom"></i>
       </span>
@@ -30,21 +30,52 @@
 
 
 
-<hr>
-
-
-<br>
-
-<section class="section">
+<section class="section block-n-stats">
 <div class="container">
-  <div class="columns is-size-2-mobile is-size-2-desktop" *ngIf="kpi.isLoaded('dashboard')">
-    <div class="column has-text-centered has-text-weight-light">{{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}} RNodes</div>
-    <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_rewards','total_roi','dashboard.top-teaser')}}% ROI / Y</div>
-    <div class="column has-text-centered has-text-weight-light">{{kpi.data('dashboard','last_transactions','count','dashboard.top-teaser')}} Trx's / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.top-teaser').abbrev}}</div>
-<!--     <div class="column has-text-centered">Growth TODO</div> -->
+  <div class="columns">
+    <div class="column is-5 blocks">
+      <app-blocks-squared unit="hour"></app-blocks-squared>
+    </div>
+    <div class="column is-3 has-text-centered stats">
+<!--       <div class="info subtitle">
+        Last Block
+        <span>
+          <a [routerLink]="['/block', lastBlockService.last_block.number]">{{lastBlockService.last_block.number}}</a>
+        </span>
+      </div> -->
+
+      <div class="info title">
+        <span class="typcn typcn-power"></span>
+        {{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}} RNodes Live
+      </div>
+
+      <div class="info title">
+        <span class="typcn typcn-arrow-loop"></span>
+        {{kpi.data('dashboard','last_rewards','total_roi','dashboard.top-teaser')}}% ROI (avg.)
+      </div>
+    </div>
+    <div class="column is-4 has-text-centered stats">
+      <div class="info">
+        <span class="title">
+          Price <a href="https://coinmarketcap.com/currencies/cpchain/" target="_blank">{{kpi.datasets.dashboard.data.last_price.USD.price |  number : '1.3-3'}}$</a>
+        </span>
+      </div>
+<!--       <div class="info">
+        <span class="subtitle">Total Supply ???</span>
+      </div> -->
+      <div class="info">
+        <div class="title">
+          <span class="typcn typcn-arrow-shuffle"></span>
+          {{kpi.data('dashboard','last_transactions','count','dashboard.top-teaser')}} Trx's / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.top-teaser').full}}
+        </div>
+        <app-trx-graph class="graph"></app-trx-graph>
+      </div>
+    </div>
+    <div class="column is-1"></div>
   </div>
 </div>
 </section>
+
 
 
 <section class="section main">
@@ -66,7 +97,7 @@
               <div class="item">Impeached</div>
             </div>
             <div class="values-container is-size-5">
-              <div class="item"><a [routerLink]="['/block', lastBlockService.last_block.number]" class="number-mono">{{lastBlockService.last_block.number}}</a> ({{ago(lastBlockService.last_block.timestamp)}})</div>
+              <div class="item"><a [routerLink]="['/block', lastBlockService.last_block.number]">{{lastBlockService.last_block.number}}</a></div>
               <div class="item"><span class="number-mono">{{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}}</span></div>
               <div class="item onhover">
                 <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_transactions','count','dashboard.health')}}</span> / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.health').full}}</span>
@@ -181,7 +212,7 @@
         </article>
       </div>
     </div>
-    <div class="tile is-parent">
+<!--     <div class="tile is-parent">
       <article class="tile is-child notification is-primary" *ngIf="kpi.isLoaded('dashboard')">
         <p class="title is-size-3">Wealth</p>
         <p class="subtitle is-size-4">Current wealth of the CPC Ecosystem</p>
@@ -193,7 +224,7 @@
           Addresses: TODO 124 (growth X% / day)
         </div>
       </article>
-    </div>
+    </div> -->
   </div>
   <div class="tile is-parent">
     <article class="tile is-child notification is-primary">
@@ -232,7 +263,7 @@
               <div class="item">RPT</div>
               <div class="item">Balance</div>
               <!-- <div class="item">Proposer</div> -->
-              <div class="item">Type of RNode</div>
+              <!-- <div class="item">Type of RNode</div> -->
             </div>
             <div class="values-container is-size-5">
               <div class="item onhover">
@@ -292,9 +323,9 @@
 <!--               <div class="item">
                 TODO
               </div> -->
-              <div class="item">
+<!--               <div class="item">
                 CPC-Team
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -306,39 +337,8 @@
 </section>
 
 
-<section class="section transactions-graph">
-<div class="container">
-  <app-trx-graph></app-trx-graph>
-</div>
-</section>
+<app-footer></app-footer>
 
-
-<section class="section blocks-squared">
-<div class="container">
-  <app-blocks-squared></app-blocks-squared>
-</div>
-</section>
-
-<section class="hero is-primary">
-  <div class="hero-body">
-    <div class="container">
-      Current CPC node version: <a href="{{latestRelease.html_url}}">{{latestRelease.name}}</a><br>
-      <i>Next version scheduled for 12/12/2030</i><br>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-<div class="container">
-  <app-trx-streamgraph></app-trx-streamgraph>
-</div>
-</section>
-
-<section class="section">
-<div class="container">
-	INDUSTRY NODES (TRAFFIC OVERVIEW)
-</div>
-</section>
 
 <!-- 
 <pre>
