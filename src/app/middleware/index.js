@@ -60,7 +60,10 @@ async function update_blocksSquared () {
 	const unit = "day";
 	const t = moment.utc();
 
-	t.second(0).minute(0).hour(0);
+	t.second(0).minute(0);
+	const hourNow = t.unix()*1000;
+
+	t.hour(0);
 	const today = t.unix()*1000;
 
 	t.subtract(1, 'd');
@@ -72,9 +75,10 @@ async function update_blocksSquared () {
 	// 1. regenerate fresh data, cache in middleware-cache
 	await blocks.squared.update('day', today);
 	await blocks.squared.update('day', yesterday);
+	await blocks.squared.update('hour', hourNow);
 
 	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
-	return cache_fe.invalidate("/api/v1/blocks-squared/"+unit+"/*");
+	return cache_fe.invalidate("/api/v1/blocks-squared/*");
 }
 
 

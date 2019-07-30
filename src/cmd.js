@@ -7,10 +7,10 @@ setTimeout(async () => {
 
 	//await balances.ranking_update();
 
-	console.log(await price.last());
+	//console.log(await price.last());
 
-	//await aggregate.reset();
-	//await aggregate.run();
+	await aggregate.reset();
+	await aggregate.run();
 	//await aggregate.test();
 
 /*	try {
