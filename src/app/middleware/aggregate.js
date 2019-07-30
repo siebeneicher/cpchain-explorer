@@ -121,7 +121,7 @@ async function aggregate_process_blocks (unit) {
 
 		// update all new blocks __aggregated.by_ object
 		await mongo.db(config.mongo.db.sync).collection('blocks').bulkWrite(bulk).then((result, err) => {
-			//console.log('flagged blocks to be aggregated', result.modifiedCount);
+			console.log('flagged blocks as aggregated', result.modifiedCount);
 		});
 
 		return {new_blocks: new_blocks.length}
