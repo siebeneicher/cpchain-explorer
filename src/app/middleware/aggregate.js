@@ -17,7 +17,7 @@ const units = {
 };
 
 const fetch_balance_enabled = true;
-const max_blocks_per_aggregation = 500;		// limit blocks per aggregation, specially when aggregating from 0
+const max_blocks_per_aggregation = 5000;		// limit blocks per aggregation, specially when aggregating from 0
 const cpc_digits = parseInt(1+("0".repeat(18)));
 let indexes_ensured = false;
 
@@ -121,7 +121,7 @@ async function aggregate_process_blocks (unit) {
 
 		// update all new blocks __aggregated.by_ object
 		await mongo.db(config.mongo.db.sync).collection('blocks').bulkWrite(bulk).then((result, err) => {
-			console.log('flagged blocks as aggregated', result.modifiedCount);
+			console.log('flagged blocks as aggregated', unit, result.modifiedCount);
 		});
 
 		return {new_blocks: new_blocks.length}
