@@ -9,10 +9,10 @@ import { LastBlockService } from './services/last-block.service';
 import { SearchService } from './services/search.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  animations: [ fadeAnimation ]
+	selector: 'app-root',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.scss'],
+	animations: [ fadeAnimation ]
 })
 export class AppComponent implements OnInit {
 	searchLoading:boolean = false;
@@ -32,6 +32,13 @@ export class AppComponent implements OnInit {
 
 	prepareRoute(outlet) {
 		return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];
+	}
+
+	fullMenu (outlet) {
+		// TODO: listen on route change
+		if (outlet && outlet.activatedRouteData && outlet.activatedRouteData['fullMenu'] !== undefined)
+			return outlet.activatedRouteData['fullMenu'];
+		return true;
 	}
 
 	async search () {

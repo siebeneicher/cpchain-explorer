@@ -1,3 +1,32 @@
-<p>rnodes works!</p>
+<section class="section">
+<div class="container">
+
+	<h3 class="title">RNodes</h3>
+
+	<table class="table table is-hoverable table is-fullwidth is-striped">
+		<thead>
+			<th>Rank (by RPT)</th>
+			<th>Address</th>
+			<th>CPC Balance</th>
+			<th>RPT</th>
+			<th>Rewards</th>
+			<th>ROI</th>
+			<th>Promoter</th>
+		</thead>
+		<tbody>
+			<tr *ngFor="let rnode of rnodes">
+				<td>#{{rnode.rank}}</td>
+				<td><a [routerLink]="['/address', rnode.address]">{{rnode.address}}</a></td>
+				<td>{{rnode.latest_balance}}</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+	<p>Coming...</p>
+</div>
+</section>
+
+
 
 <app-footer></app-footer>

@@ -38,7 +38,7 @@ export class TrxGraphComponent implements OnInit {
 
 	ngAfterContentInit() {
 		this.timeranges = [
-			{title: 'last 2 weeks', unit: "day", times: 14}
+			{title: 'last 10 days', unit: "day", times: 10}
 		];
 		this.setTimerange(0);
 	}
@@ -57,7 +57,7 @@ export class TrxGraphComponent implements OnInit {
 	reload () {
 		this.loading = this.timerange;
 		const tr = this.timeranges[this.timerange];
-		d3.json(environment.backendBaseUrl+'/transactions-graph?unit='+tr.unit+'&times='+tr.times).then(_ => this.render(_));
+		d3.json(environment.backendBaseUrl+'/transactions-graph?unit='+tr.unit+'&times='+tr.times+'&exclude_last=1').then(_ => this.render(_));
 	}
 
 	filter (res) {

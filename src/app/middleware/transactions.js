@@ -29,8 +29,9 @@ const graph = {
 	},
 
 	update: async function (unit, times, ts_start = 'latest', options = {}) {
-		//const target = options.target || 'mined';
-		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
+		const exlcude_last = options.exlcude_last !== undefined ? options.exlcude_last*1 : 0;
+
+		let ts = ts_start == 'latest' ? last_unit_ts(unit, times + exlcude_last, 10) : unit_ts(ts_start, 10);
 
 		// avoid parallel calls, instead chain them
 		return graph.update_promise_chain = graph.update_promise_chain.then(_update);

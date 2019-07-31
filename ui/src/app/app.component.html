@@ -1,9 +1,9 @@
 <!-- <img src="assets/logo_only.svg" class="main-bg"> -->
 
-<nav class="navbar main is-secondary" role="navigation" aria-label="main navigation">
+<nav class="navbar main is-secondary" [class.full-menu]="fullMenu(outlet)" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item" routerLink="/" routerLinkActive="active">
-      <!-- <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: Free, open source, & modern CSS framework based on Flexbox" width="112" height="28"> -->
+      <img src="assets/logo_only.png" class="cpc-logo">
       RNodes.io
     </a>
 
@@ -11,6 +11,7 @@
 
     <a class="navbar-item" [routerLink]="['/rich-list']">Rich List</a>
     <a class="navbar-item" [routerLink]="['/blocks']">Blocks</a>
+    <a class="navbar-item" [routerLink]="['/rnodes']">RNodes</a>
     <a class="navbar-item" [routerLink]="['/stats']">Stats</a>
     <!-- <a class="navbar-item">Watch List</a> -->
 
@@ -20,7 +21,7 @@
       <span aria-hidden="true"></span>
     </a> -->
 
-    <span class="navbar-item">
+    <span class="navbar-item search-bar">
       <div class="field has-addons">
         <p class="control has-icons-left">
           <input class="input app-search-input" type="text" placeholder="Txn, Block, Address" (keyup.enter)="search()" >

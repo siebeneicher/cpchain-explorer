@@ -42,7 +42,7 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 
 .get('/api/v1/transactions-graph', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await transactions.graph.get(req.query.unit, parseInt(req.query.times)));
+	res.json(await transactions.graph.get(req.query.unit, parseInt(req.query.times), 'latest', { exlcude_last: !!parseInt(req.query.exclude_last) }, !!parseInt(req.query.forceUpdate)));
 })
 
 .get('/api/v1/block/transactions/:number', async function (req, res) {
@@ -80,6 +80,11 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await addresses.all());
 })
 
+.get('/api/v1/rnodes', /*cache.route(), */async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await rnodes.all());
+})
+
 .get('/api/v1/search/:term', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await search.typeOf(req.params.term));
@@ -109,7 +114,7 @@ app.get('/aggregate', async function (req, res) {
 // UI (ORDER AFTER API ROUTES)
 app.use('/', express.static(__dirname + '/../ui-build'));
 
-app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list)/, async function (req, res) {
+app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|rnodes)/, async function (req, res) {
 	res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
 })
 

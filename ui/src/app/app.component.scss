@@ -2,3 +2,21 @@ nav.main {
 	justify-content: center;
 	box-shadow: 0 0 6px 1px #1f7bbd20;
 }
+
+.cpc-logo {
+	margin-right: 12px;
+	opacity: 0;
+}
+
+.search-bar {
+	opacity: 0;
+}
+
+.full-menu {
+	.search-bar {
+		opacity: 1;
+	}
+	.cpc-logo {
+		opacity: 1;
+	}
+}

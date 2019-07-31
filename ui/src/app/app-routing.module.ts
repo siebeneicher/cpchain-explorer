@@ -12,16 +12,16 @@ import { RichListComponent } from './rich-list/rich-list.component';
 import { StatsComponent } from './stats/stats.component';
 
 const routes: Routes = [
-	{ path: '', /*redirectTo: '', pathMatch: '',*/ component: DashboardComponent, data: {animation: 'dashboardPage'} },
+	{ path: '', /*redirectTo: '', pathMatch: '',*/ component: DashboardComponent, data: {animation: 'dashboardPage', fullMenu: false} },
 	{ path: 'blocks', component: BlocksComponent, data: {animation: 'blocksPage'} },
 	{ path: 'stats', component: StatsComponent, data: {animation: 'statsPage'} },
 	{ path: 'block/:number', component: BlockComponent, data: {animation: 'blockPage'} },
 	{ path: 'transactions', component: TransactionsComponent, data: {animation: 'transactionsPage'} },
 	{ path: 'trx/:txHash', component: TransactionComponent, data: {animation: 'trxPage'} },
-	//{ path: 'rnodes', component: RnodesComponent, data: {animation: 'rnodesPage'} },
 	{ path: 'address/:addr', component: AddressComponent, data: {animation: 'addressPage'} },
 	{ path: 'system-status', component: SystemStatusComponent, data: {animation: 'systemStatusPage'} },
 	{ path: 'rich-list', component: RichListComponent, data: {animation: 'richListPage'} },
+	{ path: 'rnodes', component: RnodesComponent, data: {animation: 'rnodesPage'} },
 ];
 
 @NgModule({

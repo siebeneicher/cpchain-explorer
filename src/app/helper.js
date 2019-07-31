@@ -86,6 +86,8 @@ function last_unit_ts (unit, count, digits = 10) {
 	// return ts with current timestamp - unit*count
 	let t = moment.utc();
 
+	// on purpose, the ts is not clipped down, to avoid including previous unit
+
 	if (unit == "minute") {
 		t.subtract(count, 'minute');
 	}

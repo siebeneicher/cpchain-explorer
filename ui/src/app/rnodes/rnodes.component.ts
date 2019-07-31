@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-rnodes',
@@ -7,9 +9,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RnodesComponent implements OnInit {
 
-  constructor() { }
+	rnodes:Array<any> = [];
 
-  ngOnInit() {
-  }
+	constructor(private httpClient: HttpClient,) { }
+
+	ngOnInit() {
+		this.load();
+	}
+
+	async load () {
+		let url = environment.backendBaseUrl + '/rnodes';
+
+		return new Promise((resolve, reject) => {
+			return this.httpClient.get(url).subscribe((res: Array<any>) => {
+				this.rnodes = res;
+				resolve();
+			});
+		});
+	}
 
 }
