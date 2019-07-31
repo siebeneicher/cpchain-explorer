@@ -65,6 +65,7 @@ export class AddressComponent implements OnInit {
 
 				this.invalidAddress = false;
 				this.info = addr;
+
 				resolve();
 			});
 		});

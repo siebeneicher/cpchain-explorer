@@ -1,11 +1,11 @@
 <section class="section">
 <div class="container">
 
-	<h3 class="title">Transaction {{txHash}}</h3>
+	<h3 class="title">Trx {{txHash}} <i ngxClipboard [cbContent]="txHash" class="typcn typcn-clipboard is-clickable"></i></h3>
 
 	<table class="table table is-hoverable table is-fullwidth is-striped">
 		<tbody>
-			<tr><td>Tx Hash</td><td>{{txHash}}</td></tr>
+			<tr><td>Trx Hash</td><td>{{txHash}}</td></tr>
 			<tr><td>Timestamp</td><td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'long' : 'UTC' }}</td></tr>
 			<tr><td>Block Hash</td><td>{{trx.blockHash}}</td></tr>
 			<tr><td>Block Number</td><td><a [routerLink]="['/block', trx.blockNumber]">{{trx.blockNumber}}</a></td></tr>

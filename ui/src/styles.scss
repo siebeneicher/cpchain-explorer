@@ -45,7 +45,7 @@ $primary-invert: white;
 $secondary: $teal-blue;
 $secondary-invert: white;
 
-$link: $baby-blue;
+$link: $teal-blue;
 $link-invert: white;
 
 $widescreen-enabled: true;
@@ -70,4 +70,9 @@ router-outlet ~ * {
   position: absolute;
   height: 100%;
   width: 100%;
+}
+
+
+.table {
+	box-shadow: 0 0 6px 1px #1f7bbd20;
 }

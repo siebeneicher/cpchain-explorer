@@ -22,6 +22,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { TransactionComponent } from './transaction/transaction.component';
 import { AddressComponent } from './address/address.component';
 import { RnodesComponent } from './rnodes/rnodes.component';
+import { ClipboardModule } from 'ngx-clipboard';
 
 import { DeferLoadModule } from '@trademe/ng-defer-load';
 import { SystemStatusComponent } from './system-status/system-status.component';
@@ -60,7 +61,8 @@ import { FooterComponent } from './footer/footer.component';
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
-    DeferLoadModule 
+    DeferLoadModule ,
+    ClipboardModule
   ],
   providers: [CookieService],
   bootstrap: [AppComponent]

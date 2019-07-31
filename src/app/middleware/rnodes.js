@@ -31,7 +31,17 @@ const user = {
 			return new Promise(async function (resolve, reject) {
 				const t_start = now();
 
-				const addr_ = await addresses.get(addr);
+				let addr_;
+
+				try {
+					addr_ = await addresses.get(addr);
+				} catch (err) {
+					try {
+						addr_ = await balances.update(addr);
+					} catch (err) {
+						return reject("address ("+addr+") not found and could not be fetched from civilian node in realtime");
+					}
+				}
 
 				const rnode = {
 					last_rpt: await rnodes.last_rpt(addr),		// incl. rank

@@ -15,13 +15,13 @@
 			<tr><td>Transactions</td><td>
 				{{block.transactions ? block.transactions.length : '-'}} trx's
 			</td></tr>
-			<tr><td>Proposer</td><td><a [routerLink]="['/address', block.miner]">{{block.miner}}</a></td></tr>
+			<tr><td>Proposer</td><td><a [routerLink]="['/address', block.miner]">{{block.miner}}</a>&nbsp;<i ngxClipboard [cbContent]="block.miner" class="typcn typcn-clipboard is-clickable"></i></td></tr>
 			<tr><td>Reward</td><td>{{block.__reward}} CPC ({{block.__fixed_reward}} fixed + {{block.__fee}} fee)</td></tr>
 			<tr><td>Gas Used</td><td>{{block.gasUsed}}</td></tr>
 			<tr><td>Gas Limit</td><td>{{block.gasLimit}}</td></tr>
 			<tr><td>Size</td><td>{{block.size}}</td></tr>
-			<tr><td>Hash</td><td>{{block.hash}}</td></tr>
-			<tr><td>Parent Hash</td><td>{{block.parentHash}}</td></tr>
+			<tr><td>Hash</td><td>{{block.hash}}&nbsp;<i ngxClipboard [cbContent]="block.hash" class="typcn typcn-clipboard is-clickable"></i></td></tr>
+			<tr><td>Parent Hash</td><td>{{block.parentHash}}&nbsp;<i ngxClipboard [cbContent]="block.parentHash" class="typcn typcn-clipboard is-clickable"></i></td></tr>
 		</tbody>
 	</table>
 

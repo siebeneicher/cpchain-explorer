@@ -16,12 +16,9 @@ const units = {
 	'year': {}
 };
 
-const fetch_balance_enabled = true;
-const max_blocks_per_aggregation = 5000;		// limit blocks per aggregation, specially when aggregating from 0
+const max_blocks_per_aggregation = 1000;		// limit blocks per aggregation, specially when aggregating from 0
 const cpc_digits = parseInt(1+("0".repeat(18)));
 let indexes_ensured = false;
-
-if (!fetch_balance_enabled) console.warn("warn: fetching balance is disabled");
 
 let run_promise = Promise.resolve();		// keep promise to chain run() calls and avoid parallelism
 
@@ -90,7 +87,7 @@ async function aggregate_all (unit) {
 		if (new_blocks == 0) break;
 	}
 
-	console.log(unit+": aggregated, new blocks:", total_new_blocks, "took", now() - t_start);
+	console.log("aggregated, new blocks:", total_new_blocks, unit, "took", now() - t_start);
 
 	return Promise.resolve({new_blocks: total_new_blocks});
 }
@@ -226,7 +223,6 @@ async function aggregate_unit (unit, ts, chunk) {
 			is_impeached = m == '0x0000000000000000000000000000000000000000';
 
 			_balances = await (async () => {
-				if (!fetch_balance_enabled) return null;
 				if (proposer === null && is_impeached) return null;
 				try {
 					async function __balance (addr) {

@@ -36,7 +36,8 @@
                 "node_modules"
               ]
             },
-            "scripts": [],
+            "scripts": [
+            ],
             "es5BrowserSupport": true
           },
           "configurations": {
