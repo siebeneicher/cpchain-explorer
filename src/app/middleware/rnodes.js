@@ -203,4 +203,65 @@ const streamgraph = {
 	}
 }
 
-module.exports = {user, streamgraph};
+const all = {
+	update_promise_chain: Promise.resolve(),
+
+	cache_key: function (unit, times, ts_start, options = {}) {
+		return 'CPC-DATA-RNODES-ALL_'+unit+'_'+times+'_'+ts_start+'_'+JSON.stringify(options);
+	},
+	cache_flush_all: async function () {
+		return redis.delPrefix('CPC-DATA-RNODES-ALL_');
+	},
+	get: async function (unit, times, ts_start = 'latest', options = {}, forceUpdate = false) {
+		let data = await redis.get(all.cache_key(unit, times, ts_start, options));
+
+		if (!forceUpdate && data) console.log("Serving rnodes.all from redis");
+		if (forceUpdate || !data)
+			data = await all.update(unit, times, ts_start, options);
+
+		return data;
+	},
+	update: async function (unit, times, ts_start = 'latest', options = {}) {
+
+		const target = options.target || 'mined';
+
+		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
+
+		// avoid parallel calls, instead chain them
+		return all.update_promise_chain = all.update_promise_chain.then(_update);
+
+		async function _update () {
+			return new Promise(async function (resolve, reject) {
+				const t_start = now();
+
+				let items = await rewards.last(unit, times);
+
+				if (!items || !items.length)
+					resolve(null);
+
+				let rpts = await rnodes.last_rpt();
+
+				// assign latest rpt
+				rpts.forEach(_ => {
+					let f = items.filter(_2 => _2.rnode == _.address);
+
+					if (f && f.length) {
+						f[0].rpt = _.rpt;
+						f[0].rpt_rank = _.rank;
+						f[0].elected = _.status == 0;
+					}
+				});
+
+				redis.set(all.cache_key(unit, times, ts_start, options), items);
+				redis.expire(all.cache_key(unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);
+
+				console.log('rnodes.all.update took', now()-t_start);
+
+				resolve(items);
+			});
+		}
+	}
+}
+
+
+module.exports = {user, streamgraph, all};

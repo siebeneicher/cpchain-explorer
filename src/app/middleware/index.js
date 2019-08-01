@@ -66,15 +66,8 @@ async function update_blocksSquared () {
 	t.hour(0);
 	const today = t.unix()*1000;
 
-	t.subtract(1, 'd');
-	const yesterday = t.unix()*1000;
-
-	t.subtract(1, 'd');
-	const yesterday2 = t.unix()*1000;
-
 	// 1. regenerate fresh data, cache in middleware-cache
 	await blocks.squared.update('day', today);
-	await blocks.squared.update('day', yesterday);
 	await blocks.squared.update('hour', hourNow);
 
 	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
@@ -112,6 +105,10 @@ async function update_balance_ranks () {
 module.exports = {
 	updateAll,
 	update_lastBlock,
+	update_blocksSquared,
+	update_dashboard,
+	update_rnodes_watched,
+	update_balance_ranks,
 
 	dashboard,
 	blocks,

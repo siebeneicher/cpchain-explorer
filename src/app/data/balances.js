@@ -50,7 +50,7 @@ async function update (addr) {
 
 	// sanitize given addr
 	addr = web3.utils.toChecksumAddress(addr);
-debugger;
+
 	return new Promise(async (resolve, reject) => {
 		try {
 			let b = await balance(addr);

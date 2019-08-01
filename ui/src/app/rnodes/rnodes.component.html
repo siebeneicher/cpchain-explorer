@@ -1,32 +1,98 @@
 <section class="section">
 <div class="container">
 
-	<h3 class="title">RNodes</h3>
+	<h3 class="columns">
+		<span class="title column is-2">{{rnodes.length}} RNodes</span>
+
+
+		<span class="filter column is-10 field has-addons">
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'minute-15'" [class.is-success]="unit == 'minute' && times == 15" (click)="setTimespan('minute', 15)">
+		      <span>last 15 minutes</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'hour-1'" [class.is-success]="unit == 'hour' && times == 1" (click)="setTimespan('hour', 1)">
+		      <span>1 hour</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'hour-4'" [class.is-success]="unit == 'hour' && times == 4" (click)="setTimespan('hour', 4)">
+		      <span>4 hour</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'hour-12'" [class.is-success]="unit == 'hour' && times == 12" (click)="setTimespan('hour', 12)">
+		      <span>12 hour</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'day-1'" [class.is-success]="unit == 'day' && times == 1" (click)="setTimespan('day', 1)">
+		      <span>1 day</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'day-7'" [class.is-success]="unit == 'day' && times == 7" (click)="setTimespan('day', 7)">
+		      <span>7 day</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'month-1'" [class.is-success]="unit == 'month' && times == 1" (click)="setTimespan('month', 1)">
+		      <span>1 month</span>
+		    </a>
+		  </p>
+		</span>
+	</h3>
 
 	<table class="table table is-hoverable table is-fullwidth is-striped">
 		<thead>
-			<th>Rank (by RPT)</th>
 			<th>Address</th>
-			<th>CPC Balance</th>
-			<th>RPT</th>
-			<th>Rewards</th>
-			<th>ROI</th>
-			<th>Promoter</th>
+			<th (click)="clickSort('balance')" class="is-clickable">
+				Balance
+				<i *ngIf="sortBy == 'balance'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<th (click)="clickSort('rpt')" class="is-clickable">
+				RPT
+				<i *ngIf="sortBy == 'rpt'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<th (click)="clickSort('mined')" class="is-clickable">
+				Sealed
+				<i *ngIf="sortBy == 'mined'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<th (click)="clickSort('impeached')" class="is-clickable">
+				Impeached
+				<i *ngIf="sortBy == 'impeached'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<th (click)="clickSort('rewards')" class="is-clickable">
+				Rewards
+				<i *ngIf="sortBy == 'rewards'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<th (click)="clickSort('roi_year')" class="is-clickable">
+				ROI Year
+				<i *ngIf="sortBy == 'roi_year'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<th (click)="clickSort('elected')" class="is-clickable">
+				Elected
+				<i *ngIf="sortBy == 'elected'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<!-- <th>Proposing</th> -->
 		</thead>
 		<tbody>
 			<tr *ngFor="let rnode of rnodes">
-				<td>#{{rnode.rank}}</td>
-				<td><a [routerLink]="['/address', rnode.address]">{{rnode.address}}</a></td>
-				<td>{{rnode.latest_balance}}</td>
+				<td><a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode}}</a></td>
+				<td>{{rnode.balance | number : '1.0-0'}}</td>
+				<td>{{rnode.rpt}} (#{{rnode.rpt_rank}})</td>
+				<td>{{rnode.mined}}</td>
+				<td>{{rnode.impeached}}</td>
+				<td>{{rnode.rewards |  number : '1.2-2'}}</td>
+				<td>{{rnode.roi_year |  number : '1.2-2'}}%</td>
+				<td><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
+				<!-- <td>{{rnode.proposing}}</td> -->
 			</tr>
 		</tbody>
 	</table>
 
-
-	<p>Coming...</p>
 </div>
 </section>
-
-
 
 <app-footer></app-footer>

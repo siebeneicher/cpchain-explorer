@@ -44,7 +44,8 @@ module.exports = {
 		},
 		rewardsPerBlock: 12.65,
 		unit_convert: 1000000000000000000,			// parseInt(1+("0".repeat(18)))
-		impeached_miner: "0x0000000000000000000000000000000000000000"
+		impeached_miner: "0x0000000000000000000000000000000000000000",
+		rnode_lock_amount_min: 200000
 	},
 	coinmarketcap: {
 		api_key: "0a7fbb6f-e1d1-4668-8f3f-0a1cd3001f10",

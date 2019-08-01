@@ -70,6 +70,13 @@ async function last (unit, times, rnode_addr = null) {
 		// sanitize given addr
 		if (rnode_addr) rnode_addr = web3.utils.toChecksumAddress(rnode_addr);
 
+		let units_per_year = 0;
+		if (unit == "minute") units_per_year = 365 * 24 * 60;
+		if (unit == "hour") units_per_year = 365 * 24;
+		if (unit == "day") units_per_year = 365;
+		if (unit == "month") units_per_year = 12;
+		let time_multiply = units_per_year / times;
+
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
 			.aggregate([
 				{ $match: { ts: { $gte: last_ts } } },
@@ -94,7 +101,6 @@ async function last (unit, times, rnode_addr = null) {
 					impeached: { $sum: '$rnodes_.v.impeached' },
 					//fees: { $sum: '$rnodes_.v.transactions_fee' },
 					balance: { $last: '$rnodes_.v.balance' },
-					//proposer: { $sum: '$rnodes_.v.proposer' },
 				} },
 				{
 					$project: {
@@ -102,12 +108,14 @@ async function last (unit, times, rnode_addr = null) {
 						rnode: '$_id',
 						mined: 1,
 						impeached: 1,
-						balance: 1,
+						balance: { $add: [ '$balance', config.cpc.rnode_lock_amount_min ] },
 						//fees: 1,
 						//proposer: 1,
 						rewards_from_fixed: 1,
 						rewards_from_fee: 1,
 						rewards: 1,
+						// calculte roi: cond to avoid 0 balance division
+						roi_year: { $multiply: [ { $divide: [ '$rewards', { $add: [ '$balance', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] }
 				} }
 			])
 			.toArray((err, result) => {

@@ -49,7 +49,7 @@ async function byUnit (unit, ts, select = []) {
 
 async function last (unit = null, rnode_addr = null) {
 
-	console.log("data.blocks.last(",unit,rnode_addr,")");
+	//console.log("data.blocks.last(",unit,rnode_addr,")");
 
 	// last_block from sync
 	if (unit == null && rnode_addr == null) {

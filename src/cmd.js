@@ -1,13 +1,15 @@
 const {dashboard, aggregate, updateAll, blocks, rnodes, kpi, transactions} = require('./app/middleware');
 const {rewards, balances, price} = require('./app/data');
 const {python_exe} = require('./app/helper');
-const {versions} = require('./cpc-fusion/api');
+const {versions, perfTest} = require('./cpc-fusion/api');
 
 setTimeout(async () => {
 
 	//await balances.ranking_update();
 
-	await balances.update("0x76130DA5aA1851313a7555D3735BED76029560DA");
+	await perfTest();
+
+	//await balances.update("0x76130DA5aA1851313a7555D3735BED76029560DA");
 
 	//console.log(await price.last());
 

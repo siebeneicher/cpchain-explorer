@@ -85,9 +85,9 @@ app.get('/api/v1/rnode/user/:addr', async function (req, res) {
 	res.json(await addresses.all());
 })
 
-.get('/api/v1/rnodes', /*cache.route(), */async function (req, res) {
+.get('/api/v1/rnodes/:unit/:times', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await rnodes.all());
+	res.json(await rnodes.all.get(req.params.unit, parseInt(req.params.times), 'latest', {}, !!parseInt(req.query.forceUpdate)));
 })
 
 .get('/api/v1/search/:term', async function (req, res) {

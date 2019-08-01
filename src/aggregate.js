@@ -6,17 +6,22 @@ async function run () {
 	// initial
 	middleware.updateAll();
 
+	messaging.on('SYNC-NEW-BLOCK', async function(data) {
+		console.log('SYNC-NEW-BLOCK');
 
-	messaging.on('SYNC-SNAPSHOT-PERFORMED', async function(data) {
-		console.log('SYNC-SNAPSHOT-PERFORMED');
-		middleware.updateAll();
+		middleware.update_lastBlock();
+		middleware.update_blocksSquared();
 	});
 	messaging.on('SYNC-BACKWARDS-PERFORMED', function(data) {
 		console.log('SYNC-BACKWARDS-PERFORMED');
 		middleware.updateAll();
 	});
-	messaging.on('SYNC-BALANCES-PERFORMED', function(data) {
-		console.log('SYNC-BALANCES-PERFORMED');
+	messaging.on('SYNC-RNODES-N-BALANCES-PERFORMED', function(data) {
+		console.log('SYNC-BACKWARDS-PERFORMED');
+		middleware.updateAll();
+	});
+	messaging.on('SYNC-MISSING-BALANCES-PERFORMED', function(data) {
+		console.log('SYNC-MISSING-BALANCES-PERFORMED');
 	});
 }
 

@@ -30,36 +30,40 @@ resolve("NOT-IMPLEMENTED");
 	});
 }
 
-async function last_rpt (addr) {
+async function last_rpt (addr = null) {
+	let match = {};
+
 	// sanitize given addr
-	addr = web3.utils.toChecksumAddress(addr);
+	if (addr) {
+		addr = web3.utils.toChecksumAddress(addr);
+	}
 
 	return new Promise(async function (resolve, reject) {
 		mongo.db(config.mongo.db.sync).collection('rnodes')
-			.aggregate(
-				{ $match: { rnodes: { $elemMatch: { 'Address': addr } } } },
+			.aggregate([
 				{ $sort: { ts: -1 } },
-				{ $limit: 1 }
-			)
+				{ $limit: 1 },
+				{ $unwind: '$rnodes' },
+				{ $sort: { 'rnodes.Rpt': -1 } },
+				{ $project: { _id:-1, address: '$rnodes.Address', rpt: '$rnodes.Rpt', status: '$rnodes.Status' } }
+			])
 			.toArray((err, result) => {
-				if (result.length == 0) {
-					console.log("rnodes.last_rpt empty");
-					resolve({ts: null, rpt: null, rank: null});
-				} else if (err) {
-					console.error("rnodes.last_rpt error: ", err);
-					resolve({ts: null, rpt: null, rank: null});
+				if (result.length == 0 || err) {
+					//console.log("rnodes.last_rpt empty");
+					resolve(null);
 				} else {
-					// sort, for ranking
-					result[0].rnodes.sort(function(a, b) { return a[1] - b[1] });
-					let rank = 0;
-					let rpt = null;
-					result[0].rnodes.forEach((_,i) => {
-						if (_.Address == addr) {
-							rank = i + 1;
-							rpt = _.Rpt;
-						}
-					});
-					resolve({ts: result[0].ts, rpt, rank});
+					// attach rank
+					result.forEach((_,i) => _.rank = i+1);
+
+					if (addr) {
+						let find = result.filter(_ => _.address == addr);
+						if (find && find.length)
+							resolve(find[0])
+						else
+							resolve({ts: null, rpt: null, rank: null});
+					} else {
+						resolve(result);
+					}
 				}
 			});
 	});

@@ -26,7 +26,7 @@ async function call (action, ...params) {
 
 	return new Promise ((resolve, reject) => {
 		exec(cmd, async function (err, data) {
-			//console.log(cmd, err, data, (now()-t).toFixed(2), "ms");
+			//console.log("TIME API EXEC:", cmd, /*err, data,*/ (now()-t).toFixed(2), "ms");
 
 			if (err) console.error(cmd, err);
 
@@ -81,11 +81,139 @@ async function balance (addr, blockNum = "") {
 	}
 	
 }
+
 async function blockNumber () {
 	return call('blockNumber');
 }
 
-module.exports = {blockNumber, rnodes, versions, generation, block, transaction, balance, web3};
+async function perfTest () {
+
+	//await _t1();
+	//await _t2();
+	//await _t3();
+	await _t4();
+
+	return Promise.resolve();
+
+
+	async function _t1 () {
+		let t = now();
+
+		// 1. test 10 sequential mixed API requests
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446");
+		await block();
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f");
+		await generation();
+		await versions();
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5");
+		await rnodes();
+
+		console.log("api perfTest.t1:", now()-t);
+
+		return Promise.resolve();
+	}
+
+	async function _t2 () {
+		let t = now();
+
+		// 1. test 10 parallel mixed API requests
+		return Promise.all([
+			balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+			,block()
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+			,generation()
+			,versions()
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+			,rnodes()
+		]).then(() => {
+			console.log("api perfTest.t2:", now()-t);
+		});
+	}
+
+	async function _t3 () {
+		let t = now();
+
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		await balance("0x8d16Adafb4633A3956691aA4636B603e8F328446")
+		await balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f")
+		await balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5")
+		console.log("api perfTest.t3:", now()-t);
+
+		return Promise.resolve();
+	}
+
+	async function _t4 () {
+		let t = now();
+
+		return Promise.all([
+			balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+			,balance("0x8d16Adafb4633A3956691aA4636B603e8F328446").then(() => console.log(now()-t))
+			,balance("0xc46C4Db4855848bBb471BB847DcA4936D8E1254f").then(() => console.log(now()-t))
+			,balance("0x4af2267A69d56358d0a861B4592F2bF39036e4E5").then(() => console.log(now()-t))
+		]).then(() => {
+			console.log("api perfTest.t4:", now()-t);
+		});
+	}
+
+}
+
+module.exports = {blockNumber, rnodes, versions, generation, block, transaction, balance, web3, perfTest};
 
 
 /*

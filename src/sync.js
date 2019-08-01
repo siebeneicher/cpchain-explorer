@@ -1,6 +1,6 @@
 const {blockNumber, versions, rnodes, block, generation, transaction, web3, balance} = require('./cpc-fusion/api');
 const mongo = require('./app/mongo');
-const { balances, addresses } = require('./app/data');
+const { balances, addresses, blocks: data_blocks } = require('./app/data');
 const config = require('./app/config');
 const now = require('performance-now');
 const moment = require('moment');
@@ -14,13 +14,12 @@ let mongo_db, mongo_db_blocks, mongo_db_transactions, mongo_db_rnodes, mongo_db_
 let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
 let last_blockNumber = 0;			// most recent block number
-let last_blockNumber_synced = 0;	// most recent synced
 
-const sync_delay = 500;
+const sync_delay = 250;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
-const backwards_delay = 25200;
-const balance_delay = 5000;
-const maxNewBlocksBackwardsPerCycle = 15;
+const backwards_delay = 25000;
+const sync_missing_addresses_delay = 5000;
+const maxNewBlocksBackwardsPerCycle = 25;
 
 
 // linux> mongodump --db cpc_watcher
@@ -46,17 +45,19 @@ async function collect () {
 	function _snapshot () {
 		setTimeout(async () => {
 			try {
+
 				let newBlock = await syncBlock();
 				if (newBlock) {
 					// inform aggregation to process
-					messaging.emit('SYNC-SNAPSHOT-PERFORMED', {});
+					messaging.emit('SYNC-NEW-BLOCK', {});
 
 					// rnodes and balance update can be performed after aggregation, in parallel
 					await Promise.all([
 						syncRNodes(),
 						updateBalancesByBlock(newBlock.b, newBlock.trxs)
 					]);
-					messaging.emit('SYNC-RNODES-BALANCES-PERFORMED', {});
+
+					messaging.emit('SYNC-RNODES-N-BALANCES-PERFORMED', {});
 				}
 			} catch (err) {
 				console.error(err);
@@ -84,14 +85,14 @@ async function collect () {
 		setTimeout(async () => {
 			try {
 				if (await syncMissingBalances()) {
-					messaging.emit('SYNC-BALANCES-PERFORMED', {});
+					messaging.emit('SYNC-MISSING-BALANCES-PERFORMED', {});
 				}
 			} catch (err) {
 				console.error(err);
 			}
 
 			_syncMissingBalances();	// loop
-		}, balance_delay);
+		}, sync_missing_addresses_delay);
 	}
 
 	function _syncCPCPrice () {
@@ -134,32 +135,50 @@ async function syncCPCPrice () {
 
 async function syncMissingBalances () {
 	return new Promise ((resolve, reject) => {
-		const t_start = now();
+		let t_start = now();
 
 		// fetch known addresses
-		mongo_db_balances.find({}, { address:1 }).toArray(async (err, addresses) => {
+		mongo_db_balances.find({}, {address:1}).toArray(async (err, addresses) => {
+			//console.log("syncMissingBalances() get existing balances (",addresses?addresses.length:0,"), took:", now() - t_start);
 
 			let ignore_addresses = addresses.map(_ => _.address);
 
+			let yesterday = moment.utc();
+			yesterday.subtract(1, 'd');
+
+			let t_start2 = now();
+
+			let aggr = [
+				{ $match: { __ts: { $gte: yesterday.unix()*1000 }}},
+				{ $project: { "addresses": {
+					$split: [{$concat: ["$from","---","$to"]}, '---']
+				} } },
+				{ $unwind: '$addresses' },
+				{ $match: { addresses: { $nin: ignore_addresses } } },
+				{ $group: { _id: '$addresses' } }
+			];
+
+			// DEBUG: EXPLAIN
+/*			let expl = await mongo.db(config.mongo.db.sync).collection('transactions').aggregate(aggr).explain();
+			expl;*/
+
 			// fetch new addresses
 			mongo.db(config.mongo.db.sync).collection('transactions')
-				.aggregate([
-					{ $project: { "addresses": {
-						$split: [{$concat: ["$from","---","$to"]}, '---']
-					} } },
-					{ $unwind: '$addresses' },
-					{ $match: { addresses: { $nin: ignore_addresses } } },
-					{ $group: { _id: '$addresses' } }
-				])
+				.aggregate(aggr)
 				.toArray(async (err, addresses) => {
-					console.log("syncMissingBalances() get new addresses, took:", now() - t_start);
+					//console.log("syncMissingBalances() get new addresses from trx's (",addresses?addresses.length:0,"), took:", now() - t_start2);
+
 					//console.log(addresses);
 					if (!err && addresses && addresses.length) {
 						for (let i in addresses) {
 							let address = addresses[i]._id;
-							let latest_balance = await balance(address);
-							await mongo_db_balances.insertOne({ address, latest_balance });
-							console.log("new address added:",address,"balance:",latest_balance);
+							try {
+								let latest_balance = await balance(address);
+								await mongo_db_balances.insertOne({ address, latest_balance });
+								console.log("new address added:",address,"balance:",latest_balance);
+							} catch (err) {
+								console.error("[ERROR] adding new address with balance", addresses[i]);
+							}
 						}
 					}
 
@@ -205,28 +224,41 @@ async function syncBackwards () {
 	});
 }
 
+
 async function syncBlock (targetBlockNum = null) {
 	const t_start = now();
-	const cur_blockNum = await blockNumber();
-	let number;
 
-	// default: last block
+	let b, g, number;
+
+	// LAST BLOCK
 	if (targetBlockNum === null) {
-		number = cur_blockNum;
+		let last_b = await data_blocks.last();
 
-		// no new block
-		if (last_blockNumber_synced == number)
+		//console.log("DIFFFF:", last_b.timestamp, last_b.timestamp - (moment.utc().unix()*1000 - config.cpc.block_each_second*1000));
+
+// TODO: check if timespan is enough to have a new block created, if not, just stop here
+		if (last_b.timestamp > moment.utc().unix()*1000 - config.cpc.block_each_second*1000)
 			return Promise.resolve(false);
 
-		// remember block being synced
-		last_blockNumber_synced = number;
+		// block and generation at same time, so we dont miss generation info,
+		// allthough it might be unused if block is fetched allready
+		await Promise.all([block().then(_ => b = _), generation().then(_ => g = _)]);
+		number = b.number;
+
+		// no new block
+		if (last_b.number == number) return Promise.resolve(false);
+
+		// is generation related to current block
+		if (g.BlockNumber != number)
+			g = null;
 	} else {
-		number = targetBlockNum;
+		// SPECIFIC BLOCK BACK IN TIME
+		b = await block(targetBlockNum);
+		number = b.number;
+		g = null;
 	}
 
-	const b = await block(number);
-
-	b.__generation = (number == cur_blockNum) ? await generation(number) : null;
+	b.__generation = g;
 	b.__aggregated = {
 		by_minute: false,
 		by_hour: false,
@@ -237,7 +269,6 @@ async function syncBlock (targetBlockNum = null) {
 	};
 
 	attachBlockFeeReward(b);
-
 	sanitizeBlock(b);
 
 	// split transactions into different db.collection
@@ -245,8 +276,9 @@ async function syncBlock (targetBlockNum = null) {
 	const trxs = b.transactions;
 	b.transactions = b.transactions.map(trx => trx.hash);
 
+	// insert block
 	await mongo_db_blocks.updateOne({ number: number }, { $set: b }, { upsert: true });			// insert block into mongo, if not yet done so
-	console.log("added block (generation: "+!!b.__generation+"):", number, "took:", now()-t_start);
+	console.log("added block ",number," (generation: "+!!b.__generation+") in", now()-t_start);
 
 	if (!trxs || !trxs.length) return Promise.resolve({b, trxs: []});
 
@@ -260,6 +292,8 @@ async function syncBlock (targetBlockNum = null) {
 	} catch (err) {
 		console.error(err);
 	}
+
+	console.log("block ("+number+") + trx ("+trxs.length+") added in", now()-t_start);
 
 	return Promise.resolve({b, trxs});	
 }
@@ -492,6 +526,8 @@ function ensure_indexes () {
 				await mongo_db_transactions.createIndex({ hash: 1 }, { unique: true });
 			if (!indexes.to_1_from_1)
 				await mongo_db_transactions.createIndex({ to: 1, from: 1 }, { unique: false });
+			if (!indexes.__ts_1)
+				await mongo_db_transactions.createIndex({ __ts: 1 }, { unique: false });
 		})
 	}
 }
