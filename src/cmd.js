@@ -7,10 +7,12 @@ setTimeout(async () => {
 
 	//await balances.ranking_update();
 
+	await balances.update("0x76130DA5aA1851313a7555D3735BED76029560DA");
+
 	//console.log(await price.last());
 
-	await aggregate.reset();
-	await aggregate.run();
+	//await aggregate.reset();
+	//await aggregate.run();
 	//await aggregate.test();
 
 /*	try {

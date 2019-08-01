@@ -106,7 +106,7 @@ export class BlocksSquaredComponent implements OnInit {
 
 		const _this = this;
 		const _ts_now = moment.utc().unix()*1000;
-		const _emptyBlocks = this.blocksFlat.length == 0;
+		let _emptyBlocks = this.blocksFlat.length == 0;
 
 		this.httpClient.get(environment.backendBaseUrl+`/blocks-squared/${this.unit}/${this.ts}`).subscribe(async (res: any) => {
 			if (_this.unit == "day") await _prepareDataByDay(res);
@@ -118,6 +118,11 @@ export class BlocksSquaredComponent implements OnInit {
 
 
 		async function _prepareDataByHour (res) {
+			if (changeByUser) {
+				_this.blocksFlat.length = 0;
+				_emptyBlocks = true;
+			}
+
 			for (let key = 0; key < res.length; key++) {
 				_prepareBlock(res, key);
 			}
@@ -145,6 +150,12 @@ export class BlocksSquaredComponent implements OnInit {
 
 			async function _chunk (from, to) {
 				return new Promise((resolve) => {
+					if (changeByUser) {
+						_this.blocksFlat.length = 0;
+						_this.blocksByHour.length = 0;
+						_emptyBlocks = true;
+					}
+
 					// chunk blocks and set state
 					for (let key = from; key <= to; key++) {
 						_prepareBlock(res, key);
@@ -211,7 +222,7 @@ export class BlocksSquaredComponent implements OnInit {
 	mousemove (h, $e) {
 		this.mouse_x = $e.pageX, this.mouse_y = $e.pageY;
 
-		if ($e.target.className.match(/block/)) {
+		if ($e.target.className.match(/block/) && h && h.key !== undefined) {
 			let blockNum = $e.target.getAttribute('data-index');
 			let block = this.blocksByHour[h.key][blockNum];
 			if (block) {

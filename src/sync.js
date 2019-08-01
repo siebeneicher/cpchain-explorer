@@ -43,8 +43,6 @@ async function collect () {
 	_syncMissingBalances();
 	_syncCPCPrice();
 
-	syncCPCPrice();
-
 	function _snapshot () {
 		setTimeout(async () => {
 			try {

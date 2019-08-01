@@ -22,6 +22,8 @@ export class BlockComponent implements OnInit {
 	block:any = {};
 	transactions:Array<any> = [];
 	loadingTrx:boolean = false;
+	impeached:boolean = false;
+	impeached_proposer:string;
 
 	constructor (
 		private httpClient: HttpClient,
@@ -49,6 +51,9 @@ export class BlockComponent implements OnInit {
 		return new Promise((resolve, reject) => {
 			return this.httpClient.get(url).subscribe(res => {
 				this.block = res;
+				this.impeached = environment.impeached_hash == this.block.miner;
+				if (this.impeached && this.block.__generation)
+					this.impeached_proposer = this.block.__generation.Proposers[this.block.__generation.ProposerIndex];
 				resolve();
 			});
 		});

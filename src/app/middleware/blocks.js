@@ -51,31 +51,69 @@ const squared = {
 				const to_ = convert_ts(moment.utc(ts).add(1, unit).unix(), 13);
 
 				// build block structure from unit start to end
-				const must_blocks = (to_ - from_) / 1000 / sec_per_block;		// 10 blocks / second
+				// must block idealy, because impeached blocks take 20secs instead of a single block
+				const must_blocks_idealy = (to_ - from_) / 1000 / sec_per_block;		// 10 blocks / second
 				const _blocks = [];
 
-				for (let i = 0; i < must_blocks; i++) {
-					const assumed_time = from_+(i*sec_per_block*1000);
-					const time_pretty = moment.utc(assumed_time).format('HH:mm:ss');
+				let assumed_time, matched_block, time_pretty, block, next_block, next_block_timespan, count_impeached_blocks = 0;
 
-					// make sure we find block even with timestamp not matching
-					const find_block = data.filter(_ => _.timestamp >= assumed_time && !(_.timestamp > (config.cpc.block_each_second*1000)+assumed_time));
-					const block = find_block.length ?
-						find_block[0] :
-						{number: calculate_future_block_number(last_synced_block, assumed_time), impeached: null};
-					block.synced = !!find_block.length;
+				// its imperative that blocks in data are ordered via timestamp/number
+				let i = -1;
+				while (1) {
+					i++;
 
-					if (block.synced) {
-						block.impeached = block.miner == "0x0000000000000000000000000000000000000000";
-					} else {
-						block.timestamp = assumed_time;
+					// we have to add impeached time for each found impeached block
+					let impeached_block_time_extra = count_impeached_blocks * (config.cpc.block_impeached_second - config.cpc.block_each_second);
+
+					// taking impeached blocks into account (taking 20secs)
+					assumed_time = from_+(i*sec_per_block*1000)+(impeached_block_time_extra*1000);		// 13 digit ts
+					time_pretty = moment.utc(assumed_time).format('HH:mm:ss');
+
+					// end reached
+					if (assumed_time >= to_) break;
+
+					// we can not assume all blocks exist in database, so we have to individually pick the next block
+					// impeached blocks take 20secs!
+
+					// prepare next block to be assigned
+					if (!next_block && data.length) {
+						next_block = data.splice(0, 1)[0];
+
+						delete next_block._id;
+						next_block.impeached = next_block.miner == config.cpc.impeached_miner;
+						next_block.timespan = next_block.impeached ? config.cpc.block_impeached_second : config.cpc.block_each_second;
+						next_block.synced = true;
+						next_block.trx_count = next_block.transactions ? next_block.transactions.length : 0;
+						delete next_block.transactions;
 					}
+
+
+					if (next_block) {
+						// block timestamp just need to fit into assumed timespan
+						// next_block.timespan takes impeached blocks into account
+						matched_block = (next_block.timestamp >= assumed_time && next_block.timestamp < assumed_time + (next_block.timespan*1000));
+					}
+
+					block = matched_block ? next_block : {
+						number: calculate_future_block_number(last_synced_block, assumed_time),
+						impeached: null,
+						synced: false,
+						timestamp: assumed_time,
+						trx_count: 0
+					};
 
 					block.i = i;
 					block.time_pretty = time_pretty;
 
-					block.trx_count = block.transactions ? block.transactions.length : 0;
-					delete block.transactions;
+					if (matched_block) {
+						// count impeached blocks to adjust assumed_time and time_pretty
+						// count++ should be after block has been assigned, so assumed_time can be correct for future blocks
+						if (next_block.impeached)
+							count_impeached_blocks++;
+
+						next_block = null;
+						matched_block = false;
+					}
 
 					_blocks.push(block);
 				}

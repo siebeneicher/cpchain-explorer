@@ -14,6 +14,11 @@ const now = require('performance-now');
 app.use((req, res, next)=> {
 	res.setHeader('X-Used-Frontend-Cache', 'yes');
 	//console.log("REQ: ", req.url);
+
+	// manually avoid frontend cache
+	if (req.query.forceUpdate == "1")
+		res.use_express_redis_cache = false;
+
 	next();
 })
 

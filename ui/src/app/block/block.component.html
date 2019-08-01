@@ -11,11 +11,22 @@
 	<table class="table table is-hoverable table is-fullwidth is-striped">
 		<tbody>
 			<tr><td>Height</td><td>{{number}}</td></tr>
+			<tr><td>Result</td><td>
+				<span *ngIf="!impeached"><i class="typcn typcn-tick"></i> Success</span>
+				<span *ngIf="impeached"><i class="typcn typcn-cancel"></i> Failed</span>
+			</td></tr>
 			<tr><td>Timestamp</td><td>{{ago(block.timestamp)}} | {{block.timestamp | date: 'long' : 'UTC' }}</td></tr>
 			<tr><td>Transactions</td><td>
 				{{block.transactions ? block.transactions.length : '-'}} trx's
 			</td></tr>
-			<tr><td>Proposer</td><td><a [routerLink]="['/address', block.miner]">{{block.miner}}</a>&nbsp;<i ngxClipboard [cbContent]="block.miner" class="typcn typcn-clipboard is-clickable"></i></td></tr>
+			<tr><td>Proposer</td><td>
+				<span *ngIf="!impeached || !impeached_proposer">
+					<a [routerLink]="['/address', block.miner]">{{block.miner}}</a>&nbsp;<i ngxClipboard [cbContent]="block.miner" class="typcn typcn-clipboard is-clickable"></i>
+				</span>
+				<span *ngIf="impeached && impeached_proposer">
+					<a [routerLink]="['/address', impeached_proposer]">{{impeached_proposer}}</a>&nbsp;<i ngxClipboard [cbContent]="impeached_proposer" class="typcn typcn-clipboard is-clickable"></i>
+				</span>
+			</td></tr>
 			<tr><td>Reward</td><td>{{block.__reward}} CPC ({{block.__fixed_reward}} fixed + {{block.__fee}} fee)</td></tr>
 			<tr><td>Gas Used</td><td>{{block.gasUsed}}</td></tr>
 			<tr><td>Gas Limit</td><td>{{block.gasLimit}}</td></tr>

@@ -53,6 +53,10 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 				width: 13px;
 				height: 13px;
 				border-radius:2px;
+
+				&.impeached.impeached {
+					width: 30px;
+				}
 			}
 		}
 	}
@@ -89,6 +93,10 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 					margin: 1px;
 					width: 6px;
 					height: 6px;
+
+					&.impeached.impeached {
+						width: 14px;
+					}
 				}
 			}
 		}
