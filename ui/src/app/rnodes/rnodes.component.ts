@@ -13,6 +13,7 @@ export class RnodesComponent implements OnInit {
 	times:number = 1;
 	sortBy:string = "mined";
 	sortOrder:number = -1;
+	loading:string;
 
 	rnodes:Array<any> = [];
 
@@ -44,11 +45,13 @@ export class RnodesComponent implements OnInit {
 
 	async load () {
 		let url = environment.backendBaseUrl + '/rnodes/'+this.unit+'/'+this.times;
+		this.loading = this.unit+'-'+this.times;
 
 		return new Promise((resolve, reject) => {
 			return this.httpClient.get(url).subscribe((res: Array<any>) => {
 				this.rnodes = res;
 				this.sort();
+				this.loading = "";
 				resolve();
 			});
 		});

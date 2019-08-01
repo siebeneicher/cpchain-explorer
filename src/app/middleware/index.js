@@ -99,6 +99,13 @@ async function update_balance_ranks () {
 }
 
 
+async function update_rnodes_overview () {
+	rnodes.all.cache_flush_all();		// instead of updating, we flush the existing entries
+
+	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
+	return cache_fe.invalidate("/api/v1/rnodes/*");
+}
+
 
 
 
@@ -109,6 +116,7 @@ module.exports = {
 	update_dashboard,
 	update_rnodes_watched,
 	update_balance_ranks,
+	update_rnodes_overview,
 
 	dashboard,
 	blocks,
