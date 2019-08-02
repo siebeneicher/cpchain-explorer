@@ -4,9 +4,9 @@ import { environment } from '../../environments/environment';
 import { WatchService } from '../services/watch.service';
 
 @Component({
-  selector: 'app-rnodes',
-  templateUrl: './rnodes.component.html',
-  styleUrls: ['./rnodes.component.scss']
+	selector: 'app-rnodes',
+	templateUrl: './rnodes.component.html',
+	styleUrls: ['./rnodes.component.scss']
 })
 export class RnodesComponent implements OnInit {
 

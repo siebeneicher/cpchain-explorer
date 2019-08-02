@@ -1,0 +1,12 @@
+tr.watching-address {
+	background-color: #dee2e3 !important;
+}
+
+.watch-btn {
+	opacity: 0;
+	color: #aaa;
+}
+
+tr:hover .watch-btn {
+	opacity: 1;	
+}

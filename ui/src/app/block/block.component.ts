@@ -11,10 +11,10 @@ import { KpiService } from '../kpi.service';
 import { ActivatedRoute } from "@angular/router";
 
 @Component({
-  selector: 'app-block',
-  templateUrl: './block.component.html',
-  styleUrls: ['./block.component.scss'],
-  providers: [DateAgoPipe, ConvertTsPipe]
+	selector: 'app-block',
+	templateUrl: './block.component.html',
+	styleUrls: ['./block.component.scss'],
+	providers: [DateAgoPipe, ConvertTsPipe]
 })
 export class BlockComponent implements OnInit {
 
@@ -24,6 +24,7 @@ export class BlockComponent implements OnInit {
 	loadingTrx:boolean = false;
 	impeached:boolean = false;
 	impeached_proposer:string;
+	empty:boolean = false;
 
 	constructor (
 		private httpClient: HttpClient,
@@ -49,7 +50,8 @@ export class BlockComponent implements OnInit {
 		let url = environment.backendBaseUrl + '/block/' + this.number;
 
 		return new Promise((resolve, reject) => {
-			return this.httpClient.get(url).subscribe(res => {
+			return this.httpClient.get(url).subscribe((res:any) => {
+				this.empty = res.empty;
 				this.block = res;
 				this.impeached = environment.impeached_hash == this.block.miner;
 				if (this.impeached && this.block.__generation)

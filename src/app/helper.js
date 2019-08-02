@@ -136,6 +136,10 @@ async function python_exe () {
 	});
 }
 
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 function calculate_future_block_number (syncedBlock, ts) {
 	return syncedBlock.number + Math.ceil((convert_ts(ts,10) - convert_ts(syncedBlock.timestamp,10)) / config.cpc.block_each_second);
 }
@@ -149,5 +153,6 @@ module.exports = {
 	unit_ts,
 	calculate_future_block_number,
 	isAddress,
-	isChecksumAddress
+	isChecksumAddress,
+	isNumeric
 }

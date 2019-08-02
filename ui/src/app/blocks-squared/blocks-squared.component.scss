@@ -137,6 +137,7 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 }
 
 .hover-tooltip {
+	opacity: 0.9;
 	position: absolute;
 	background-color: white;
 	padding: 5px 10px;

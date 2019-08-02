@@ -1,7 +1,10 @@
 <section class="section">
 <div class="container">
 
-	<h3 class="title">Rich List</h3>
+	<h3 class="title">
+		Rich List
+		<span *ngIf="loading">(Loading)</span>
+	</h3>
 
 	<table class="table table is-hoverable table is-fullwidth is-striped">
 		<thead>
@@ -11,9 +14,9 @@
 			<th>Percentage</th>
 		</thead>
 		<tbody>
-			<tr *ngFor="let addr of addresses">
+			<tr *ngFor="let addr of addresses" [class.watching-address]="watchService.watching(addr.address)">
 				<td>#{{addr.rank}}</td>
-				<td><a [routerLink]="['/address', addr.address]">{{addr.address}}</a></td>
+				<td><a [routerLink]="['/address', addr.address]">{{addr.address}}</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(addr.address)"></i></td>
 				<td>{{addr.latest_balance}}</td>
 				<td>{{addr.balance_pct_of_total | number : '1.4-4'}}%</td>
 			</tr>

@@ -135,6 +135,11 @@ export class BlocksSquaredComponent implements OnInit {
 			const t = performance.now();
 
 // TODO: make sure timestamp for res[0] and blocksByHour[0][0] is equal, otherwise discard this.blocksByHour
+			if (changeByUser) {
+				_this.blocksFlat.length = 0;
+				_this.blocksByHour.length = 0;
+				_emptyBlocks = true;
+			}
 
 			// chunk processing to smooth cpu and rendering
 			await _chunk(0, 1000);
@@ -150,12 +155,6 @@ export class BlocksSquaredComponent implements OnInit {
 
 			async function _chunk (from, to) {
 				return new Promise((resolve) => {
-					if (changeByUser) {
-						_this.blocksFlat.length = 0;
-						_this.blocksByHour.length = 0;
-						_emptyBlocks = true;
-					}
-
 					// chunk blocks and set state
 					for (let key = from; key <= to; key++) {
 						_prepareBlock(res, key);
@@ -222,13 +221,23 @@ export class BlocksSquaredComponent implements OnInit {
 	mousemove (h, $e) {
 		this.mouse_x = $e.pageX, this.mouse_y = $e.pageY;
 
-		if ($e.target.className.match(/block/) && h && h.key !== undefined) {
-			let blockNum = $e.target.getAttribute('data-index');
-			let block = this.blocksByHour[h.key][blockNum];
+		if ($e.target.className.match(/block/)) {
+			let block, i;
+			if (h) {
+				i = $e.target.getAttribute('data-index');
+				block = this.blocksByHour[h.key][i];
+			} else {
+				i = $e.target.getAttribute('data-index');
+				block = this.blocksFlat[i];
+			}
+
+
 			if (block) {
-				this.hover_tooltip.style.top = (this.mouse_y + 15) + 'px';
-				this.hover_tooltip.style.left = (this.mouse_x + 15) + 'px';
-				this.hovered_block = block;
+				this.hover_tooltip.style.top = (this.mouse_y - 18) + 'px';
+				this.hover_tooltip.style.left = (this.mouse_x + 18) + 'px';
+
+				if (this.hovered_block !== block)
+					this.hovered_block = block;
 			}
 		}
 	}

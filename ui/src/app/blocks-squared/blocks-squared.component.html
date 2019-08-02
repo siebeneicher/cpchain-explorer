@@ -14,7 +14,7 @@
 			</h1>
 
 			<div class="blocks" (mouseout)="mouseout()">
-				<div class="hour-container" (mousemove)="mousemove(blocksHour, $event)">
+				<div class="hour-container" (mousemove)="mousemove(null, $event)">
 					<a [routerLink]="['/block', block.number]"
 						*ngFor="let block of blocksFlat; let i = index; trackBy: blocksTrackByFn"
 						class="block"
@@ -81,4 +81,16 @@
 
 </div>
 
-<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}"><span *ngIf="hovered_block">#{{hovered_block.number}} / Trx's: {{hovered_block.trx_count}} / {{hovered_block.time_pretty}}</span></div>
+<div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}"><span *ngIf="hovered_block">
+	<div>Block {{hovered_block.number}}</div>
+	<div>Time: {{hovered_block.time_pretty}}</div>
+	<div *ngIf="hovered_block.synced">
+		<div *ngIf="!hovered_block.impeached">Trx's: {{hovered_block.trx_count}}</div>
+		<div *ngIf="!hovered_block.impeached">Proposer: {{hovered_block.miner | slice:0:10}}...</div>
+		<div *ngIf="hovered_block.impeached">Impeached</div>
+	</div>
+	<div *ngIf="!hovered_block.synced">
+		<div *ngIf="hovered_block.sync_should">Unsynced Block</div>
+		<div *ngIf="!hovered_block.sync_should">Future Block</div>
+	</div>
+</span></div>

@@ -88,6 +88,8 @@
 		text-align: right;
 		border-right: 1px solid white;
 
+		font-size: 0.95em !important;
+
 		.item {
 			height: 27px;
 			margin: 7px 0;
@@ -97,6 +99,8 @@
 	.values-container {
 		width: 55%;
 		padding: 0 0 0 15px;
+
+		font-size: 0.90em !important;
 
 		.item {
 			overflow: visible;

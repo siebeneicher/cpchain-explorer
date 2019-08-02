@@ -126,9 +126,6 @@ async function last (unit, times, rnode_addr = null) {
 					console.error("rewards.last(",unit, times,rnode_addr,") error:", err);
 					resolve(null);
 				} else {
-					// calculate ROI
-					//result[0].avg_rewards = result[0].rewards / result[0].rnode;
-
 					// format to 2 digits after dot
 					//Object.keys(result[0]).forEach(k => result[0][k] = result[0][k].toFixed(2));
 

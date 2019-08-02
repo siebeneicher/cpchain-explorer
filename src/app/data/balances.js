@@ -56,7 +56,7 @@ async function update (addr) {
 			let b = await balance(addr);
 			await mongo.db(config.mongo.db.sync).collection('balances')
 				.updateOne({ address: addr }, { $set: { address: addr, latest_balance: b} }, { upsert: true });
-			console.log("balance updated,",addr,"to",b);
+			console.log("balance updated,",addr,"to",b,"in",now()-t_start);
 			resolve(b);
 		} catch (err) {
 			reject(err);

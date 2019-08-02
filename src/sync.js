@@ -5,7 +5,7 @@ const config = require('./app/config');
 const now = require('performance-now');
 const moment = require('moment');
 const request = require('request-promise-native');
-const {convert_ts, last_unit_ts} = require('./app/helper');
+const {convert_ts, last_unit_ts, isNumeric} = require('./app/helper');
 const {messaging} = require('./app');
 
 // shortcut to collections
@@ -37,15 +37,16 @@ function subscribe () {
 
 
 async function collect () {
+	updateAllBalances();
+
 	_snapshot();
 	_syncBackwards();
-	_syncMissingBalances();
+	_syncNewAddressBalanceFromTransactions();
 	_syncCPCPrice();
 
 	function _snapshot () {
 		setTimeout(async () => {
 			try {
-
 				let newBlock = await syncBlock();
 				if (newBlock) {
 					// inform aggregation to process
@@ -54,7 +55,7 @@ async function collect () {
 					// rnodes and balance update can be performed after aggregation, in parallel
 					await Promise.all([
 						syncRNodes(),
-						updateBalancesByBlock(newBlock.b, newBlock.trxs)
+						updateBalancesOfBlockAddresses(newBlock.b, newBlock.trxs)
 					]);
 
 					messaging.emit('SYNC-RNODES-N-BALANCES-PERFORMED', {});
@@ -81,17 +82,17 @@ async function collect () {
 		}, backwards_delay);
 	}
 
-	function _syncMissingBalances () {
+	function _syncNewAddressBalanceFromTransactions () {
 		setTimeout(async () => {
 			try {
-				if (await syncMissingBalances()) {
+				if (await syncNewAddressBalanceFromTransactions()) {
 					messaging.emit('SYNC-MISSING-BALANCES-PERFORMED', {});
 				}
 			} catch (err) {
 				console.error(err);
 			}
 
-			_syncMissingBalances();	// loop
+			_syncNewAddressBalanceFromTransactions();	// loop
 		}, sync_missing_addresses_delay);
 	}
 
@@ -133,23 +134,23 @@ async function syncCPCPrice () {
 }
 
 
-async function syncMissingBalances () {
+async function syncNewAddressBalanceFromTransactions () {
 	return new Promise ((resolve, reject) => {
 		let t_start = now();
 
 		// fetch known addresses
 		mongo_db_balances.find({}, {address:1}).toArray(async (err, addresses) => {
-			//console.log("syncMissingBalances() get existing balances (",addresses?addresses.length:0,"), took:", now() - t_start);
+			//console.log("syncNewAddressBalanceFromTransactions() get existing balances (",addresses?addresses.length:0,"), took:", now() - t_start);
 
 			let ignore_addresses = addresses.map(_ => _.address);
 
-			let yesterday = moment.utc();
-			yesterday.subtract(1, 'd');
+			let before = moment.utc();
+			before.subtract(1, 'h');
 
 			let t_start2 = now();
 
 			let aggr = [
-				{ $match: { __ts: { $gte: yesterday.unix()*1000 }}},
+				{ $match: { __ts: { $gte: before.unix()*1000 }}},
 				{ $project: { "addresses": {
 					$split: [{$concat: ["$from","---","$to"]}, '---']
 				} } },
@@ -166,7 +167,7 @@ async function syncMissingBalances () {
 			mongo.db(config.mongo.db.sync).collection('transactions')
 				.aggregate(aggr)
 				.toArray(async (err, addresses) => {
-					//console.log("syncMissingBalances() get new addresses from trx's (",addresses?addresses.length:0,"), took:", now() - t_start2);
+					//console.log("syncNewAddressBalanceFromTransactions() get new addresses from trx's (",addresses?addresses.length:0,"), took:", now() - t_start2);
 
 					//console.log(addresses);
 					if (!err && addresses && addresses.length) {
@@ -298,16 +299,27 @@ async function syncBlock (targetBlockNum = null) {
 	return Promise.resolve({b, trxs});	
 }
 
-async function updateBalancesByBlock (block, trxs) {
-	// calculate balance changes in bulk, without actually requesting balance from the node (to save request time)
-	const changeByAddr = {};
+async function updateBalancesOfBlockAddresses (block, trxs) {
+	const t_start = now();
 
+	// UPDATE:
+	// miner
+	// transaction sender
+	// transaction receiver
+	// emitter
+
+
+	// MINER
 	// always update proposer balance; proposer getting balance increased via smart contract, not via transaction
 	try { await balances.update(block.miner); } catch (err) {}
 
-// TODO: update emitter balance as well
 
+
+	// TRANSACTION SENDER & RECEIVER
 	if (trxs.length == 0) return Promise.resolve(null);
+
+	// calculate balance changes in bulk, without actually requesting balance from the node (to save request time)
+	const changeByAddr = {};
 
 	// update addresses balance via found transactions
 	for (let i in trxs) {
@@ -319,15 +331,14 @@ async function updateBalancesByBlock (block, trxs) {
 		if (changeByAddr[trx.from] === undefined) changeByAddr[trx.from] = 0;
 		if (changeByAddr[trx.to] === undefined) changeByAddr[trx.to] = 0;
 
-		changeByAddr[trx.from] = -trx.value;
-		changeByAddr[trx.to] = trx.value;
+		changeByAddr[trx.from] = -trx.value / config.cpc.unit_convert;
+		changeByAddr[trx.to] = trx.value / config.cpc.unit_convert;
 	}
-
-
-	// execute in bulk
 
 	// get first all adresses balances
 	const addresses = Object.keys(changeByAddr);
+
+	if (addresses.length == 0) return Promise.resolve();
 
 	return new Promise((resolve, reject) => {
 		mongo_db_balances.find({ address: { $in: addresses } }, { address:1, latest_balance:1 }).toArray(async (err, items) => {
@@ -336,11 +347,19 @@ async function updateBalancesByBlock (block, trxs) {
 				let latest_balance = null;
 				let found = items.filter(_ => _.address == addr);
 
+				// update balance either manually through calculation
+				// or hard via civilian node request (time consuming, hard on resources)
+
+				//console.log(addr, changeByAddr[addr]);
+				//console.log(await balances.latest(addr));
+
 				if (found.length) {		// update balance
 					latest_balance = found[0].latest_balance + changeByAddr[addr];
 				} else {				// new address: get latest balance from node
 					latest_balance = await balance(addr);		// expensive node call
 				}
+
+				//console.log(latest_balance);
 
 				const _balance = {
 					latest_balance,
@@ -350,7 +369,7 @@ async function updateBalancesByBlock (block, trxs) {
 // TODO: faster bulk update
 				// update/insert
 				await mongo_db_balances.updateOne({ address: addr }, { $set: _balance }, { upsert: true });
-				console.log("balance updated,",addr,"to",latest_balance);
+				console.log("balance updated,",addr,"to",latest_balance,"in",now()-t_start);
 			}
 
 			resolve();
@@ -584,7 +603,6 @@ async function backwardsCalculateTrxAndattachBlockFeeReward () {
  * only used once, after new feature of trx.ts in sync got implemented
  */
 async function backwardsCalculateTrxTimeOfBlock () {
-
 	return new Promise((resolve, reject) => {
 		mongo_db_transactions.aggregate([
 				{ $lookup: {
@@ -603,6 +621,17 @@ async function backwardsCalculateTrxTimeOfBlock () {
 				console.log("Set timestamp for each trx from its block:", trxs.length);
 				resolve();
 			});
+	});
+}
+
+async function updateAllBalances () {
+	return new Promise((resolve, reject) => {
+		mongo_db_balances.find().toArray(async function (err, bs) {
+			for (let i in bs) {
+				await balances.update(bs[i].address);
+			};
+			resolve();
+		});
 	});
 }
 
@@ -721,4 +750,8 @@ async function init (clearAll = false) {
 	});
 }
 
-init(false)./*then(backwardsFindNewAddresses).*/then(collect);
+
+init(false)
+	//.then(updateAllBalances)
+	//.then(backwardsFindNewAddresses)
+	.then(collect);
