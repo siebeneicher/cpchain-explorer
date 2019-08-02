@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { WatchService } from '../services/watch.service';
 
 @Component({
   selector: 'app-rnodes',
@@ -17,7 +18,7 @@ export class RnodesComponent implements OnInit {
 
 	rnodes:Array<any> = [];
 
-	constructor(private httpClient: HttpClient,) { }
+	constructor(private httpClient: HttpClient, public watchService: WatchService,) { }
 
 	ngOnInit() {
 		this.load();

@@ -18,12 +18,12 @@
 		  </p>
 		  <p class="control">
 		    <a class="button" [class.is-loading]="loading == 'hour-4'" [class.is-success]="unit == 'hour' && times == 4" (click)="setTimespan('hour', 4)">
-		      <span>4 hour</span>
+		      <span>4 hours</span>
 		    </a>
 		  </p>
 		  <p class="control">
 		    <a class="button" [class.is-loading]="loading == 'hour-12'" [class.is-success]="unit == 'hour' && times == 12" (click)="setTimespan('hour', 12)">
-		      <span>12 hour</span>
+		      <span>12 hours</span>
 		    </a>
 		  </p>
 		  <p class="control">
@@ -33,7 +33,7 @@
 		  </p>
 		  <p class="control">
 		    <a class="button" [class.is-loading]="loading == 'day-7'" [class.is-success]="unit == 'day' && times == 7" (click)="setTimespan('day', 7)">
-		      <span>7 day</span>
+		      <span>7 days</span>
 		    </a>
 		  </p>
 		  <p class="control">
@@ -44,49 +44,51 @@
 		</span>
 	</h3>
 
-	<table class="table table is-hoverable table is-fullwidth is-striped">
+	<table class="table table table is-fullwidth is-striped">
 		<thead>
 			<th>Address</th>
-			<th (click)="clickSort('balance')" class="is-clickable">
+			<th (click)="clickSort('balance')" class="is-clickable left-line has-text-centered">
 				Balance
 				<i *ngIf="sortBy == 'balance'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('rpt')" class="is-clickable">
+			<th (click)="clickSort('rpt')" class="is-clickable has-text-centered">
 				RPT
 				<i *ngIf="sortBy == 'rpt'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('mined')" class="is-clickable">
+			<th (click)="clickSort('elected')" class="is-clickable has-text-centered">
+				Elected
+				<i *ngIf="sortBy == 'elected'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
+			<th (click)="clickSort('mined')" class="is-clickable left-line has-text-centered">
 				Sealed
 				<i *ngIf="sortBy == 'mined'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('impeached')" class="is-clickable">
+			<th (click)="clickSort('impeached')" class="is-clickable has-text-centered">
 				Impeached
 				<i *ngIf="sortBy == 'impeached'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('rewards')" class="is-clickable">
+			<th (click)="clickSort('rewards')" class="is-clickable has-text-centered">
 				Rewards
 				<i *ngIf="sortBy == 'rewards'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('roi_year')" class="is-clickable">
+			<th (click)="clickSort('roi_year')" class="is-clickable has-text-centered">
 				ROI Year
 				<i *ngIf="sortBy == 'roi_year'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
-			</th>
-			<th (click)="clickSort('elected')" class="is-clickable">
-				Elected
-				<i *ngIf="sortBy == 'elected'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
 			<!-- <th>Proposing</th> -->
 		</thead>
 		<tbody>
-			<tr *ngFor="let rnode of rnodes">
-				<td><a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode}}</a></td>
-				<td>{{rnode.balance | number : '1.0-0'}}</td>
-				<td>{{rnode.rpt}} (#{{rnode.rpt_rank}})</td>
-				<td>{{rnode.mined}}</td>
-				<td>{{rnode.impeached}}</td>
-				<td>{{rnode.rewards |  number : '1.2-2'}}</td>
-				<td>{{rnode.roi_year |  number : '1.2-2'}}%</td>
-				<td><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
+			<tr *ngFor="let rnode of rnodes" [class.watching-address]="watchService.watching(rnode.rnode)">
+				<td width="1%">
+					<a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode | slice:0:12}}...</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(rnode.rnode)"></i>
+				</td>
+				<td class="left-line has-text-centered">{{rnode.balance | number : '1.0-0'}}</td>
+				<td class="has-text-centered">{{rnode.rpt}} (#{{rnode.rpt_rank}})</td>
+				<td class="has-text-centered"><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
+				<td class="left-line has-text-centered">{{rnode.mined}}</td>
+				<td class="has-text-centered">{{rnode.impeached}}</td>
+				<td class="has-text-centered">{{rnode.rewards |  number : '1.2-2'}}</td>
+				<td class="has-text-centered">{{rnode.roi_year |  number : '1.2-2'}}%</td>
 				<!-- <td>{{rnode.proposing}}</td> -->
 			</tr>
 		</tbody>

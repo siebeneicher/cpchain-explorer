@@ -7,12 +7,12 @@
       RNodes.io
     </a>
 
-    <a [routerLink]="['/block', lastBlockService.last_block.number]" class="navbar-item number-mono">{{lastBlockService.last_block.number}}</a>
+    <a *ngIf="lastBlockService.last_block.number" [routerLink]="['/block', lastBlockService.last_block.number]" class="navbar-item number-mono">#{{lastBlockService.last_block.number}}/{{lastBlockService.last_block.transactions.length}}</a>
 
     <a class="navbar-item" [routerLink]="['/rich-list']">Rich List</a>
     <a class="navbar-item" [routerLink]="['/blocks']">Blocks</a>
     <a class="navbar-item" [routerLink]="['/rnodes']">RNodes</a>
-    <a class="navbar-item" [routerLink]="['/stats']">Stats</a>
+    <!-- <a class="navbar-item" [routerLink]="['/stats']">Stats</a> -->
     <!-- <a class="navbar-item">Watch List</a> -->
 
 <!--     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">

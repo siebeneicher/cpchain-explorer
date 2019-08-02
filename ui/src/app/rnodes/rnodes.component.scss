@@ -1,3 +1,24 @@
 .filter {
 	margin-top: 7px;
 }
+
+.table { border-collapse: collapse; }
+
+tr { border: none; }
+
+.left-line {
+  border-left: solid 1px #ccc;
+}
+
+.watch-btn {
+	opacity: 0;
+	color: #aaa;
+}
+
+tr:hover .watch-btn {
+	opacity: 1;	
+}
+
+tr.watching-address {
+	background-color: #dee2e3 !important;
+}

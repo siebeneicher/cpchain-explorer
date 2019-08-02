@@ -91,4 +91,8 @@ export class AddressComponent implements OnInit {
 	showMore () {
 		this.trx_limit += 15;
 	}
+
+	showAll () {
+		this.trx_limit = this.transactions.length;
+	}
 }

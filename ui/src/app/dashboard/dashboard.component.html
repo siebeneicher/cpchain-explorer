@@ -235,7 +235,7 @@
       <div class="content">
         <p class="title is-size-3">Watch Address</p>
         <p class="subtitle is-size-4" *ngIf="user_rnode_addr" >
-          <span class=""><a [routerLink]="['/address',user_rnode_addr]">{{user_rnode_addr | slice:0:20}}...</a></span>
+          <span class=""><a [routerLink]="['/address',user_rnode_addr]">{{user_rnode_addr | slice:0:16}}...</a></span>
           &nbsp;
           <span (click)="resetUserRNode()" class="is-size-3 typcn typcn-backspace is-clickable"></span>
         </p>

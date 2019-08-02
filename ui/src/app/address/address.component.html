@@ -18,7 +18,7 @@
 			</tbody>
 		</table>
 
-		<h3 class="title">
+		<h3 class="subtitle">
 			Transactions
 			<span *ngIf="!loadingTrx">({{transactions.length}})</span>
 			<span *ngIf="loadingTrx" class="">(Loading)</span>
@@ -51,8 +51,9 @@
 			</tbody>
 		</table>
 
-		<div class="container has-text-centered">
+		<div class="container has-text-centered" *ngIf="transactions.length > trx_limit">
 			<a class="button is-small" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> Show more</a>
+			<a class="button is-small" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> Show all</a>
 		</div>
 
 	</div>
