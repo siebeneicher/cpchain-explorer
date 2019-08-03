@@ -43,12 +43,12 @@ const kpis = {
 			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
-			hour: async (params) => rewards.last_merged('minute', 60, params.addr || null),
-			day: async (params) => rewards.last_merged('minute', 60*24, params.addr || null),
-			week: async (params) => rewards.last_merged('minute', 60*24*7, params.addr || null),
-			month: async (params) => rewards.last_merged('minute', 60*24*30, params.addr || null),
+			hour: async (params) => rewards.last_merged('hour', 1, params.addr || null),
+			day: async (params) => rewards.last_merged('day', 1, params.addr || null),
+			week: async (params) => rewards.last_merged('day', 7, params.addr || null),
+			month: async (params) => rewards.last_merged('month', 1, params.addr || null),
 			//quarter: async (params) => rewards.last_merged('day', 31+30+31, params.addr || null),
-			year: async (params) => rewards.last_merged('day', 365, params.addr || null),
+			year: async (params) => rewards.last_merged('month', 12, params.addr || null),
 		}
 	},
 	last_transactions: {

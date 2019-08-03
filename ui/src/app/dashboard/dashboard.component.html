@@ -55,7 +55,7 @@
 
       <div class="info title">
         <span class="typcn typcn-arrow-loop"></span>
-        {{kpi.data('dashboard','last_rewards','total_roi','dashboard.top-teaser')}}% ROI (avg.)
+        {{kpi.data('dashboard','last_rewards','avg_roi_year','dashboard.top-teaser')}}% ROI (avg.)
       </div>
     </div>
     <div class="column is-4 has-text-centered stats">
@@ -158,13 +158,13 @@
             </div>
             <div class="values-container is-size-5">
               <div class="item onhover">
-                <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_rewards','total_roi','dashboard.rewards')}}%</span> / {{kpi.selectedOption('dashboard','last_rewards','total_roi','dashboard.rewards').full}}</span>
+                <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_rewards','avg_roi_year','dashboard.rewards')}}%</span> / {{kpi.selectedOption('dashboard','last_rewards','avg_roi_year','dashboard.rewards').full}}</span>
 
                 <div class="buttons has-addons onhover-show">
                   <a *ngFor="let option of kpi.options('dashboard','last_rewards')"
-                    class="button is-small {{kpi.unitSelected('dashboard','last_rewards', 'total_roi', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    class="button is-small {{kpi.unitSelected('dashboard','last_rewards', 'avg_roi_year', 'dashboard.rewards') == option.unit ? 'is-info is-selected' : ''}} tooltip"
                     [attr.data-tooltip]="option.full"
-                    (click)="kpi.selectUnit('dashboard','last_rewards', 'total_roi', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
+                    (click)="kpi.selectUnit('dashboard','last_rewards', 'avg_roi_year', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
                 </div>
               </div>
               <!-- <div class="item">TODO</div> -->
@@ -230,14 +230,13 @@
       </article>
     </div> -->
   </div>
-  <div class="tile is-parent">
+  <div class="tile is-parent watch">
     <article class="tile is-child notification is-primary">
       <div class="content">
         <p class="title is-size-3">Watch Address</p>
-        <p class="subtitle is-size-4" *ngIf="user_rnode_addr" >
-          <span class=""><a [routerLink]="['/address',user_rnode_addr]">{{user_rnode_addr | slice:0:16}}...</a></span>
-          &nbsp;
-          <span (click)="resetUserRNode()" class="is-size-3 typcn typcn-backspace is-clickable"></span>
+        <p class="subtitle" *ngIf="user_rnode_addr" >
+          <span class=""><a [routerLink]="['/address',user_rnode_addr]">{{user_rnode_addr | slice:0:26}}...</a></span>
+          <span (click)="resetUserRNode()" class="is-size-4 typcn typcn-backspace is-clickable"></span>
         </p>
         <div class="subtitle is-size-4" *ngIf="!user_rnode_addr" >
           <div class="field has-addons">
@@ -308,14 +307,14 @@
               </div>
               <div class="item onhover">
                  <span class="onhover-hide">
-                    <span class="number-mono">{{kpi.data('myrnode','last_rewards','total_roi','dashboard.myrnode') | number : '1.2-2'}}%</span> / {{kpi.selectedOption('myrnode','last_rewards', 'total_roi', 'dashboard.myrnode').abbrev}} (rank ?)
+                    <span class="number-mono">{{kpi.data('myrnode','last_rewards','avg_roi_year','dashboard.myrnode') | number : '1.2-2'}}%</span> / {{kpi.selectedOption('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode').abbrev}} (rank ?)
                   </span>
 
                 <div class="buttons has-addons onhover-show">
                   <a *ngFor="let option of kpi.options('myrnode','last_rewards')"
-                    class="button is-small {{kpi.unitSelected('myrnode','last_rewards', 'total_roi', 'dashboard.myrnode') == option.unit ? 'is-info is-selected' : ''}} tooltip"
+                    class="button is-small {{kpi.unitSelected('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode') == option.unit ? 'is-info is-selected' : ''}} tooltip"
                     [attr.data-tooltip]="option.full"
-                    (click)="kpi.selectUnit('myrnode','last_rewards', 'total_roi', 'dashboard.myrnode', option.unit)">{{option.abbrev}}</a>
+                    (click)="kpi.selectUnit('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode', option.unit)">{{option.abbrev}}</a>
                 </div> 
               </div>
               <div class="item">

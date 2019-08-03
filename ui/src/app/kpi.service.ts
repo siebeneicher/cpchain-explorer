@@ -28,9 +28,9 @@ export class KpiService {
 						},
 					},
 					last_rewards: {
-						total_roi: {
-							'dashboard.top-teaser': 'year',
-							'dashboard.rewards': 'year'
+						avg_roi_year: {
+							'dashboard.top-teaser': 'week',
+							'dashboard.rewards': 'week'
 						},
 						total_rewards: {
 							'dashboard.rewards': 'day'
@@ -77,8 +77,8 @@ export class KpiService {
 						total_rewards: {
 							'dashboard.myrnode': 'day'
 						},
-						total_roi: {
-							'dashboard.myrnode': 'year'
+						avg_roi_year: {
+							'dashboard.myrnode': 'week'
 						}
 					},
 					last_blocks: {

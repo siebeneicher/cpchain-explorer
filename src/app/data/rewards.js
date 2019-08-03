@@ -22,13 +22,10 @@ async function last_merged (unit, times, rnode_addr = null) {
 		total_rewards_from_fee: 0,
 		total_rewards: 0,
 		total_balances: 0,
-		total_roi: 0,
 		avg_rewards_from_fixed: 0,
 		avg_rewards_from_fee: 0,
 		avg_rewards: 0,
 		avg_balance: 0,
-		avg_roi: 0,
-		total_roi_year: 0,
 		avg_roi_year: 0,
 		total_reward_fixed_fee_ratio: 0,
 	}
@@ -47,16 +44,14 @@ async function last_merged (unit, times, rnode_addr = null) {
 		merged.total_rewards_from_fixed = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.rewards_from_fixed, 0);
 		merged.total_rewards_from_fee = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.rewards_from_fee, 0);
 		merged.total_rewards = merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.rewards, 0);
-		merged.total_roi = (merged.total_rewards / merged.total_balances * 100).toFixed(2);
-		merged.total_roi_year = (time_multiply * merged.total_roi).toFixed(2);
 		merged.total_reward_fixed_fee_ratio = merged.total_rewards_from_fee / merged.total_rewards_from_fixed;
 
+		merged.avg_roi_year = parseFloat((merged.rnodes.reduce((accumulator, currentValue) => accumulator + currentValue.roi_year, 0) / merged.total_rnodes).toFixed(2));
 		merged.avg_rewards_from_fixed = merged.total_rewards_from_fixed / merged.total_rnodes;
 		merged.avg_rewards_from_fee = merged.total_rewards_from_fee / merged.total_rnodes;
 		merged.avg_rewards = merged.total_rewards / merged.total_rnodes;
 		merged.avg_balance = merged.total_balances / merged.total_rnodes;
-		merged.avg_roi = merged.avg_rewards / merged.avg_balance * 100;
-		merged.avg_roi_year = (time_multiply * merged.avg_roi).toFixed(2);
+
 	} catch (err) {
 		
 	}
