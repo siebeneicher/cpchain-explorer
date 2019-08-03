@@ -203,6 +203,8 @@ const streamgraph = {
 	}
 }
 
+
+
 const all = {
 	update_promise_chain: Promise.resolve(),
 
@@ -249,8 +251,19 @@ const all = {
 						f[0].rpt = _.rpt;
 						f[0].rpt_rank = _.rank;
 						f[0].elected = _.status == 0;
+					} else {
+
+// TODO:
+						// push current rnodes without stats
+/*						items.push({
+							rnode: _.address,
+							rpt: _.rpt,
+							rpt_rank: _.rank,
+							elected: _.status == 0
+						});*/
 					}
 				});
+
 
 				redis.set(all.cache_key(unit, times, ts_start, options), items);
 				redis.expire(all.cache_key(unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);

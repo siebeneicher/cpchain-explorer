@@ -7,11 +7,11 @@ setTimeout(async () => {
 
 	//await balances.ranking_update();
 
-	await perfTest();
+	//await perfTest();
 
 	//await balances.update("0x76130DA5aA1851313a7555D3735BED76029560DA");
 
-	//console.log(await price.last());
+	console.log(await rewards.last("month", 1, '0x8d16adafb4633a3956691aa4636b603e8f328446'));
 
 	//await aggregate.reset();
 	//await aggregate.run();
@@ -56,4 +56,4 @@ setTimeout(async () => {
 	//console.log(await versions());
 
 	process.exit()
-}, 1500);
+}, 2500);

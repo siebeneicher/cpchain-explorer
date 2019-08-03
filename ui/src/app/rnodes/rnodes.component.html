@@ -89,7 +89,7 @@
 				<td class="has-text-centered"><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
 				<td class="left-line has-text-centered">{{rnode.mined}}</td>
 				<td class="has-text-centered">{{rnode.impeached}}</td>
-				<td class="has-text-centered">{{rnode.rewards |  number : '1.2-2'}}</td>
+				<td class="has-text-centered">{{rnode.rewards |  number : '1.2-2'}}CPC / {{rnode.rewards_usd |  number : '1.2-2'}}$</td>
 				<td class="has-text-centered">{{rnode.roi_year |  number : '1.2-2'}}%</td>
 				<!-- <td>{{rnode.proposing}}</td> -->
 			</tr>
