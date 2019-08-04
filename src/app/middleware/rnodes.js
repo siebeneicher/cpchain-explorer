@@ -2,10 +2,12 @@ const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
 const {balances, addresses, rnodes, blocks, rewards} = require('../data');
-const {convert_ts, clone, unique_array, unit_ts, last_unit_ts} = require('../helper');
+const {convert_ts, clone, unique_array, unit_ts, last_unit_ts, isAddress} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
 const kpi = require('./kpi');
+const {web3} = require('../../cpc-fusion/api');
+
 
 const CACHE_KEY = 'CPC-DATA-RNODES-USER_';
 const CACHE_EXPIRE_FOREVER = 99999999999;			// redis cache lives forever, values are updated via aggregate.js
@@ -33,13 +35,23 @@ const user = {
 
 				let addr_;
 
+				// is address
+				if (!isAddress(addr))
+					return Promise.reject({invalidAddress: true});
+
+				// sanitize given addr
+				addr = web3.utils.toChecksumAddress(addr);
+
 				try {
 					addr_ = await addresses.get(addr);
 				} catch (err) {
 					try {
-						addr_ = await balances.update(addr);
+						// update balance via node
+						await balances.update(addr);
+						await balances.ranking_update();		// set rankings
+						addr_ = await addresses.get(addr);			// get balance and rank from db
 					} catch (err) {
-						return reject("address ("+addr+") not found and could not be fetched from civilian node in realtime");
+						return reject("address ("+addr+") not found and could not be fetched from civilian node in realtime:", err);
 					}
 				}
 

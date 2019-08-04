@@ -95,7 +95,7 @@ async function get (key, unit, params = {}, forceUpdate = true) {
 				data = await kpis[key].get[unit](params);
 				await redis.set(cache_key, data);
 				redis.expire(cache_key, CACHE_EXPIRE_FOREVER);
-				//console.log("kpi.get(",key,unit,params,") generated data, took", now()-t);
+				console.log("kpi.get(",key,unit,params,") generated data, took", now()-t);
 				resolve(data);
 			}
 		} catch (err) {

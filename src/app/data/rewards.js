@@ -93,7 +93,7 @@ let time_multiply = units_per_year / times;
 		// MINUTE
 		if (unit == "minute") {
 			let from = last_unit_ts('minute', times);
-			console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
 
 			// the current minute + previous including "times" span.
 			// include minutes before the latest hour (from previous union)
@@ -106,8 +106,8 @@ let time_multiply = units_per_year / times;
 		if (unit == "hour") {
 			let from = last_unit_ts('hour', times);
 			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
-			console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-			console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
 
 			// the current hour + previous including "times" span.
 			// does not include most hour ago (which we will include in next $lookup)
@@ -125,9 +125,9 @@ let time_multiply = units_per_year / times;
 			let from = last_unit_ts('day', times);
 			let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
 			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
-			console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-			console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
-			console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+			//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
+			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
 
 			// the current day + previous including "times" span.
 			// does not include most day ago (which we will include in next $lookup)
@@ -150,10 +150,10 @@ let time_multiply = units_per_year / times;
 			let till_m = moment.utc(convert_ts(from, 13)).add(1, 'month').startOf('month').unix();
 			let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
 			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
-			console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-			console.log("days till_m:", moment.utc(till_m*1000).toISOString(), "("+till_m+")");
-			console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
-			console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+			//console.log("days till_m:", moment.utc(till_m*1000).toISOString(), "("+till_m+")");
+			//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
+			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
 
 			// the current month + previous including "times" span.
 			// does not include most month ago (which we will include in next $lookup)

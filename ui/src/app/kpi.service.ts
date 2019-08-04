@@ -124,6 +124,7 @@ export class KpiService {
 		if (this.datasets[dataset].required !== false) {
 			clearInterval(this.datasets[dataset].required);
 			this.datasets[dataset].required = false;
+			this.datasets[dataset].data = null;
 		}
 	}
 	data (dataset, kpi_key, subset, ui_key = null) {

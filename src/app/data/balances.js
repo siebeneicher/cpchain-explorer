@@ -33,7 +33,7 @@ async function ranking_update () {
 						.updateOne({ address: addr.address }, { $set: addr }, { upsert: true });
 				}
 
-				console.log("data.balances.ranking_update() took", now()-t_start);
+				//console.log("data.balances.ranking_update() took", now()-t_start);
 
 				resolve();
 			});
@@ -55,7 +55,7 @@ async function update (addr) {
 		try {
 			let b = await balance(addr);
 			await mongo.db(config.mongo.db.sync).collection('balances')
-				.updateOne({ address: addr }, { $set: { address: addr, latest_balance: b} }, { upsert: true });
+				.updateOne({ address: addr }, { $set: { address: addr, latest_balance: b} }, { upsert: true })/*.then(_ => console.log(_))*/;
 			console.log("balance updated,",addr,"to",b,"in",now()-t_start);
 			resolve(b);
 		} catch (err) {

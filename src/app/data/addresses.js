@@ -1,10 +1,18 @@
 const mongo = require('../mongo');
 const config = require('../config');
 const now = require('performance-now');
-const {convert_ts, last_unit_ts} = require('../helper');
-
+const {convert_ts, last_unit_ts, isAddress} = require('../helper');
+const {web3, balance} = require('../../cpc-fusion/api');
 
 async function get (hash) {
+
+	// is address
+	if (!isAddress(hash))
+		return Promise.reject({invalidAddress: true});
+
+	// sanitize given addr
+	hash = web3.utils.toChecksumAddress(hash);
+
 	return new Promise((resolve, reject) => {
 		mongo.db(config.mongo.db.sync).collection('balances')
 			.aggregate([

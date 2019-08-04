@@ -11,8 +11,8 @@ setTimeout(async () => {
 
 	//await balances.update("0x76130DA5aA1851313a7555D3735BED76029560DA");
 
-	console.log(await rewards.last_merged("day", 7, '0x8d16adafb4633a3956691aa4636b603e8f328446'));
-	console.log(await rewards.last_merged("day", 7));
+	//console.log(await rewards.last_merged("day", 7, '0x8d16adafb4633a3956691aa4636b603e8f328446'));
+	//console.log(await rewards.last_merged("day", 7));
 
 	//await aggregate.reset();
 	//await aggregate.run();
@@ -49,7 +49,7 @@ setTimeout(async () => {
 	//let addr = '0x501f6cf7b2437671d770998e3b785474878fef1d';
 	//await balances.latest(addr);
 	//await blocks.latest('minute', addr);
-	//await rnodes.user.update(addr);
+	console.log(await rnodes.user.update("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2f"));
 	//await rnodes.user.cache_flush_all();
 
 	//await dashboard.update();
