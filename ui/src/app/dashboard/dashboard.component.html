@@ -88,12 +88,12 @@
   <div class="tile is-vertical is-8">
     <div class="tile">
       <div class="tile is-parent is-vertical">
-        <article class="tile is-child notification is-primary" *ngIf="kpi.isLoaded('dashboard')">
+        <article class="tile is-child boxed is-primary" *ngIf="kpi.isLoaded('dashboard')">
           <p class="title is-size-3">Health</p>
           <p class="subtitle">Networks overall health KPIs</p>
           <div class="keys-values-container is-size-5">
             <div class="keys-container">
-              <div class="item">Last Block</div>
+              <div class="item text">Last Block</div>
               <div class="item">Active RNodes</div>
               <div class="item">Transactions</div>
               <div class="item">Trx. Volume</div>
@@ -141,19 +141,18 @@
         </article>
       </div>
       <div class="tile is-parent">
-        <article class="tile is-child notification is-primary" *ngIf="kpi.isLoaded('dashboard')">
+        <article class="tile is-child boxed is-primary" *ngIf="kpi.isLoaded('dashboard')">
           <p class="title is-size-3">Rewards</p>
           <p class="subtitle">Whats the rewards running an RNode</p>
           <div class="keys-values-container is-size-5 ">
             <div class="keys-container">
-              <div class="item">ROI RNode (avg.)</div>
+              <div class="item">ROI (avg.)</div>
               <!-- <div class="item">ROI ENode (avg.)</div> -->
               <div class="item">Reward (fixed)</div>
               <div class="item">Total Rewards</div>
               <div class="item">Rewards (fixed)</div>
               <div class="item">Rewards (fee)</div>
-              <div class="item">Fee / Fixed Ratio</div>
-              <div class="item">Lockup Season</div>
+              <div class="item">Fee/Fixed Ratio</div>
               <!-- <div class="item">Rewards / Year</div> -->
             </div>
             <div class="values-container is-size-5">
@@ -209,7 +208,6 @@
                     (click)="kpi.selectUnit('dashboard','last_rewards', 'total_reward_fixed_fee_ratio', 'dashboard.rewards', option.unit)">{{option.abbrev}}</a>
                 </div>
               </div>
-              <div class="item">Aug.-Oct. 2019</div>
               <!-- <div class="item">TODO (250k,500k,..)</div> -->
             </div>
           </div>
@@ -217,7 +215,7 @@
       </div>
     </div>
 <!--     <div class="tile is-parent">
-      <article class="tile is-child notification is-primary" *ngIf="kpi.isLoaded('dashboard')">
+      <article class="tile is-child boxed is-primary" *ngIf="kpi.isLoaded('dashboard')">
         <p class="title is-size-3">Wealth</p>
         <p class="subtitle is-size-4">Current wealth of the CPC Ecosystem</p>
         <div class="content">
@@ -231,7 +229,7 @@
     </div> -->
   </div>
   <div class="tile is-parent watch">
-    <article class="tile is-child notification is-primary">
+    <article class="tile is-child boxed is-primary">
       <div class="content">
         <p class="title is-size-3">Watch Address</p>
         <p class="subtitle" *ngIf="user_rnode_addr" >
@@ -307,7 +305,7 @@
               </div>
               <div class="item onhover">
                  <span class="onhover-hide">
-                    <span class="number-mono">{{kpi.data('myrnode','last_rewards','avg_roi_year','dashboard.myrnode') | number : '1.2-2'}}%</span> / {{kpi.selectedOption('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode').abbrev}} (rank ?)
+                    <span class="number-mono">{{kpi.data('myrnode','last_rewards','avg_roi_year','dashboard.myrnode') | number : '1.2-2'}}%</span> / {{kpi.selectedOption('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode').abbrev}} (#?)
                   </span>
 
                 <div class="buttons has-addons onhover-show">
@@ -318,7 +316,7 @@
                 </div> 
               </div>
               <div class="item">
-                <span class="number-mono">{{kpi.datasets.myrnode.data.last_rpt.rpt}}</span> (rank {{kpi.datasets.myrnode.data.last_rpt.rank}} of {{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}})
+                <span class="number-mono">{{kpi.datasets.myrnode.data.last_rpt.rpt}}</span> (#{{kpi.datasets.myrnode.data.last_rpt.rank}} of {{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}})
               </div>
               <div class="item">
                 <span class="number-mono">{{kpi.datasets.myrnode.data.last_balance | number : '1.2-2'}} ({{kpi.datasets.myrnode.data.last_balance_rank}}th)</span>

@@ -30,10 +30,6 @@ async function update () {
 
 			const data = {
 				last_blocks: {
-					minute: {
-						option: await kpi.options('last_blocks', 'minute'),
-						data: await kpi.get('last_blocks', 'minute')
-					},
 					hour: {
 						option: await kpi.options('last_blocks', 'hour'),
 						data: await kpi.get('last_blocks', 'hour')
@@ -60,10 +56,6 @@ async function update () {
 					}
 				},
 				last_transactions: {
-					minute: {
-						option: await kpi.options('last_transactions', 'minute'),
-						data: await kpi.get('last_transactions', 'minute')
-					},
 					hour: {
 						option: await kpi.options('last_transactions', 'hour'),
 						data: await kpi.get('last_transactions', 'hour')

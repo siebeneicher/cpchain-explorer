@@ -25,7 +25,7 @@ app.use((req, res, next)=> {
 
 
 
-app.get('/api/v1/rnode/user/:addr', async function (req, res) {
+app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await rnodes.user.get(req.params.addr));
 })

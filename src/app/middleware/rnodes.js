@@ -60,10 +60,6 @@ const user = {
 					last_balance: addr_.latest_balance,
 					last_balance_rank: addr_.rank,
 					last_blocks: {
-						minute: {
-							option: await kpi.options('last_blocks', 'minute'),
-							data: await kpi.get('last_blocks', 'minute', {addr})
-						},
 						hour: {
 							option: await kpi.options('last_blocks', 'hour'),
 							data: await kpi.get('last_blocks', 'hour', {addr})

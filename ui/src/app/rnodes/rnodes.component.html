@@ -2,10 +2,10 @@
 <div class="container">
 
 	<h3 class="columns">
-		<span class="title column is-2">{{rnodes.length}} RNodes</span>
+		<span class="title column is-3">{{rnodes.length}}&nbsp;RNodes</span>
 
 
-		<span class="filter column is-10 field has-addons">
+		<span class="filter column is-9 field has-addons">
 		  <p class="control">
 		    <a class="button" [class.is-loading]="loading == 'minute-15'" [class.is-success]="unit == 'minute' && times == 15" (click)="setTimespan('minute', 15)">
 		      <span>last 15 minutes</span>

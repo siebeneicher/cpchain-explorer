@@ -9,9 +9,9 @@
 
     <a *ngIf="lastBlockService.last_block.number" [routerLink]="['/block', lastBlockService.last_block.number]" class="navbar-item number-mono">#{{lastBlockService.last_block.number}}/{{lastBlockService.last_block.transactions.length}}</a>
 
-    <a class="navbar-item" [routerLink]="['/rich-list']">Rich List</a>
-    <a class="navbar-item" [routerLink]="['/blocks']">Blocks</a>
-    <a class="navbar-item" [routerLink]="['/rnodes']">RNodes</a>
+    <a class="navbar-item" [routerLink]="['/rich-list']"><b>$</b>&nbsp;Rich List</a>
+    <a class="navbar-item" [routerLink]="['/blocks']"><i class="typcn typcn-th-small"></i>&nbsp;Blocks</a>
+    <a class="navbar-item" [routerLink]="['/rnodes']"><i class="typcn typcn-power"></i>&nbsp;RNodes</a>
     <!-- <a class="navbar-item" [routerLink]="['/stats']">Stats</a> -->
     <!-- <a class="navbar-item">Watch List</a> -->
 

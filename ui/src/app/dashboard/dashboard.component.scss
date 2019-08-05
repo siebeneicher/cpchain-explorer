@@ -1,4 +1,7 @@
 
+@import "bulma/sass/utilities/mixins";
+
+
 .section.top {
 	.head {
 		margin: 10px 0 0 0;
@@ -62,20 +65,38 @@
 	.subtitle {margin-top: -2.0rem;}
 }
 
+.tile.boxed {
+	padding: 15px 25px;
+	background-color: rgba(255,255,255,.8);
+	border-radius: 3px;
+	box-shadow: 0 0 6px 1px #1f7bbd20;
 
+	.title, .subtitle, .text {
+		//color: white !important;
+	}
 
-//----------------------
-
-/*
-.section.top {
-	min-height: 60px;
+	@include mobile {
+		.title { font-size: 1em !important; }
+		.subtitle { font-size: 1em !important; }
+	}
+	@include tablet {
+		.title { font-size: 1.25em !important; }
+		.subtitle { font-size: 0.75em !important; }
+	}
+	@include desktop {
+		.title { font-size: 1.5em !important; }
+		.subtitle { font-size: 0.9em !important; }
+	}
+	@include widescreen {
+		.title { font-size: 1.7em !important; }
+		.subtitle { font-size: 1.15em !important; }
+	}
+	@include fullhd {
+		.title { font-size: 2em !important; }
+		.subtitle { font-size: 1.3em !important; }
+	}
 }
 
-.section.main {
-	min-height: 620px;
-}
-
-*/
 
 
 .keys-values-container {
@@ -87,27 +108,62 @@
 		width: 45%;
 		padding: 0 15px 0 0;
 		text-align: right;
-		border-right: 1px solid white;
+		border-right: 1px solid #1f7bbd20;
 
-		font-size: 0.95em !important;
+		@include mobile {
+			font-size: 0.45em !important;	
+		}
+		@include tablet {
+			font-size: 0.65em !important;	
+		}
+		@include desktop {
+			font-size: 0.71em !important;
+			line-height: 17px !important;
+		}
+		@include widescreen {
+			font-size: 0.85em !important;	
+		}
+		@include fullhd {
+			font-size: 1em !important;	
+		}
 
 		.item {
 			height: 27px;
 			margin: 7px 0;
 			//border: 1px solid blue;
+
+			@include desktop { height: 33px; }
 		}
 	}
 	.values-container {
 		width: 55%;
 		padding: 0 0 0 15px;
+		white-space: nowrap;
 
-		font-size: 0.90em !important;
+		@include mobile {
+			font-size: 0.45em !important;	
+		}
+		@include tablet {
+			font-size: 0.7em !important;	
+		}
+		@include desktop {
+			font-size: 0.75em !important;
+			line-height: 17px !important;
+		}
+		@include widescreen {
+			font-size: 0.9em !important;	
+		}
+		@include fullhd {
+			font-size: 1em !important;	
+		}
 
 		.item {
 			overflow: visible;
 			height: 27px;
 			margin: 7px 0;
 			//border: 1px solid green;
+
+			@include desktop { height: 33px; }
 		}
 	}
 }

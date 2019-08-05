@@ -217,7 +217,13 @@ let time_multiply = units_per_year / times;
 							// calculte roi: cond to avoid 0 balance division
 							roi_year: { $multiply: [ { $divide: [ '$rewards', { $add: [ '$balance', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] }
 						}
-					}
+					},
+/*					{ $lookup: {
+						from: 'balances',
+						localField: 'rnode',
+						foreignField: 'address',
+						as: 'xxx'
+					} }*/
 				])
 			)
 			.toArray((err, result) => {

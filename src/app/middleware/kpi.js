@@ -15,7 +15,6 @@ module.exports = {options, get};
 const kpis = {
 	last_blocks: {
 		options: {
-			minute: { short: 'Minute', abbrev: 'm', full: 'Last Minute' },
 			hour: { short: 'Hour', abbrev: 'h', full: 'Last Hour' },
 			day: { short: 'Day', abbrev: 'd', full: 'Last Day' },
 			//week: { short: 'Week', abbrev: 'w', full: 'Last Week' },
@@ -24,7 +23,6 @@ const kpis = {
 			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
-			minute: async (params = {}) => blocks.last('minute', params.addr || null),
 			hour: async (params = {}) => blocks.last('hour', params.addr || null),
 			day: async (params = {}) => blocks.last('day', params.addr || null),
 //			week: async (params = {}) => blocks.last('minute', params.addr || null),
@@ -53,7 +51,6 @@ const kpis = {
 	},
 	last_transactions: {
 		options: {
-			minute: { short: 'Minute', abbrev: 'm', full: 'Last Minute' },
 			hour: { short: 'Hour', abbrev: 'h', full: 'Last Hour' },
 			day: { short: 'Day', abbrev: 'd', full: 'Last Day' },
 			week: { short: 'Week', abbrev: 'w', full: 'Last Week' },
@@ -62,7 +59,6 @@ const kpis = {
 			year: { short: 'Year', abbrev: 'y', full: 'Last Year' }
 		},
 		get: {
-			minute: async () => transactions.last('minute', 1),
 			hour: async () => transactions.last('minute', 60),
 			day: async () => transactions.last('minute', 60*24),
 			week: async () => transactions.last('hour', 24*7),

@@ -8,17 +8,19 @@
 
 	<table class="table table is-hoverable table is-fullwidth is-striped">
 		<thead>
-			<th>Rank</th>
+			<th class="has-text-right" width="1px">Rank</th>
 			<th>Address</th>
-			<th>CPC Balance</th>
+			<th class="has-text-right">CPC Balance</th>
 			<th>Percentage</th>
+			<th>Notes</th>
 		</thead>
 		<tbody>
 			<tr *ngFor="let addr of addresses" [class.watching-address]="watchService.watching(addr.address)">
-				<td>#{{addr.rank}}</td>
+				<td class="has-text-right">#{{addr.rank}}</td>
 				<td><a [routerLink]="['/address', addr.address]">{{addr.address}}</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(addr.address)"></i></td>
-				<td>{{addr.latest_balance}}</td>
-				<td>{{addr.balance_pct_of_total | number : '1.4-4'}}%</td>
+				<td class="has-text-right"><span class="number-mono">{{addr.latest_balance | number: '1.0-18'}}</span></td>
+				<td>{{addr.balance_pct_of_total | number : '1.1-3'}}%</td>
+				<td>{{addr.owned_by == "cpchain" ? "CPChain Team" : ""}}</td>
 			</tr>
 		</tbody>
 	</table>
