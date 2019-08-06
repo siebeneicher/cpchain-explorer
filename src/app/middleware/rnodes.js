@@ -259,16 +259,18 @@ const all = {
 						f[0].rpt = _.rpt;
 						f[0].rpt_rank = _.rank;
 						f[0].elected = _.status == 0;
+						f[0].owned_by = _.address_info && _.address_info[0] ? _.address_info[0].owned_by : null;
 					} else {
 
 // TODO:
 						// push current rnodes without stats
-/*						items.push({
+						items.push({
 							rnode: _.address,
 							rpt: _.rpt,
 							rpt_rank: _.rank,
-							elected: _.status == 0
-						});*/
+							elected: _.status == 0,
+							owned_by: _.address_info && _.address_info[0] ? _.address_info[0].owned_by : null
+						});
 					}
 				});
 

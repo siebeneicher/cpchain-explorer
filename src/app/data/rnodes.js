@@ -45,7 +45,13 @@ async function last_rpt (addr = null) {
 				{ $limit: 1 },
 				{ $unwind: '$rnodes' },
 				{ $sort: { 'rnodes.Rpt': -1 } },
-				{ $project: { _id:-1, address: '$rnodes.Address', rpt: '$rnodes.Rpt', status: '$rnodes.Status' } }
+				{ $project: { _id:-1, address: '$rnodes.Address', rpt: '$rnodes.Rpt', status: '$rnodes.Status' } },
+				{ $lookup: {
+					from: 'balances',
+					localField: 'address',
+					foreignField: 'address',
+					as: 'address_info'
+				} }
 			])
 			.toArray((err, result) => {
 				if (result.length == 0 || err) {

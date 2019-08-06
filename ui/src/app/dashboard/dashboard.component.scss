@@ -77,7 +77,7 @@
 
 	@include mobile {
 		.title { font-size: 1em !important; }
-		.subtitle { font-size: 1em !important; }
+		.subtitle { font-size: 0.6em !important; }
 	}
 	@include tablet {
 		.title { font-size: 1.25em !important; }

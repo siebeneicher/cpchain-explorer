@@ -49,7 +49,7 @@ setTimeout(async () => {
 	//let addr = '0x501f6cf7b2437671d770998e3b785474878fef1d';
 	//await balances.latest(addr);
 	//await blocks.latest('minute', addr);
-	console.log(await rnodes.user.update("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2f"));
+	//console.log(await rnodes.user.update("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2f"));
 	//await rnodes.user.cache_flush_all();
 
 	//await dashboard.update();

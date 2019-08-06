@@ -1,4 +1,4 @@
-<div class="main-container unit-{{unit}}">
+<div class="main-container unit-{{unit}}" (mouseout)="mouseout()">
 
 	<div *ngIf="!initiated" class="initial-loading-placeholder has-text-centered">
 		<span class="typcn typcn-chart-area-outline" ></span>
@@ -6,7 +6,7 @@
 
 
 	<ng-container *ngIf="unit == 'hour'">
-		<div *ngIf="initiated">
+		<div *ngIf="initiated" (mouseout)="mouseout()">
 			<h1 class="subtitle">
 				Blocks Recent Hour
 				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>
@@ -33,7 +33,7 @@
 
 	<ng-container *ngIf="unit == 'day'">
 
-		<div *ngIf="initiated">
+		<div *ngIf="initiated" (mouseout)="mouseout()">
 			<h1 class="title">
 				Blocks of {{this.ts | date:'dd-MM-yyyy'}}
 				<a class="button {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;

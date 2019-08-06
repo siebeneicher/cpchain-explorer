@@ -48,6 +48,7 @@
 		<thead>
 			<th>#</th>
 			<th>Address</th>
+			<th></th>
 			<th (click)="clickSort('balance')" class="is-clickable left-line has-text-centered">
 				Balance
 				<i *ngIf="sortBy == 'balance'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
@@ -82,14 +83,15 @@
 			<tr *ngFor="let rnode of rnodes; let i = index" [class.watching-address]="watchService.watching(rnode.rnode)">
 				<td width="1%">{{i+1}}</td>
 				<td width="1%">
-					<a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode | slice:0:12}}...</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(rnode.rnode)"></i>
+					<a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode | slice:0:10}}...</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(rnode.rnode)"></i>
 				</td>
+				<td width="1%"><span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'cpchain'">CPC-Team</span></td>
 				<td class="left-line has-text-centered">{{rnode.balance | number : '1.0-0'}}</td>
 				<td class="has-text-centered">{{rnode.rpt}} (#{{rnode.rpt_rank}})</td>
 				<td class="has-text-centered"><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
 				<td class="left-line has-text-centered">{{rnode.mined}}</td>
 				<td class="has-text-centered">{{rnode.impeached}}</td>
-				<td class="has-text-centered">{{rnode.rewards |  number : '1.2-2'}}CPC / {{rnode.rewards_usd |  number : '1.2-2'}}$</td>
+				<td class="has-text-centered">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.2-2'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.2-2'}}</span></td>
 				<td class="has-text-centered">{{rnode.roi_year |  number : '1.2-2'}}%</td>
 				<!-- <td>{{rnode.proposing}}</td> -->
 			</tr>
