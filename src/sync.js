@@ -625,6 +625,10 @@ async function backwardsCalculateTrxTimeOfBlock () {
 }
 
 async function updateAllBalances () {
+	// legacy: remove history
+	mongo_db_balances.updateMany({}, {$unset: { history: "" }});
+
+	// update all balances
 	return new Promise((resolve, reject) => {
 		mongo_db_balances.find().toArray(async function (err, bs) {
 			for (let i in bs) {

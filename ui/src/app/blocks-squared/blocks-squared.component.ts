@@ -245,7 +245,7 @@ export class BlocksSquaredComponent implements OnInit {
 	mouseout () {
 		setTimeout(() => {
 			this.hovered_block = null;
-		}, 2500);
+		}, 500);
 	}
 
 	backward () {

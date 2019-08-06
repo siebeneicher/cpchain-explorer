@@ -42,6 +42,7 @@ async function all (ignoreSmallBalances = true) {
 			.toArray((err, addrs) => {
 				if (err) return reject(err);
 				else if (!addrs || !addrs.length) return resolve([]);
+
 				resolve(addrs);
 			});
 	});
