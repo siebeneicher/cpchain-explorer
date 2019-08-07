@@ -218,8 +218,6 @@ async function aggregate_unit (unit, ts, chunk) {
 			bnum = b.number;
 			t = moment.utc(b.timestamp);
 
-if ([315171,307682,307670,307658,307647,307635,307623].includes(b.number)) debugger;
-
 			// block_min/max (number)
 			if (aggregate.block_min === null || aggregate.block_min > bnum) aggregate.block_min = bnum;
 			if (aggregate.block_max === null || aggregate.block_max < bnum) aggregate.block_max = bnum;
