@@ -128,6 +128,10 @@ app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	console.log("SERVING HTML");
 	console.log(__dirname + '/../MAINTENANCE');
+
+	res.sendFile(path.join(__dirname + '/maintenance.html'));
+	return;
+
 	if (await maintenance())
 		res.sendFile(path.join(__dirname + '/maintenance.html'));
 	else
