@@ -125,7 +125,7 @@ app.get('/aggregate', async function (req, res) {
 app.use('/', express.static(__dirname + '/../ui-build'));
 
 app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|rnodes)/, async function (req, res) {
-	debugger;
+	res.setHeader('X-Used-Frontend-Cache', 'no');
 	if (await maintenance())
 		res.sendFile(path.join(__dirname + '/maintenance.html'));
 	else
@@ -142,6 +142,7 @@ app.get('/*', async function (req, res) {
 
 async function maintenance () {
 	try {
+		console.log(__dirname + '/../MAINTENANCE');
 		await promisify(fs.access)(__dirname + '/../MAINTENANCE');
 		return Promise.resolve(true);
 	} catch (e) {
