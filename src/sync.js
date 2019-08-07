@@ -784,7 +784,7 @@ async function init (clearAll = false) {
 
 
 init(false)
-	.then(backwardsBlock)
+	//.then(backwardsBlock)
 	//.then(updateAllBalances)
 	//.then(backwardsFindNewAddresses)
-	//.then(collect);
+	.then(collect);
