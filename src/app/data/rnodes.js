@@ -5,7 +5,7 @@ const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
 const {web3} = require('../../cpc-fusion/api');
 
-module.exports = {last, last_rpt, type, items}
+module.exports = {last, last_rpt, type, items, blocks}
 
 async function type (addr) {
 	// sanitize given addr
@@ -87,6 +87,36 @@ async function last () {
 					reject();
 				} else {
 					resolve(result[0]);
+				}
+			});
+	});
+}
+
+async function blocks (addr) {
+	addr = web3.utils.toChecksumAddress(addr);
+
+	return new Promise(async function (resolve, reject) {
+		mongo.db(config.mongo.db.sync).collection('blocks')
+			.aggregate([
+				{ $match: {__proposer: addr} },
+				{
+					$project: {
+						_id: 0,
+						miner: 1,
+						number: 1,
+						timestamp: 1,
+						transactions: 1,
+						__impeached: 1,
+						__proposer: 1
+					}
+				},
+				{ $sort: { number: -1 } }
+			]).toArray((err, result) => {
+				if (err) {
+					console.error("rnodes.blocks error:", err);
+					reject();
+				} else {
+					resolve(result || []);
 				}
 			});
 	});

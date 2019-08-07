@@ -197,7 +197,6 @@ async function aggregate_unit (unit, ts, chunk) {
 		const rnode_tpl = {
 			mined: 0,
 			impeached: 0,
-			proposer: 0,
 			balance: null,
 			rewards_from_fixed: 0,
 			rewards_from_fee: 0,
@@ -212,40 +211,14 @@ async function aggregate_unit (unit, ts, chunk) {
 //debugger;
 
 		// BLOCKS
-		let b, t, m, is_impeached, gen, proposer, bnum, _balance;
+		let b, t, m, bnum, _balance;
 		for (let key in chunk.blocks) {
 			b = chunk.blocks[key];
-			m = b.miner;
+			m = b.__proposer;
 			bnum = b.number;
 			t = moment.utc(b.timestamp);
-			gen = b.__generation || null;
-			proposer = gen ? gen.Proposers[gen.View] : null;
-			is_impeached = m == '0x0000000000000000000000000000000000000000';
 
-			_balances = await (async () => {
-				if (proposer === null && is_impeached) return null;
-				try {
-					async function __balance (addr) {
-						if (!addr)
-							return null;
-						let b = await balances.getByUnit(addr, unit, ts);
-						if (b === null)
-							b = await balances.latest(addr);
-						return b;
-					}
-
-					return {
-						proposer: await __balance(proposer),
-						miner: await __balance(m)
-					};
-				} catch (err) {
-					console.error(err);
-					return null;
-				}
-			})();
-
-			if (_balances === null) aggregate._incomplete = true;
-			if (proposer === null) aggregate._incomplete = true;
+if ([315171,307682,307670,307658,307647,307635,307623].includes(b.number)) debugger;
 
 			// block_min/max (number)
 			if (aggregate.block_min === null || aggregate.block_min > bnum) aggregate.block_min = bnum;
@@ -275,38 +248,28 @@ async function aggregate_unit (unit, ts, chunk) {
 				aggregate._incomplete = true;
 			}
 
-			// init miner & proposer
+			// init rnode proposer
+			if (!aggregate.rnodes) aggregate.rnodes = {};
 			if (!aggregate.rnodes[m]) aggregate.rnodes[m] = clone(rnode_tpl);
-			if (proposer && !aggregate.rnodes[proposer]) aggregate.rnodes[proposer] = clone(rnode_tpl);
-
-			// rnode mined
-			aggregate.rnodes[m].mined++;
-
-			// proposer
-			if (proposer) aggregate.rnodes[proposer].proposer++;
-
-			// rnode impeached
-			if (is_impeached) {
-				if (proposer) {
-					aggregate.rnodes[proposer].impeached++;
-				}
+			if (b.__impeached) aggregate.rnodes[m].impeached++;								// impeached
+			if (!b.__impeached) aggregate.rnodes[m].mined++;								// or mined
+			try {
+				aggregate.rnodes[m].balance = (await balances.getByUnit(m, unit, ts)) || (await balances.latest(m));		// rnode balance cpc
+			} catch (e) {
+				aggregate.rnodes[m].balance = await balances.latest(m);
 			}
-
-			// rnode balance cpc
-			if (_balances !== null && _balances.miner !== null) aggregate.rnodes[m].balance = _balances.miner;
-			if (_balances !== null && _balances.proposer !== null) aggregate.rnodes[proposer].balance = _balances.proposer;
-
-			// rnode rewards, fixed, fees
-			aggregate.rnodes[m].rewards_from_fixed += config.cpc.rewardsPerBlock;
-			aggregate.rnodes[m].rewards_from_fee += trx_fee;
-			aggregate.rnodes[m].rewards += config.cpc.rewardsPerBlock + trx_fee;
+			if (!b.__impeached) {				// rnode rewards, fixed, fees
+				aggregate.rnodes[m].rewards_from_fixed += config.cpc.rewardsPerBlock;
+				aggregate.rnodes[m].rewards_from_fee += trx_fee;
+				aggregate.rnodes[m].rewards += config.cpc.rewardsPerBlock + trx_fee;
+			}
 
 
 			// rnode locked cpc
 			// TODO
 
 			// blocks total / impeached
-			if (!is_impeached) aggregate.blocks_mined++;
+			if (!b.__impeached) aggregate.blocks_mined++;
 			else aggregate.blocks_impeached++;
 
 			aggregate._blocks_aggregated++;

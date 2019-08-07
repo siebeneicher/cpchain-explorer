@@ -1,11 +1,11 @@
 <section class="section">
 <div class="container">
 
-	<h3 class="title">
+	<h3 class="subtitle is-size-4">
 		Block #{{number}}
 		&nbsp;
-		<a class="button" [routerLink]="['/block',number-1]"><i class="typcn typcn-chevron-left"></i></a>
-		<a class="button" [routerLink]="['/block',number+1]"><i class="typcn typcn-chevron-right"></i></a>
+		<a class="button is-small" [routerLink]="['/block',number-1]"><i class="typcn typcn-chevron-left"></i></a>
+		<a class="button is-small" [routerLink]="['/block',number+1]"><i class="typcn typcn-chevron-right"></i></a>
 	</h3>
 
 	<div *ngIf="empty" class="subtitle">
@@ -16,20 +16,17 @@
 	<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="!empty">
 		<tbody>
 			<tr><td>Height</td><td>{{number}}</td></tr>
-			<tr><td>Result</td><td>
-				<span *ngIf="!impeached"><i class="typcn typcn-tick"></i> Success</span>
-				<span *ngIf="impeached"><i class="typcn typcn-cancel"></i> Failed</span>
+			<tr><td>State</td><td>
+				<span *ngIf="!block.__impeached"><i class="typcn typcn-tick"></i> Success</span>
+				<span *ngIf="block.__impeached"><i class="typcn typcn-cancel"></i> Failed</span>
 			</td></tr>
 			<tr><td>Timestamp</td><td>{{ago(block.timestamp)}} | {{block.timestamp | date: 'long' : 'UTC' }}</td></tr>
 			<tr><td>Transactions</td><td>
 				{{block.transactions ? block.transactions.length : '-'}} trx's
 			</td></tr>
 			<tr><td>Proposer</td><td>
-				<span *ngIf="!impeached || !impeached_proposer">
-					<a [routerLink]="['/address', block.miner]">{{block.miner}}</a>&nbsp;<i ngxClipboard [cbContent]="block.miner" class="typcn typcn-clipboard is-clickable"></i>
-				</span>
-				<span *ngIf="impeached && impeached_proposer">
-					<a [routerLink]="['/address', impeached_proposer]">{{impeached_proposer}}</a>&nbsp;<i ngxClipboard [cbContent]="impeached_proposer" class="typcn typcn-clipboard is-clickable"></i>
+				<span>
+					<a [routerLink]="['/address', block.__proposer]">{{block.__proposer}}</a>&nbsp;<i ngxClipboard [cbContent]="__proposer" class="typcn typcn-clipboard is-clickable"></i>
 				</span>
 			</td></tr>
 			<tr><td>Reward</td><td>{{block.__reward}} CPC ({{block.__fixed_reward}} fixed + {{block.__fee}} fee)</td></tr>
@@ -41,7 +38,7 @@
 		</tbody>
 	</table>
 
-	<h2 class="subtitle" *ngIf="!empty">
+	<h2 class="subtitle is-size-5" *ngIf="!empty">
 		Transactions
 		<span *ngIf="!loadingTrx && transactions">({{transactions.length}})</span>
 		<span *ngIf="loadingTrx" class="">(Loading)</span>

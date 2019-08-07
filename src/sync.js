@@ -269,8 +269,9 @@ async function syncBlock (targetBlockNum = null) {
 		by_year: false
 	};
 
-	attachBlockFeeReward(b);
 	sanitizeBlock(b);
+	attachBlockFeeReward(b);
+	attachBlockProperNImpeached(b);
 
 	// split transactions into different db.collection
 	b.transactions.forEach(trx => sanitizeTransaction(trx));
@@ -378,13 +379,17 @@ async function updateBalancesOfBlockAddresses (block, trxs) {
 }
 
 function sanitizeBlock (block) {
-	block.miner = web3.utils.toChecksumAddress(block.miner);
-	if (block.__generation) {
-		block.__generation.Proposer = web3.utils.toChecksumAddress(block.__generation.Proposer);
-		block.__generation.Proposers = block.__generation.Proposers.map(_ => web3.utils.toChecksumAddress(_));
-	}
-	if (block.dpor) {
-		block.dpor.proposers = block.dpor.proposers.map(_ => web3.utils.toChecksumAddress(_));
+	try {
+		block.miner = web3.utils.toChecksumAddress(block.miner);
+		if (block.__generation) {
+			block.__generation.Proposer = web3.utils.toChecksumAddress(block.__generation.Proposer);
+			block.__generation.Proposers = block.__generation.Proposers.map(_ => web3.utils.toChecksumAddress(_));
+		}
+		if (block.dpor) {
+			block.dpor.proposers = block.dpor.proposers.map(_ => web3.utils.toChecksumAddress(_));
+		}
+	} catch (e) {
+
 	}
 }
 
@@ -551,6 +556,20 @@ function ensure_indexes () {
 	}
 }
 
+function attachBlockProperNImpeached (b) {
+	// is impeached block
+	b.__impeached = b.miner == config.cpc.impeached_miner;
+
+	if (!b.__impeached) {
+		b.__proposer = b.miner;
+	} else {
+		if (b.__generation && b.__generation.Proposers)
+			b.__proposer = b.__generation.Proposers[b.__generation.ProposerIndex];
+		else
+			b.__proposer = b.miner;
+	}
+}
+
 function attachBlockFeeReward (b) {
 	let price = 0;
 
@@ -572,31 +591,40 @@ function trxFee (trx) {
 /**
  * This function can be called to recalculate fees
  */
-async function backwardsCalculateTrxAndattachBlockFeeReward () {
+async function backwardsBlock () {
 	return new Promise((resolve, reject) => {
-		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1}).toArray(async function (err, blocks) {
+		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1, __generation: 1, miner: 1}).limit(999999999).toArray(async function (err, blocks) {
 			for (let i in blocks) {
 				await new Promise((resolve2, reject) => {
 					mongo_db_transactions.findOne({hash: blocks[i].transactions[0]}).then(async function (trx, err) {
+						// ATTACH FEE INFO
 						blocks[i].transactions = [trx];
 						attachBlockFeeReward(blocks[i]);
 						delete blocks[i].transactions;
 						delete blocks[i].gasUsed;
+
+						// ATTACH PROPOSER N IMPEAHED INFO
+						attachBlockProperNImpeached(blocks[i]);
 
 						mongo_db_blocks
 							.updateOne({ _id: blocks[i]._id }, { $set: blocks[i] }, { upsert: false })
 							.then(async (result, err) => {
 								resolve2();
 							});
+
+						console.log("backwards block", blocks[i].number);
 					});
 				});
-			};
 
+			};
 			console.log("Recalculated block fee+reward for blocks:", blocks.length);
+
+
 			resolve();
 		});
 	});
 }
+
 
 /**
  * this function can be called to set ts of trx from its block
@@ -756,6 +784,7 @@ async function init (clearAll = false) {
 
 
 init(false)
+	//.then(backwardsBlock)
 	//.then(updateAllBalances)
 	//.then(backwardsFindNewAddresses)
 	.then(collect);

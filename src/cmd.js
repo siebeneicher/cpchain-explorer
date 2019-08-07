@@ -11,10 +11,10 @@ setTimeout(async () => {
 
 	//await balances.update("0x76130DA5aA1851313a7555D3735BED76029560DA");
 
-	//console.log(await rewards.last_merged("day", 7, '0x8d16adafb4633a3956691aa4636b603e8f328446'));
+	console.log(await rewards.last_merged("month", 2, '0x3160B1B5ed4eB77560Af85C5c0835e6188F69147'));
 	//console.log(await rewards.last_merged("day", 7));
 
-	//await aggregate.reset();
+	//await aggregate.reset("month");
 	//await aggregate.run();
 	//await aggregate.test();
 

@@ -1,7 +1,7 @@
 const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
-const {balances, addresses, rnodes, blocks, rewards} = require('../data');
+const {balances, addresses, rnodes, rewards} = require('../data');
 const {convert_ts, clone, unique_array, unit_ts, last_unit_ts, isAddress} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
@@ -286,5 +286,19 @@ const all = {
 	}
 }
 
+async function blocks (addr) {
+	return new Promise(async function (resolve, reject) {
+		try {
+			if (!isAddress(addr)) {
+				return resolve({invalidAddress: true});
+			}
 
-module.exports = {user, streamgraph, all};
+			resolve(await rnodes.blocks(addr));
+		} catch (err) {
+			if (!err) resolve({empty: true});
+			else resolve({err: err.message});
+		}
+	});
+}
+
+module.exports = {user, streamgraph, all, blocks};

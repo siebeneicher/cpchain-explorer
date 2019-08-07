@@ -75,6 +75,11 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.json(await transactions.ofAddress(req.params.addr));
 })
 
+.get('/api/v1/rnodes/blocks/:addr', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await rnodes.blocks(req.params.addr));
+})
+
 .get('/api/v1/address/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await addresses.get(req.params.addr));
@@ -120,7 +125,11 @@ app.get('/aggregate', async function (req, res) {
 app.use('/', express.static(__dirname + '/../ui-build'));
 
 app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|rnodes)/, async function (req, res) {
-	res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
+	debugger;
+	if (await maintenance())
+		res.sendFile(path.join(__dirname + '/maintenance.html'));
+	else
+		res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
 })
 
 // last one, as its wildcard
@@ -131,7 +140,14 @@ app.get('/*', async function (req, res) {
 
 
 
-
+async function maintenance () {
+	try {
+		await promisify(fs.access)(__dirname + '/../MAINTENANCE');
+		return Promise.resolve(true);
+	} catch (e) {
+		return Promise.resolve(false);
+	}
+}
 
 // cache middleware to decide using cache or not
 function decideNoCache (req, res, next) {

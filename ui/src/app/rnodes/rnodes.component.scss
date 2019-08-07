@@ -22,5 +22,14 @@ tr:hover .watch-btn {
 }
 
 tr.watching-address {
-	background-color: #dee2e3 !important;
+	background-color: orange !important;
+	color: white !important;
+
+	a {
+		color: white !important;		
+	}
+
+	.watch-btn {
+		color: white;
+	}
 }
