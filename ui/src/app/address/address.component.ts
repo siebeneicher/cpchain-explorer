@@ -20,8 +20,8 @@ export class AddressComponent implements OnInit {
 
 	addr:string;
 	info:any = {};
-	transactions:Array<any> = [];
-	blocks:Array<any> = [];
+	transactions:Array<any>;
+	blocks:Array<any>;
 	invalidAddress:boolean = false;
 	loadingTrx:boolean = false;
 	loadingBlocks:boolean = false;
@@ -41,8 +41,8 @@ export class AddressComponent implements OnInit {
 	) {
 		this.route.params.subscribe(async (params) => {
 			this.addr = params.addr;
-			this.transactions = [];
-			this.blocks = [];
+			this.transactions = null;
+			this.blocks = null;
 			this.info = {};
 			this.trx_limit = 15;
 			this.blocks_limit = 15;
@@ -50,10 +50,10 @@ export class AddressComponent implements OnInit {
 			await this.load();
 			setTimeout(() => {
 				this.loadTrxs();
-			}, 50);
+			}, 200);
 			setTimeout(() => {
 				this.loadBlocks();
-			}, 250);
+			}, 450);
 		});
 	}
 
@@ -120,8 +120,8 @@ export class AddressComponent implements OnInit {
 	setSubmenu (to) {
 		this.submenu = to;
 
-		if (to == 'trxs') this.loadTrxs();
-		if (to == 'blocks') this.loadBlocks();
+/*		if (to == 'trxs') this.loadTrxs();
+		if (to == 'blocks') this.loadBlocks();*/
 	}
 
 	showMore (what) {

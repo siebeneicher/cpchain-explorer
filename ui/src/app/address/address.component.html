@@ -19,17 +19,19 @@
 			<ul>
 				<li [class.is-active]="submenu == 'trxs'" class="is-size-5"><a (click)="setSubmenu('trxs')">
 					Transactions&nbsp;
-					<span *ngIf="!loadingTrx">({{transactions.length}})</span>
+					<span *ngIf="transactions">({{transactions.length}})</span>
 				</a></li>
 				<li [class.is-active]="submenu == 'blocks'" class="is-size-5"><a (click)="setSubmenu('blocks')">
 					Proposed Blocks&nbsp;
-					<span *ngIf="!loadingBlocks">({{blocks.length}})</span>
+					<span *ngIf="blocks">({{blocks.length}})</span>
 				</a></li>
 			</ul>
 		</div>
 
 		<div class="sub-trxs" *ngIf="submenu == 'trxs'">
-			<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="transactions.length">
+			<div class="element is-loading" *ngIf="loadingTrx"></div>
+
+			<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="!loadingTrx && transactions.length">
 				<thead>
 					<th>TxHash</th>
 					<th>Block</th>
@@ -63,23 +65,33 @@
 		</div>
 
 		<div class="sub-blocks" *ngIf="submenu == 'blocks'">
-			<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="blocks.length">
+			<div class="element is-loading" *ngIf="loadingBlocks"></div>
+
+			<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="!loadingBlocks && blocks.length">
 				<thead>
-					<th>Block</th>
-					<th>State</th>
-					<th>Trxs</th>
+					<th width="1%">Block</th>
+					<th width="1%"></th>
 					<th>When</th>
+					<th>Trxs</th>
+					<th>Gas Used</th>
+					<th>Gas Limit</th>
+					<th>Gas Price</th>
+					<th>Rewards</th>
 				</thead>
 				<tbody>
 					<ng-container *ngFor="let blk of blocks; let i = index">
 						<tr *ngIf="i < blocks_limit">
 							<td><a [routerLink]="['/block', blk.number]">{{blk.number}}</a></td>
 							<td>
-								<span *ngIf="!blk.__impeached"><i class="typcn typcn-tick"></i> Success</span>
-								<span *ngIf="blk.__impeached"><i class="typcn typcn-cancel"></i> Failed</span>
+								<span *ngIf="!blk.__impeached" class="tag is-success"><i class="typcn typcn-tick"></i>&nbsp;Success</span>
+								<span *ngIf="blk.__impeached" class="tag is-danger"><i class="typcn typcn-cancel"></i>&nbsp;Failed</span>
 							</td>
-							<td><a [routerLink]="['/block', blk.number]">{{blk.transactions.length}}</a></td>
 							<td>{{blk.timestamp | dateAgo}} | {{blk.timestamp | date: 'long' : 'UTC' }}</td>
+							<td><a [routerLink]="['/block', blk.number]">{{blk.transactions.length}}</a></td>
+							<td>{{blk.gasUsed}}</td>
+							<td>{{blk.gasLimit}}</td>
+							<td>{{blk.__gasPrice}}</td>
+							<td>{{blk.__reward}}</td>
 						</tr>
 					</ng-container>
 				</tbody>

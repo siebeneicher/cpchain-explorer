@@ -41,6 +41,16 @@
 		      <span>1 month</span>
 		    </a>
 		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'month-12'" [class.is-success]="unit == 'month' && times == 12" (click)="setTimespan('month', 12)">
+		      <span>1 year</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'month-200'" [class.is-success]="unit == 'month' && times == 200" (click)="setTimespan('month', 200)">
+		      <span>All</span>
+		    </a>
+		  </p>
 		</span>
 	</h3>
 
@@ -53,9 +63,9 @@
 				Balance
 				<i *ngIf="sortBy == 'balance'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('rpt')" class="is-clickable has-text-centered">
+			<th (click)="clickSort('rpt_rank')" class="is-clickable has-text-centered">
 				RPT
-				<i *ngIf="sortBy == 'rpt'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+				<i *ngIf="sortBy == 'rpt_rank'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
 			<th (click)="clickSort('elected')" class="is-clickable has-text-centered">
 				Elected

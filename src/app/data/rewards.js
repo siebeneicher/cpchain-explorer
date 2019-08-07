@@ -201,6 +201,7 @@ let time_multiply = units_per_year / times;
 						//fees: { $sum: '$rnodes_.v.transactions_fee' },
 						balance: { $last: '$rnodes_.v.balance' },
 					} },
+					{ $match: { '_id': { $ne: config.cpc.impeached_miner } } },
 					{
 						$project: {
 							_id: 0,
@@ -215,7 +216,7 @@ let time_multiply = units_per_year / times;
 							rewards: 1,
 							rewards_usd: { $multiply: [ '$rewards', (await price.last()).USD.price ] },
 							// calculte roi: cond to avoid 0 balance division
-							roi_year: { $multiply: [ { $divide: [ '$rewards', { $add: [ '$balance', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] }
+							roi_year: { $multiply: [ { $divide: [ '$rewards', { $add: [ '$balance', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] },
 						}
 					},
 /*					{ $lookup: {

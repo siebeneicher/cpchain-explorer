@@ -107,7 +107,13 @@ async function blocks (addr) {
 						timestamp: 1,
 						transactions: 1,
 						__impeached: 1,
-						__proposer: 1
+						__proposer: 1,
+						gasUsed: 1,
+						gasLimit: 1,
+						__gasPrice: 1,
+						__reward: 1,
+						__fee: 1,
+						__fixed_reward: 1,
 					}
 				},
 				{ $sort: { number: -1 } }
