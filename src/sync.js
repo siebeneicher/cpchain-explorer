@@ -222,7 +222,7 @@ async function syncBackwards () {
 				if (new_blocks >= maxNewBlocksBackwardsPerCycle) break;
 			}
 
-			console.log("Sync backwards took:",now()-t_start);
+			console.log("Sync backwards (synced: "+new_blocks+") took:",now()-t_start);
 
 			resolve(new_blocks);
 		});
