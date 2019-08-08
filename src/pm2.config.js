@@ -3,6 +3,7 @@ module.exports = {
     name: "sync",
     script: "./sync.js",
     args: "",
+    node_args: ["--inspect"],
     instances: 1,
     exec_mode: "cluster",
     max_memory_restart: "400M",

@@ -564,7 +564,6 @@ async function attachBlockProperNImpeached (b) {
 		if (b.__generation && b.__generation.Proposers)
 			b.__proposer = b.__generation.Proposers[b.__generation.ProposerIndex];
 		else {
-			debugger;
 			b.__proposer = await blockProposer(b.number);			// ask civilian node
 		}
 	}
