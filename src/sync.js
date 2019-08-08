@@ -190,6 +190,8 @@ async function syncNewAddressBalanceFromTransactions () {
 
 
 async function syncBackwards () {
+	const t_start = now();
+
 	let latest = await blockNumber();
 
 	// TODO: make this function big data proof
@@ -217,6 +219,8 @@ async function syncBackwards () {
 
 				if (new_blocks >= maxNewBlocksBackwardsPerCycle) break;
 			}
+
+			console.log("Sync backwards took:",now()-t_start);
 
 			resolve(new_blocks);
 		});
