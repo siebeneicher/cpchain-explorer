@@ -196,15 +196,17 @@ async function syncBackwards () {
 
 	// TODO: make this function big data proof
 
+	let max_backwards = 8640;		// 1 day
+
 	// sync all blocks
 	return new Promise ((resolve, reject) => {
-		mongo_db_blocks.find({}).project({_id:-1, number: 1}).toArray(async function (err, items) {
+		mongo_db_blocks.find({}).project({_id:-1, number: 1}).sort({number:-1}).limit(max_backwards).toArray(async function (err, items) {
 			let numbers = items.map(b => b.number);
 
 			console.log("Sync backwards: ",items.length,"(total synced) vs", latest, "(last block number)");
 
-			let i = latest, new_blocks = 0;
-			while (i > 1) {
+			let i = latest, new_blocks = 0, limit = latest - max_backwards;
+			while (i > limit) {
 				i--;
 				if (numbers.includes(i)) continue;
 
