@@ -26,7 +26,7 @@ async function call (action, ...params) {
 
 	return new Promise ((resolve, reject) => {
 		exec(cmd, async function (err, data) {
-			console.log("TIME API EXEC:", (now()-t).toFixed(2), "ms", cmd, /*err, data,*/ );
+			//console.log("TIME API EXEC:", (now()-t).toFixed(2), "ms", cmd, /*err, data,*/ );
 
 			if (err) console.error(cmd, err);
 
