@@ -205,7 +205,7 @@ async function syncBackwards () {
 
 			console.log("Sync backwards: ",items.length,"(total synced) vs", latest, "(last block number)");
 
-			let i = latest, new_blocks = 0, limit = latest - max_backwards;
+			let i = latest, new_blocks = 0, limit = latest - max_backwards + 1;
 			while (i > limit) {
 				i--;
 				if (numbers.includes(i)) continue;
