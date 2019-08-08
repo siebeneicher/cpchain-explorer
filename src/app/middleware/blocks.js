@@ -92,7 +92,16 @@ const squared = {
 						// block timestamp just need to fit into assumed timespan
 						// next_block.timespan takes impeached blocks into account
 						matched_block = (next_block.timestamp >= assumed_time && next_block.timestamp < assumed_time + (next_block.timespan*1000));
+					} else {
+console.log("===============");
+console.log("NO NEXT BLOCK",i,unit, ts);
 					}
+
+if (!matched_block) {
+console.log("===============");
+console.log("NO MATCH",i,unit, ts);
+
+}
 
 					block = matched_block ? next_block : {
 						number: calculate_future_block_number(last_synced_block, assumed_time),
