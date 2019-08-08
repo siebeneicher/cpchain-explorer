@@ -196,7 +196,7 @@ async function syncBackwards () {
 
 	// TODO: make this function big data proof
 
-	let max_backwards = 8640;		// 1 day
+	let max_backwards = 6 * 60 * 6;		// 6 hours
 
 	// sync all blocks
 	return new Promise ((resolve, reject) => {
