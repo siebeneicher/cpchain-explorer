@@ -3,7 +3,7 @@ module.exports = {
     name: "sync",
     script: "./sync.js",
     args: "",
-    node_args: ["--inspect --inspect-port=9229"],
+    node_args: ["--inspect","--inspect-port=9229"],
     instances: 1,
     exec_mode: "cluster",
     max_memory_restart: "400M",
