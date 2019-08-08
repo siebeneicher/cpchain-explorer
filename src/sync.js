@@ -37,8 +37,6 @@ function subscribe () {
 
 
 async function collect () {
-	updateAllBalances();
-
 	_snapshot();
 	_syncBackwards();
 	_syncNewAddressBalanceFromTransactions();
@@ -597,7 +595,7 @@ function trxFee (trx) {
  */
 async function backwardsBlock () {
 	return new Promise((resolve, reject) => {
-		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1, __generation: 1, miner: 1}).limit(150000).toArray(async function (err, blocks) {
+		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1, __generation: 1, miner: 1})/*.limit(150000)*/.toArray(async function (err, blocks) {
 			for (let i in blocks) {
 				await new Promise((resolve2, reject) => {
 					mongo_db_transactions.findOne({hash: blocks[i].transactions[0]}).then(async function (trx, err) {
