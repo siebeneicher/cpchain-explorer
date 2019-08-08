@@ -11,97 +11,22 @@
 		<table class="table table is-hoverable table is-fullwidth is-striped">
 			<tbody>
 				<tr><td>Balance</td><td>{{info.latest_balance}} CPC (Rank: {{info.rank}}th, {{info.balance_pct_of_total | number : '1.3-3'}}%)</td></tr>
-				<tr><td>Type</td><td>TODO</td></tr>
+				<!-- <tr><td>Type</td><td>TODO</td></tr> -->
 			</tbody>
 		</table>
 
 		<div class="submenu tabs">
 			<ul>
-				<li [class.is-active]="submenu == 'trxs'" class="is-size-5"><a (click)="setSubmenu('trxs')">
-					Transactions&nbsp;
-					<span *ngIf="transactions">({{transactions.length}})</span>
+				<li class="is-size-5" [routerLink]="['/address', addr, 'transactions']" routerLinkActive="is-active"><a [routerLink]="['/address', addr, 'transactions']">
+					Transactions
 				</a></li>
-				<li [class.is-active]="submenu == 'blocks'" class="is-size-5"><a (click)="setSubmenu('blocks')">
-					Proposed Blocks&nbsp;
-					<span *ngIf="blocks">({{blocks.length}})</span>
+				<li class="is-size-5" [routerLink]="['/address', addr, 'blocks']" routerLinkActive="is-active"><a [routerLink]="['/address', addr, 'blocks']">
+					Proposed Blocks
 				</a></li>
 			</ul>
 		</div>
 
-		<div class="sub-trxs" *ngIf="submenu == 'trxs'">
-			<div class="element is-loading" *ngIf="loadingTrx"></div>
-
-			<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="!loadingTrx && transactions.length">
-				<thead>
-					<th>TxHash</th>
-					<th>Block</th>
-					<th>When</th>
-					<th>From</th>
-					<th></th>
-					<th>To</th>
-					<th>Value</th>
-					<th>TxFee</th>
-				</thead>
-				<tbody>
-					<ng-container *ngFor="let trx of transactions; let i = index">
-						<tr *ngIf="i < trx_limit">
-							<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:12}}...</a></td>
-							<td><a [routerLink]="['/block', trx.blockNumber]">{{trx.blockNumber}}</a></td>
-							<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'long' : 'UTC' }}</td>
-							<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:12}}...</a></td>
-							<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'warning' : 'success' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
-							<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:12}}...</a></td>
-							<td>{{trx.value | convertCpc }} CPC</td>
-							<td>TODO</td>
-						</tr>
-					</ng-container>
-				</tbody>
-			</table>
-
-			<div class="container has-text-centered" *ngIf="transactions.length > trx_limit">
-				<a class="button is-small" (click)="showMore('trx_limit')"><i class="typcn typcn-arrow-sorted-down"></i> Show more</a>
-				<a class="button is-small" (click)="showAll('trx_limit')"><i class="typcn typcn-arrow-sorted-down"></i> Show all</a>
-			</div>
-		</div>
-
-		<div class="sub-blocks" *ngIf="submenu == 'blocks'">
-			<div class="element is-loading" *ngIf="loadingBlocks"></div>
-
-			<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="!loadingBlocks && blocks.length">
-				<thead>
-					<th width="1%">Block</th>
-					<th width="1%"></th>
-					<th>When</th>
-					<th>Trxs</th>
-					<th>Gas Used</th>
-					<th>Gas Limit</th>
-					<th>Gas Price</th>
-					<th>Rewards</th>
-				</thead>
-				<tbody>
-					<ng-container *ngFor="let blk of blocks; let i = index">
-						<tr *ngIf="i < blocks_limit">
-							<td><a [routerLink]="['/block', blk.number]">{{blk.number}}</a></td>
-							<td>
-								<span *ngIf="!blk.__impeached" class="tag is-success"><i class="typcn typcn-tick"></i>&nbsp;Success</span>
-								<span *ngIf="blk.__impeached" class="tag is-danger"><i class="typcn typcn-cancel"></i>&nbsp;Failed</span>
-							</td>
-							<td>{{blk.timestamp | dateAgo}} | {{blk.timestamp | date: 'long' : 'UTC' }}</td>
-							<td><a [routerLink]="['/block', blk.number]">{{blk.transactions.length}}</a></td>
-							<td>{{blk.gasUsed}}</td>
-							<td>{{blk.gasLimit}}</td>
-							<td>{{blk.__gasPrice}}</td>
-							<td>{{blk.__reward}}</td>
-						</tr>
-					</ng-container>
-				</tbody>
-			</table>
-
-			<div class="container has-text-centered" *ngIf="blocks.length > blocks_limit">
-				<a class="button is-small" (click)="showMore('blocks_limit')"><i class="typcn typcn-arrow-sorted-down"></i> Show more</a>
-				<a class="button is-small" (click)="showAll('blocks_limit')"><i class="typcn typcn-arrow-sorted-down"></i> Show all</a>
-			</div>
-		</div>
+		<router-outlet></router-outlet>
 
 	</div>
 

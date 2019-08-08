@@ -66,7 +66,7 @@ $body-background-color: $alice-blue;
 
 
 // required for opacity page transition
-router-outlet ~ * {
+router-outlet.is-root ~ * {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -81,6 +81,8 @@ td {border:0;}
 
 
 .element {
+    margin: 35px 0;
+
     &.is-loading {
         position: relative;
         pointer-events: none;

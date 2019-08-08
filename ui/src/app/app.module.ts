@@ -30,6 +30,8 @@ import { TrxGraphComponent } from './trx-graph/trx-graph.component';
 import { RichListComponent } from './rich-list/rich-list.component';
 import { StatsComponent } from './stats/stats.component';
 import { FooterComponent } from './footer/footer.component';
+import { AddressTransactionsComponent } from './address/address-transactions/address-transactions.component';
+import { AddressBlocksComponent } from './address/address-blocks/address-blocks.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +54,8 @@ import { FooterComponent } from './footer/footer.component';
     RichListComponent,
     StatsComponent,
     FooterComponent,
+    AddressTransactionsComponent,
+    AddressBlocksComponent,
   ],
   imports: [
     FormsModule,

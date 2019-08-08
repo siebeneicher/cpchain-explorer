@@ -63,6 +63,15 @@ async function generation (mustBlockNum = null) {
 async function block (num = null) {
 	return call('block', num);
 }
+async function blockProposer (num) {
+	try {
+		let {proposer} = await call('block-proposer', num);
+		return web3.utils.toChecksumAddress(proposer);
+	} catch (err) {
+		console.error("Error getting block proposer ("+num+"): ", err);
+		return Promise.reject(err);
+	}
+}
 async function transaction (txn) {
 	try {
 		return await call('transaction', txn);
@@ -213,7 +222,7 @@ async function perfTest () {
 
 }
 
-module.exports = {blockNumber, rnodes, versions, generation, block, transaction, balance, web3, perfTest};
+module.exports = {blockNumber, rnodes, versions, generation, block, transaction, balance, web3, perfTest, blockProposer};
 
 
 /*

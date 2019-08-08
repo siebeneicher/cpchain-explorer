@@ -35,6 +35,13 @@ def action():
 		except Exception as err:
 			print(json.dumps({"error": str(err)}))
 			exit()
+	elif (action == "block-proposer"):
+		try:
+			block = int(sys.argv[2])
+			out = {"proposer":cf.cpc.getProposerByBlock(block)}
+		except Exception as err:
+			print(json.dumps({"error": str(err)}))
+			exit()
 	elif (action == "transaction"):
 		txn = sys.argv[2]
 		try:

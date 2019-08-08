@@ -1,0 +1,37 @@
+<div class="element is-loading" *ngIf="loading"></div>
+
+<ng-container *ngIf="loaded">
+	<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="data.length">
+		<thead>
+			<th></th>
+			<th>TxHash</th>
+			<th>Block</th>
+			<th>When</th>
+			<th>From</th>
+			<th></th>
+			<th>To</th>
+			<th>Value</th>
+			<th>TxFee</th>
+		</thead>
+		<tbody>
+			<ng-container *ngFor="let trx of data; let i = index">
+				<tr *ngIf="i < limit">
+					<td>#{{data.length - i}}</td>
+					<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:12}}...</a></td>
+					<td><a [routerLink]="['/block', trx.blockNumber]">{{trx.blockNumber}}</a></td>
+					<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'long' : 'UTC' }}</td>
+					<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:12}}...</a></td>
+					<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'warning' : 'success' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
+					<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:12}}...</a></td>
+					<td>{{trx.value | convertCpc }} CPC</td>
+					<td>TODO</td>
+				</tr>
+			</ng-container>
+		</tbody>
+	</table>
+
+	<div class="container has-text-centered" *ngIf="data.length > limit">
+		<a class="button is-small" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> Show more</a>
+		<a class="button is-small" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> Show all</a>
+	</div>
+</ng-container>

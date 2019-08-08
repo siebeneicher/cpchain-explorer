@@ -99,8 +99,8 @@
 				<td class="left-line has-text-centered">{{rnode.balance | number : '1.0-0'}}</td>
 				<td class="has-text-centered">{{rnode.rpt}} (#{{rnode.rpt_rank}})</td>
 				<td class="has-text-centered"><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
-				<td class="left-line has-text-centered">{{rnode.mined}}</td>
-				<td class="has-text-centered">{{rnode.impeached}}</td>
+				<td class="left-line has-text-centered"><a [routerLink]="['/address', rnode.rnode, 'blocks']">{{rnode.mined}}</a></td>
+				<td class="has-text-centered"><a [routerLink]="['/address', rnode.rnode, 'blocks']">{{rnode.impeached}}</a></td>
 				<td class="has-text-centered">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.2-2'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.2-2'}}</span></td>
 				<td class="has-text-centered">{{rnode.roi_year |  number : '1.2-2'}}%</td>
 				<!-- <td>{{rnode.proposing}}</td> -->

@@ -1,4 +1,4 @@
-const {blockNumber, versions, rnodes, block, generation, transaction, web3, balance} = require('./cpc-fusion/api');
+const {blockNumber, versions, rnodes, block, generation, transaction, web3, balance, blockProposer} = require('./cpc-fusion/api');
 const mongo = require('./app/mongo');
 const { balances, addresses, blocks: data_blocks } = require('./app/data');
 const config = require('./app/config');
@@ -271,7 +271,7 @@ async function syncBlock (targetBlockNum = null) {
 
 	sanitizeBlock(b);
 	attachBlockFeeReward(b);
-	attachBlockProperNImpeached(b);
+	await attachBlockProperNImpeached(b);
 
 	// split transactions into different db.collection
 	b.transactions.forEach(trx => sanitizeTransaction(trx));
@@ -556,7 +556,7 @@ function ensure_indexes () {
 	}
 }
 
-function attachBlockProperNImpeached (b) {
+async function attachBlockProperNImpeached (b) {
 	// is impeached block
 	b.__impeached = b.miner == config.cpc.impeached_miner;
 
@@ -565,9 +565,13 @@ function attachBlockProperNImpeached (b) {
 	} else {
 		if (b.__generation && b.__generation.Proposers)
 			b.__proposer = b.__generation.Proposers[b.__generation.ProposerIndex];
-		else
-			b.__proposer = b.miner;
+		else {
+			debugger;
+			b.__proposer = await blockProposer(b.number);			// ask civilian node
+		}
 	}
+
+	return Promise.resolve();
 }
 
 function attachBlockFeeReward (b) {
@@ -593,7 +597,7 @@ function trxFee (trx) {
  */
 async function backwardsBlock () {
 	return new Promise((resolve, reject) => {
-		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1, __generation: 1, miner: 1}).limit(999999999).toArray(async function (err, blocks) {
+		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1, __generation: 1, miner: 1}).limit(150000).toArray(async function (err, blocks) {
 			for (let i in blocks) {
 				await new Promise((resolve2, reject) => {
 					mongo_db_transactions.findOne({hash: blocks[i].transactions[0]}).then(async function (trx, err) {
@@ -604,7 +608,7 @@ async function backwardsBlock () {
 						delete blocks[i].gasUsed;
 
 						// ATTACH PROPOSER N IMPEAHED INFO
-						attachBlockProperNImpeached(blocks[i]);
+						await attachBlockProperNImpeached(blocks[i]);
 
 						mongo_db_blocks
 							.updateOne({ _id: blocks[i]._id }, { $set: blocks[i] }, { upsert: false })
