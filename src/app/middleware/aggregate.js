@@ -353,12 +353,16 @@ async function getBlocksByNumber (min, max) {
 }
 
 async function getBlocksByAggregated (unit, limit) {
+	const t_start = now();
+
 	return await new Promise(function (resolve, reject) {
 		mongo.db(config.mongo.db.sync).collection('blocks')
 			.find({ ['__aggregated.by_'+unit]: false })
-			.sort({timestamp: 1})
+			//.sort({timestamp: 1})
 			.limit(limit)
 			.toArray((err, blocks) => {
+				console.log("getBlocksByAggregated("+unit+", "+limit+") took", now() - t_start);
+
 				if (err) console.error(err);
 				resolve(blocks || []);
 			})
