@@ -268,7 +268,7 @@ const all = {
 					let [f2] = _addresses.filter(_ => _.address == addr);
 					_extend = {
 						owned_by: f2 ? f2.owned_by : null,
-						balance: f2 ? f2.latest_balance : 0,
+						balance: f2 ? f2.latest_balance + config.cpc.rnode_lock_amount_min : 0,
 						balance_rank: f2 ? f2.rank == 0 : false,
 					};
 					Object.assign(rnode, _extend);
@@ -277,7 +277,7 @@ const all = {
 					let [f3] = _rewards.filter(_ => _.rnode == addr);
 					if (f3) {
 						delete f3.rnode;
-						delete f3.balance;
+						//delete f3.balance;
 						Object.assign(rnode, f3);
 					} else {
 						Object.assign(rnode, {
