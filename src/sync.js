@@ -633,6 +633,8 @@ async function backwardsFindNewAddresses () {
 			if (result) {
 				for (let i in result) {
 					try {
+						if (!result[i]._id)
+							continue;
 						await balances.update(result[i]._id)
 						known.push(result[i]._id);
 					} catch (err) { console.error(err); }
@@ -735,6 +737,6 @@ async function init (clearAll = false) {
 
 init(false)
 	//.then(backwardsBlock)
-	//.then(updateAllBalances)
-	//.then(backwardsFindNewAddresses)
+	.then(updateAllBalances)
+	.then(backwardsFindNewAddresses)
 	.then(collect);
