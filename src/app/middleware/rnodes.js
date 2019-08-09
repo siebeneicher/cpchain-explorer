@@ -247,12 +247,25 @@ const all = {
 				let items = await rewards.last(unit, times);
 
 				if (!items || !items.length)
-					resolve(null);
+					resolve([]);
 
 				let rpts = await rnodes.last_rpt();
+				let addrs = rpts.map(_ => _.address);
+				let _addresses = await addresses.get(addrs);
 
 				// assign latest rpt
 				rpts.forEach(_ => {
+					// assign balance and owned_by
+					let f2 = _addresses.filter(_2 => _2.address == _.address);
+					let addr = {balance: -1, owned_by: null};
+					if (f2 && f2.length) {
+						addr.balance = f2[0].latest_balance + config.cpc.rnode_lock_amount_min;
+						addr.owned_by = f2[0].owned_by;
+					} else {
+						balances.update(_.address);			// update unknown address unobserved
+					}
+
+
 					let f = items.filter(_2 => _2.rnode == _.address);
 
 					if (f && f.length) {
@@ -260,18 +273,18 @@ const all = {
 						f[0].rpt_rank = _.rank;
 						f[0].elected = _.status == 0;
 						f[0].owned_by = _.address_info && _.address_info[0] ? _.address_info[0].owned_by : null;
+						Object.assign(f[0], addr);
 					} else {
-
-// TODO:
 						// push current rnodes without stats
-						items.push({
+						items.push(Object.assign({
 							rnode: _.address,
 							rpt: _.rpt,
 							rpt_rank: _.rank,
 							elected: _.status == 0,
 							owned_by: _.address_info && _.address_info[0] ? _.address_info[0].owned_by : null
-						});
+						}, addr));
 					}
+
 				});
 
 

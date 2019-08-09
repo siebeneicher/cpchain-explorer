@@ -361,7 +361,7 @@ async function getBlocksByAggregated (unit, limit) {
 			//.sort({timestamp: 1})
 			.limit(limit)
 			.toArray((err, blocks) => {
-				console.log("getBlocksByAggregated("+unit+", "+limit+") took", now() - t_start);
+				//console.log("getBlocksByAggregated("+unit+", "+limit+") took", now() - t_start);
 
 				if (err) console.error(err);
 				resolve(blocks || []);

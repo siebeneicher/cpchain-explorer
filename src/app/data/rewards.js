@@ -231,9 +231,9 @@ let time_multiply = units_per_year / times;
 				console.log("rewards.last(",unit, times,rnode_addr,")", now() - t_start);
 				//console.log(result);
 
-				if (err || result.length == 0) {
+				if (err) {
 					console.error("rewards.last(",unit, times,rnode_addr,") error:", err);
-					resolve(null);
+					reject(err);
 				} else {
 					// format to 2 digits after dot
 					//Object.keys(result[0]).forEach(k => result[0][k] = result[0][k].toFixed(2));

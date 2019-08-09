@@ -4,24 +4,28 @@ const now = require('performance-now');
 const {convert_ts, last_unit_ts, isAddress} = require('../helper');
 const {web3, balance} = require('../../cpc-fusion/api');
 
-async function get (hash) {
-
-	// is address
-	if (!isAddress(hash))
-		return Promise.reject({invalidAddress: true});
-
-	// sanitize given addr
-	hash = web3.utils.toChecksumAddress(hash);
-
+async function get (hashOrHashes) {
 	return new Promise((resolve, reject) => {
+		let hashes = [];
+
+		try {
+			hashes = (typeof hashOrHashes == "string") ? [hashOrHashes] : hashOrHashes;
+			hashes = hashes.map(_ => web3.utils.toChecksumAddress(_));
+		} catch (e) {
+			console.error(e);
+			reject(e);
+			return;
+		}
+
 		mongo.db(config.mongo.db.sync).collection('balances')
 			.aggregate([
-				{ $match: {address: hash} }
+				{ $match: {address: { $in: hashes }} }
 			])
 			.toArray((err, addr) => {
 				if (err) return reject(err);
 				else if (!addr || !addr.length) return reject(null);
-				resolve(addr[0]);
+				else if (typeof hashOrHashes == "string") resolve(addr[0]);
+				else resolve(addr);
 			});
 	});
 }
