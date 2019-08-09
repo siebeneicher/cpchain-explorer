@@ -2,9 +2,9 @@ const now = require('performance-now');
 const config = require('../app/config');
 const {python_exe} = require('../app/helper');
 const Web3 = require('web3');
-const web3 = new Web3('http://127.0.0.1:8051', null, {});
+const web3 = new Web3(config.node.rpc_url, null, {});
 //const web3 = new Web3('ws://127.0.0.1:8546', null, {});
-
+const request = require('request-promise-native');
 const { exec } = require('child_process');
 let python;
 
@@ -13,38 +13,128 @@ let python;
 	return web3.eth.getBlockNumber();
 }*/
 
-async function call (action, ...params) {
 
-	// check web3
-	//return call_web3();
+const apis = {
+	python: async (action, params) => {
+		if (!python)
+			python = await python_exe();
 
-	if (!python)
-		python = await python_exe();
+		const t = now();
 
-	const t = now();
-	const cmd = python + " ./cpc-fusion/api.py " + action + " " + params.join(' ');
+		const cmd = python + " ./cpc-fusion/api.py " + action + " " + params.join(' ');
 
-	return new Promise ((resolve, reject) => {
-		exec(cmd, async function (err, data) {
-			//console.log("TIME API EXEC:", (now()-t).toFixed(2), "ms", cmd, /*err, data,*/ );
+		return new Promise ((resolve, reject) => {
+			exec(cmd, async function (err, data) {
+				//console.log("TIME API EXEC:", (now()-t).toFixed(2), "ms", cmd);
 
-			if (err) console.error(cmd, err);
+				if (err) console.error(cmd, err);
 
-			if (err)
-				return reject(err);
+				if (err)
+					return reject(err);
 
-			try {
-				const json = JSON.parse(data);
-				if (json.error)
-					reject(json.error);
-				else
-					resolve(json);
-			} catch (err) {
-				//console.log(err, data)
-				reject(err);
-			}
+				try {
+					const json = JSON.parse(data);
+					if (json.error)
+						reject(json.error);
+					else
+						resolve(json);
+				} catch (err) {
+					//console.log(err, data)
+					reject(err);
+				}
+			});
 		});
-	});
+	},
+	rpc: async (action, params = []) => {
+		const t = now();
+		let method;
+
+		// Docs: https://docs.cpchain.io/api/rpc.html#json-rpc-api
+		// ETH: https://web3js.readthedocs.io/en/v1.2.0/web3-utils.html?highlight=isValidAddress#utils-tobn
+
+
+		if (action == "balance") {
+			method = "eth_getBalance";
+			if (params[1] !== undefined && !params[1]) params[1] = "latest";
+			//else if () params[1] = web3.utils.numberToHex(params[1]);			// TODO
+		}
+		if (action == "blockNumber") {
+			method = "eth_blockNumber";
+		}
+		if (action == "transaction") {
+			method = "eth_getTransactionReceipt";
+		}
+		if (action == "block") {
+			method = "eth_getBlockByNumber";
+			// specific block
+			if (!["latest","pending","earliest"].includes(params[0])) params[0] = web3.utils.numberToHex(params[0]);
+		}
+		if (action == "block-proposer") {
+			method = "eth_getProposerByBlock";
+			params[0] = web3.utils.numberToHex(params[0]);
+		}
+		if (action == "generation") {
+			method = "eth_getBlockGenerationInfo";
+		}
+		if (action == "rnodes") {
+			method = "eth_getRNodes";
+		}
+
+
+		const opts = {
+			method: "POST",
+			url: config.node.rpc_url,
+			body: { "jsonrpc":"2.0", "method":method, "params": params, "id":1 },
+			json: true
+		};
+
+		return request(opts).then((res, err) => {
+			//console.log("TIME API EXEC:", (now()-t).toFixed(2), "ms", action, params);
+			//console.log(opts, res.result, err);
+
+			if (err) {
+				throw err;
+			}
+
+			if (res && res.error) {
+				throw res.error;
+			}
+
+			if (action == "balance") {
+				return {balance: web3.utils.toBN(res.result) / config.cpc.unit_convert};
+			}
+			if (action == "blockNumber") {
+				return web3.utils.hexToNumber(res.result);
+			}
+			if (action == "block") {
+				res.result.number = web3.utils.hexToNumber(res.result.number);
+				res.result.gasLimit = web3.utils.hexToNumber(res.result.gasLimit);
+				res.result.gasUsed = web3.utils.hexToNumber(res.result.gasUsed);
+				res.result.size = web3.utils.hexToNumber(res.result.size);
+				res.result.timestamp = web3.utils.hexToNumber(res.result.timestamp);
+
+				res.result.transactions.forEach(t => {
+					t.blockNumber = web3.utils.hexToNumber(t.blockNumber);
+					t.gas = web3.utils.hexToNumber(t.gas);
+					t.gasPrice = web3.utils.hexToNumber(t.gasPrice);
+					t.type = web3.utils.hexToNumber(t.type);
+					t.nonce = web3.utils.hexToNumber(t.nonce);
+					t.transactionIndex = web3.utils.hexToNumber(t.transactionIndex);
+					t.value = web3.utils.hexToNumber(t.value);
+					t.v = web3.utils.hexToNumber(t.v);
+				});
+			}
+			if (action == "block-proposer") {
+				return {proposer: res.result};
+			}
+
+			return res.result;
+		});
+	}
+}
+
+async function call (action, ...params) {
+	return apis[config.node.use_api](action, params);
 }
 
 async function rnodes () {
@@ -60,8 +150,8 @@ async function generation (mustBlockNum = null) {
 		return null;
 	});
 }
-async function block (num = null) {
-	return call('block', num);
+async function block (num = "latest", fullTrxs = true) {
+	return call('block', num, fullTrxs);
 }
 async function blockProposer (num) {
 	try {
@@ -80,7 +170,7 @@ async function transaction (txn) {
 		return Promise.reject(err);
 	}
 }
-async function balance (addr, blockNum = "") {
+async function balance (addr, blockNum = null) {
 	try {
 		let {balance} = await call('balance', addr, blockNum);
 		return Promise.resolve(balance);
@@ -88,7 +178,6 @@ async function balance (addr, blockNum = "") {
 		console.error("Error getting balance ("+addr+"): ", err);
 		return Promise.reject(err);
 	}
-	
 }
 
 async function blockNumber () {

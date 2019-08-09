@@ -15,11 +15,12 @@ let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
 let last_blockNumber = 0;			// most recent block number
 
-const sync_delay = 250;
+const max_backwards = 3 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
+const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
-const backwards_delay = 25000;
+const backwards_delay = 10000;
 const sync_missing_addresses_delay = 5000;
-const maxNewBlocksBackwardsPerCycle = 25;
+const maxNewBlocksBackwardsPerCycle = 250;
 
 
 // linux> mongodump --db cpc_watcher
@@ -196,8 +197,6 @@ async function syncBackwards () {
 
 	// TODO: make this function big data proof
 
-	let max_backwards = 6 * 60 * 6;		// 6 hours
-
 	// sync all blocks
 	return new Promise ((resolve, reject) => {
 		mongo_db_blocks.find({}).project({_id:-1, number: 1}).sort({number:-1}).limit(max_backwards).toArray(async function (err, items) {
@@ -233,7 +232,7 @@ async function syncBackwards () {
 async function syncBlock (targetBlockNum = null) {
 	const t_start = now();
 
-	let b, g, number;
+	let b, number;
 
 	// LAST BLOCK
 	if (targetBlockNum === null) {
@@ -242,28 +241,25 @@ async function syncBlock (targetBlockNum = null) {
 		//console.log("DIFFFF:", last_b.timestamp, last_b.timestamp - (moment.utc().unix()*1000 - config.cpc.block_each_second*1000));
 
 // TODO: check if timespan is enough to have a new block created, if not, just stop here
-		if (last_b.timestamp > moment.utc().unix()*1000 - config.cpc.block_each_second*1000)
+		if (last_b && last_b.timestamp > moment.utc().unix()*1000 - config.cpc.block_each_second*1000)
 			return Promise.resolve(false);
 
 		// block and generation at same time, so we dont miss generation info,
 		// allthough it might be unused if block is fetched allready
-		await Promise.all([block().then(_ => b = _), generation().then(_ => g = _)]);
+		//await Promise.all([block().then(_ => b = _), generation().then(_ => g = _)]);
+
+		b = await block();
 		number = b.number;
 
 		// no new block
-		if (last_b.number == number) return Promise.resolve(false);
-
-		// is generation related to current block
-		if (g.BlockNumber != number)
-			g = null;
+		if (last_b && last_b.number == number) return Promise.resolve(false);
 	} else {
 		// SPECIFIC BLOCK BACK IN TIME
 		b = await block(targetBlockNum);
 		number = b.number;
-		g = null;
 	}
 
-	b.__generation = g;
+	b.__generation = null;		// legacy only
 	b.__aggregated = {
 		by_minute: false,
 		by_hour: false,
@@ -284,7 +280,7 @@ async function syncBlock (targetBlockNum = null) {
 
 	// insert block
 	await mongo_db_blocks.updateOne({ number: number }, { $set: b }, { upsert: true });			// insert block into mongo, if not yet done so
-	console.log("added block ",number," (generation: "+!!b.__generation+") in", now()-t_start);
+	console.log("added block ",number," in", now()-t_start);
 
 	if (!trxs || !trxs.length) return Promise.resolve({b, trxs: []});
 
@@ -311,75 +307,26 @@ async function updateBalancesOfBlockAddresses (block, trxs) {
 	// miner
 	// transaction sender
 	// transaction receiver
-	// emitter
+	// TODO: emitter
 
 
 	// MINER
 	// always update proposer balance; proposer getting balance increased via smart contract, not via transaction
 	try { await balances.update(block.miner); } catch (err) {}
 
-
-
 	// TRANSACTION SENDER & RECEIVER
 	if (trxs.length == 0) return Promise.resolve(null);
 
-	// calculate balance changes in bulk, without actually requesting balance from the node (to save request time)
-	const changeByAddr = {};
+	let p = [];
 
-	// update addresses balance via found transactions
+	// update addresses of each transaction
 	for (let i in trxs) {
 		let trx = trxs[i];
-
-		// 0 value is not relevant
-		if (trx.value == 0) continue;
-
-		if (changeByAddr[trx.from] === undefined) changeByAddr[trx.from] = 0;
-		if (changeByAddr[trx.to] === undefined) changeByAddr[trx.to] = 0;
-
-		changeByAddr[trx.from] = -trx.value / config.cpc.unit_convert;
-		changeByAddr[trx.to] = trx.value / config.cpc.unit_convert;
+		p.push(balances.update(trx.from));
+		p.push(balances.update(trx.to));
 	}
 
-	// get first all adresses balances
-	const addresses = Object.keys(changeByAddr);
-
-	if (addresses.length == 0) return Promise.resolve();
-
-	return new Promise((resolve, reject) => {
-		mongo_db_balances.find({ address: { $in: addresses } }, { address:1, latest_balance:1 }).toArray(async (err, items) => {
-			for (let i in addresses) {
-				let addr = addresses[i];
-				let latest_balance = null;
-				let found = items.filter(_ => _.address == addr);
-
-				// update balance either manually through calculation
-				// or hard via civilian node request (time consuming, hard on resources)
-
-				//console.log(addr, changeByAddr[addr]);
-				//console.log(await balances.latest(addr));
-
-				if (found.length) {		// update balance
-					latest_balance = found[0].latest_balance + changeByAddr[addr];
-				} else {				// new address: get latest balance from node
-					latest_balance = await balance(addr);		// expensive node call
-				}
-
-				//console.log(latest_balance);
-
-				const _balance = {
-					latest_balance,
-					address: addr
-				};
-
-// TODO: faster bulk update
-				// update/insert
-				await mongo_db_balances.updateOne({ address: addr }, { $set: _balance }, { upsert: true });
-				console.log("balance updated,",addr,"to",latest_balance,"in",now()-t_start);
-			}
-
-			resolve();
-		});
-	});
+	return Promise.all(p);
 }
 
 function sanitizeBlock (block) {
@@ -567,11 +514,7 @@ async function attachBlockProperNImpeached (b) {
 	if (!b.__impeached) {
 		b.__proposer = b.miner;
 	} else {
-		if (b.__generation && b.__generation.Proposers)
-			b.__proposer = b.__generation.Proposers[b.__generation.ProposerIndex];
-		else {
-			b.__proposer = await blockProposer(b.number);			// ask civilian node
-		}
+		b.__proposer = await blockProposer(b.number);			// ask civilian node
 	}
 
 	return Promise.resolve();
@@ -600,7 +543,7 @@ function trxFee (trx) {
  */
 async function backwardsBlock () {
 	return new Promise((resolve, reject) => {
-		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1, __generation: 1, miner: 1})/*.limit(150000)*/.toArray(async function (err, blocks) {
+		mongo_db_blocks.find({}).project({_id:1, number:1, gasUsed:1, transactions: 1, miner: 1})/*.limit(150000)*/.toArray(async function (err, blocks) {
 			for (let i in blocks) {
 				await new Promise((resolve2, reject) => {
 					mongo_db_transactions.findOne({hash: blocks[i].transactions[0]}).then(async function (trx, err) {

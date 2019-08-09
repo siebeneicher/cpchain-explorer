@@ -8,7 +8,7 @@ import json, sys
 from cpc_fusion import Web3
 from cpc_fusion.middleware import geth_poa_middleware
 
-cf = Web3(Web3.HTTPProvider('http://127.0.0.1:8501'))
+cf = Web3(Web3.HTTPProvider('http://127.0.0.1:8765'))
 # inject the poa compatibility middleware to the innermost layer
 #cf.middleware_stack.inject(geth_poa_middleware, layer=0)
 

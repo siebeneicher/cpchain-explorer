@@ -84,7 +84,7 @@
 	<div>Time: {{hovered_block.time_pretty}}</div>
 	<div *ngIf="hovered_block.synced">
 		<div *ngIf="!hovered_block.impeached">Trx's: {{hovered_block.trx_count}}</div>
-		<div *ngIf="!hovered_block.impeached">Proposer: {{hovered_block.miner | slice:0:10}}...</div>
+		<div>Proposer: {{hovered_block.__proposer | slice:0:12}}...</div>
 		<div *ngIf="hovered_block.impeached">Impeached</div>
 	</div>
 	<div *ngIf="!hovered_block.synced">

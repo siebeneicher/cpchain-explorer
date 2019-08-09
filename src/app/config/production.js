@@ -9,5 +9,8 @@ module.exports = {
 		profiling: {
 			level: 'off'
 		}
+	},
+	node: {
+		use_api: 'rpc'
 	}
 };

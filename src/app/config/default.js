@@ -51,5 +51,9 @@ module.exports = {
 		api_key: "0a7fbb6f-e1d1-4668-8f3f-0a1cd3001f10",
 		api_url: "https://pro-api.coinmarketcap.com",
 		cpc_id: 2482
+	},
+	node: {
+		use_api: 'rpc',
+		rpc_url: 'http://127.0.0.1:8765'
 	}
 };
