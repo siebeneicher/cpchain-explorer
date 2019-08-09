@@ -244,56 +244,61 @@ const all = {
 			return new Promise(async function (resolve, reject) {
 				const t_start = now();
 
-				let items = await rewards.last(unit, times);
-
-				if (!items || !items.length)
-					resolve([]);
-
+				let _rnodes = [];
+				let _rewards = await rewards.last(unit, times);
 				let rpts = await rnodes.last_rpt();
-				let addrs = rpts.map(_ => _.address);
+				let addrs = [...new Set(rpts.map(_ => _.address).concat(_rewards.map(_ => _.rnode)))];
 				let _addresses = await addresses.get(addrs);
 
-				// assign latest rpt
-				rpts.forEach(_ => {
-					// assign balance and owned_by
-					let f2 = _addresses.filter(_2 => _2.address == _.address);
-					let addr = {balance: -1, owned_by: null};
-					if (f2 && f2.length) {
-						addr.balance = f2[0].latest_balance + config.cpc.rnode_lock_amount_min;
-						addr.owned_by = f2[0].owned_by;
+				addrs.forEach(addr => {
+					let extend;
+					let rnode = {rnode: addr};
+					_rnodes.push(rnode);
+
+					// RPT, IF EXIST
+					let [f] = rpts.filter(_ => _.address == addr);
+					_extend = {
+						rpt: f ? f.rpt : 0,
+						rpt_rank: f ? f.rank : 0,
+						elected: f ? f.status == 0 : false,
+					};
+					Object.assign(rnode, _extend);
+
+					// BALANCE, RANK, OWNED_BY, IF EXIST
+					let [f2] = _addresses.filter(_ => _.address == addr);
+					_extend = {
+						owned_by: f2 ? f2.owned_by : null,
+						balance: f2 ? f2.latest_balance : 0,
+						balance_rank: f2 ? f2.rank == 0 : false,
+					};
+					Object.assign(rnode, _extend);
+
+					// REWARDS, IF EXIST
+					let [f3] = _rewards.filter(_ => _.rnode == addr);
+					if (f3) {
+						delete f3.rnode;
+						delete f3.balance;
+						Object.assign(rnode, f3);
 					} else {
-						balances.update(_.address);			// update unknown address unobserved
+						Object.assign(rnode, {
+							impeached: 0,
+							mined: 0,
+							rewards: 0,
+							rewards_from_fee: 0,
+							rewards_from_fixed: 0,
+							rewards_usd: 0,
+							roi_year: 0,
+						});
 					}
-
-
-					let f = items.filter(_2 => _2.rnode == _.address);
-
-					if (f && f.length) {
-						f[0].rpt = _.rpt;
-						f[0].rpt_rank = _.rank;
-						f[0].elected = _.status == 0;
-						f[0].owned_by = _.address_info && _.address_info[0] ? _.address_info[0].owned_by : null;
-						Object.assign(f[0], addr);
-					} else {
-						// push current rnodes without stats
-						items.push(Object.assign({
-							rnode: _.address,
-							rpt: _.rpt,
-							rpt_rank: _.rank,
-							elected: _.status == 0,
-							owned_by: _.address_info && _.address_info[0] ? _.address_info[0].owned_by : null
-						}, addr));
-					}
-
 				});
 
 
-				redis.set(all.cache_key(unit, times, ts_start, options), items);
+				redis.set(all.cache_key(unit, times, ts_start, options), _rnodes);
 				redis.expire(all.cache_key(unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);
 
 				console.log('rnodes.all.update took', now()-t_start);
 
-				resolve(items);
+				resolve(_rnodes);
 			});
 		}
 	}
