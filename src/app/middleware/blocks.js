@@ -42,7 +42,7 @@ const squared = {
 				const last_synced_block = await blocks.last();
 
 				const t_start = now();
-				const select = ['timestamp','number','transactions','miner'];
+				const select = ['timestamp','number','transactions','__proposer','__impeached'];
 				const data = await blocks.byUnit(unit, ts, select);
 				//console.log("blocks.squared took:", now() - t_start);
 
@@ -80,8 +80,7 @@ const squared = {
 						next_block = data.splice(0, 1)[0];
 
 						delete next_block._id;
-						next_block.impeached = next_block.miner == config.cpc.impeached_miner;
-						next_block.timespan = next_block.impeached ? config.cpc.block_impeached_second : config.cpc.block_each_second;
+						next_block.timespan = next_block.__impeached ? config.cpc.block_impeached_second : config.cpc.block_each_second;
 						next_block.synced = true;
 						next_block.trx_count = next_block.transactions ? next_block.transactions.length : 0;
 						delete next_block.transactions;
@@ -98,10 +97,10 @@ const squared = {
 
 					block = matched_block ? next_block : {
 						number: calculate_future_block_number(last_synced_block, assumed_time),
-						impeached: null,
+						//__impeached: null,
 						synced: false,
 						timestamp: assumed_time,
-						trx_count: 0
+						//trx_count: 0
 					};
 
 					block.i = i;
@@ -110,7 +109,7 @@ const squared = {
 					if (matched_block) {
 						// count impeached blocks to adjust assumed_time and time_pretty
 						// count++ should be after block has been assigned, so assumed_time can be correct for future blocks
-						if (next_block.impeached)
+						if (next_block.__impeached)
 							count_impeached_blocks++;
 
 						next_block = null;
