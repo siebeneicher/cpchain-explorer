@@ -7,11 +7,11 @@
 
 	<ng-container *ngIf="unit == 'hour'">
 		<div *ngIf="initiated" (mouseout)="mouseout()">
-			<h1 class="subtitle">
-				Blocks Recent Hour
-				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>
+			<div class="blocks-title">
+				<span class="subtitle">Recent Blocks</span>&nbsp;&nbsp;
+				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
 				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="forward()"><i class="typcn typcn-chevron-right"></i></a>
-			</h1>
+			</div>
 
 			<div class="blocks" (mouseout)="mouseout()">
 				<div class="hour-container" (mousemove)="mousemove(null, $event)">

@@ -86,7 +86,7 @@ async function items (unit, times, ts_start, select = []) {
 
 				if (err || result.length == 0) {
 					console.error("transactions.items(",unit, times ,") error:", err);
-					resolve(null);
+					resolve([]);
 				} else {
 					resolve(result);
 				}

@@ -3,6 +3,7 @@ const config = require('../config');
 const dashboard = require('./dashboard');
 const aggregate = require('./aggregate');
 const addresses = require('./addresses');
+const price = require('./price');
 const blocks = require('./blocks');
 const transactions = require('./transactions');
 const rnodes = require('./rnodes');
@@ -126,5 +127,6 @@ module.exports = {
 	rnodes,
 	kpi,
 	transactions,
+	price,
 	search
 };

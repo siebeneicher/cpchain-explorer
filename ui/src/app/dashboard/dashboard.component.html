@@ -40,40 +40,30 @@
     <div class="column is-5 blocks">
       <app-blocks-squared unit="hour"></app-blocks-squared>
     </div>
-    <div class="column is-3 has-text-centered stats">
-<!--       <div class="info subtitle">
-        Last Block
-        <span>
-          <a [routerLink]="['/block', lastBlockService.last_block.number]">{{lastBlockService.last_block.number}}</a>
-        </span>
-      </div> -->
-
+    <div class="column is-3 has-text-centered stats" *ngIf="kpi.datasets.dashboard.data">
       <div class="info title">
         <span class="typcn typcn-power"></span>
         {{kpi.datasets.dashboard.data.last_rnodes.rnodes.length}} RNodes Live
       </div>
 
       <div class="info title">
+        <b>$</b>&nbsp;<a href="https://coinmarketcap.com/currencies/cpchain/" target="_blank">{{kpi.datasets.dashboard.data.last_price.USD.price |  number : '1.1-4'}} Price</a>
+      </div>
+
+      <app-price-graph class="graph price"></app-price-graph>
+    </div>
+    <div class="column is-4 has-text-centered stats">
+      <div class="info title">
         <span class="typcn typcn-arrow-loop"></span>
         {{kpi.data('dashboard','last_rewards','avg_roi_year','dashboard.top-teaser')}}% ROI (avg.)
       </div>
-    </div>
-    <div class="column is-4 has-text-centered stats">
-      <div class="info">
-        <span class="title">
-          <b>$</b>&nbsp;<a href="https://coinmarketcap.com/currencies/cpchain/" target="_blank">{{kpi.datasets.dashboard.data.last_price.USD.price |  number : '1.1-4'}} Price</a>
-        </span>
+
+      <div class="info title">
+        <span class="typcn typcn-arrow-shuffle"></span>
+        {{kpi.data('dashboard','last_transactions','count','dashboard.top-teaser')}} Trx's / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.top-teaser').full}}
       </div>
-<!--       <div class="info">
-        <span class="subtitle">Total Supply ???</span>
-      </div> -->
-      <div class="info">
-        <div class="title">
-          <span class="typcn typcn-arrow-shuffle"></span>
-          {{kpi.data('dashboard','last_transactions','count','dashboard.top-teaser')}} Trx's / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.top-teaser').full}}
-        </div>
-        <app-trx-graph class="graph"></app-trx-graph>
-      </div>
+
+      <app-trx-graph class="graph trx"></app-trx-graph>
     </div>
     <div class="column is-1"></div>
   </div>
@@ -254,7 +244,7 @@
             <i class="typcn typcn-chart-area-outline"></i>
           </span>
         </div>
-        <div class="content" *ngIf="user_rnode_addr && kpi.isLoaded('myrnode')">
+        <div class="content" *ngIf="user_rnode_addr && kpi.isLoaded('myrnode') && kpi.datasets.myrnode.data">
            <div class="keys-values-container is-size-5">
             <div class="keys-container">
               <div class="item">Blocks sealed</div>

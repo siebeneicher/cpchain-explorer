@@ -32,6 +32,7 @@ import { StatsComponent } from './stats/stats.component';
 import { FooterComponent } from './footer/footer.component';
 import { AddressTransactionsComponent } from './address/address-transactions/address-transactions.component';
 import { AddressBlocksComponent } from './address/address-blocks/address-blocks.component';
+import { PriceGraphComponent } from './price-graph/price-graph.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { AddressBlocksComponent } from './address/address-blocks/address-blocks.
     FooterComponent,
     AddressTransactionsComponent,
     AddressBlocksComponent,
+    PriceGraphComponent,
   ],
   imports: [
     FormsModule,

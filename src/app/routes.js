@@ -1,6 +1,6 @@
 const express = require('express');
 const app = module.exports = express();
-const {rnodes, dashboard, aggregate, updateAll, blocks, transactions, addresses, search} = require('./middleware');
+const {rnodes, dashboard, aggregate, updateAll, blocks, transactions, addresses, search, price} = require('./middleware');
 const {promisify} = require('util');
 const fs = require('fs');
 const path = require('path');
@@ -47,7 +47,12 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 
 .get('/api/v1/transactions-graph', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await transactions.graph.get(req.query.unit, parseInt(req.query.times), 'latest', { exlcude_last: !!parseInt(req.query.exclude_last) }, !!parseInt(req.query.forceUpdate)));
+	res.json(await transactions.graph.get(req.query.unit, parseInt(req.query.times), 'latest', { exclude_last: !!parseInt(req.query.exclude_last) }, !!parseInt(req.query.forceUpdate)));
+})
+
+.get('/api/v1/price-graph', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await price.graph.get(req.query.unit, parseInt(req.query.times), 'latest', { exclude_last: !!parseInt(req.query.exclude_last) }, !!parseInt(req.query.forceUpdate)));
 })
 
 .get('/api/v1/block/transactions/:number', async function (req, res) {

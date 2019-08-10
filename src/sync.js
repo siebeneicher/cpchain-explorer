@@ -125,6 +125,7 @@ async function syncCPCPrice () {
 	};
 
 	return request(opts).then(async (res) => {
+		console.log("counmarketca api response:",res);
 		res.data[config.coinmarketcap.cpc_id].ts = moment.utc().unix();
 		return mongo_db_price_cmc.insertOne(res.data[config.coinmarketcap.cpc_id]);
 	}).catch((err) => {
@@ -736,7 +737,8 @@ async function init (clearAll = false) {
 
 
 init(false)
-	//.then(backwardsBlock)
+	.then(syncCPCPrice)
+	.then(backwardsBlock)
 	.then(updateAllBalances)
 	.then(backwardsFindNewAddresses)
 	.then(collect);

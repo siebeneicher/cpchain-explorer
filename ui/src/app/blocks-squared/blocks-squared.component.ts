@@ -25,6 +25,8 @@ export class BlocksSquaredComponent implements OnInit {
 	hover_tooltip:any;
 	loading:boolean = false;
 
+	max_trx_count:number = 0;
+
 	intervalId:any;
 
 	//@ViewChild('hovertooltip') hovertooltip; 
@@ -35,6 +37,7 @@ export class BlocksSquaredComponent implements OnInit {
 		// the timestamp needs to be the exact start of the day
 		this.blocksByHour = [];
 		this.blocksFlat = [];
+		this.max_trx_count = 0;
 		this.attachTooltipToDocument();
 
 		this.setTsNow();
@@ -120,6 +123,7 @@ export class BlocksSquaredComponent implements OnInit {
 		async function _prepareDataByHour (res) {
 			if (changeByUser) {
 				_this.blocksFlat.length = 0;
+				_this.max_trx_count = 0;
 				_emptyBlocks = true;
 			}
 
@@ -138,6 +142,7 @@ export class BlocksSquaredComponent implements OnInit {
 			if (changeByUser) {
 				_this.blocksFlat.length = 0;
 				_this.blocksByHour.length = 0;
+				_this.max_trx_count = 0;
 				_emptyBlocks = true;
 			}
 
@@ -195,6 +200,10 @@ export class BlocksSquaredComponent implements OnInit {
 			// this is time relevant, so it should perform each block reload cycle
 			// set sync_should on client side, as backend might not update properly in time
 			b.sync_should = b.timestamp <= _ts_now;
+
+			if (b.trx_count) {
+				_this.max_trx_count = Math.max(_this.max_trx_count, b.trx_count);
+			}
 		}
 	}
 

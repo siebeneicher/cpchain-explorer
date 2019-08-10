@@ -3,19 +3,17 @@ import * as d3 from 'd3';
 import * as moment from 'moment';
 import { environment } from '../../environments/environment';
 
-
 @Component({
-  selector: 'app-trx-graph',
-  templateUrl: './trx-graph.component.html',
-  styleUrls: ['./trx-graph.component.scss'],
-  encapsulation: ViewEncapsulation.None,
+	selector: 'app-price-graph',
+	templateUrl: './price-graph.component.html',
+	styleUrls: ['./price-graph.component.scss'],
+	encapsulation: ViewEncapsulation.None,
 })
-export class TrxGraphComponent implements OnInit {
+export class PriceGraphComponent implements OnInit {
 
 	width:number;
 	height:number;
 	svg:any;
-	limit:number = 10;
 	timerange:any;
 	timeranges:Array<any> = [];
 	axisTicks:number = 3;
@@ -34,11 +32,12 @@ export class TrxGraphComponent implements OnInit {
 	constructor() { }
 
 	ngOnInit() {
+
 	}
 
 	ngAfterContentInit() {
 		this.timeranges = [
-			{title: 'last 10 days', unit: "day", times: 10}
+			{title: 'last 7 days', unit: "day", times: 7}
 		];
 		this.setTimerange(0);
 	}
@@ -57,17 +56,17 @@ export class TrxGraphComponent implements OnInit {
 	reload () {
 		this.loading = this.timerange;
 		const tr = this.timeranges[this.timerange];
-		d3.json(environment.backendBaseUrl+'/transactions-graph?unit='+tr.unit+'&times='+tr.times+'&exclude_last=1').then(_ => this.render(_));
+		d3.json(environment.backendBaseUrl+'/price-graph?unit='+tr.unit+'&times='+tr.times+'&exclude_last=0').then(_ => this.render(_));
 	}
 
 	filter (res) {
 		//let data = res.data.map(_ => {return {y: _.transactions_count, ts: _.ts}});
 
-		return {dataset: res.data, max: res.count_max};
+		return {dataset: res.data, max: res.usd_avg_max};
 	}
 
 	clear () {
-		d3.select("#trx-graph-container > svg").remove();
+		d3.select("#price-graph-container > svg").remove();
 	}
 
 	render (res) {
@@ -80,14 +79,14 @@ export class TrxGraphComponent implements OnInit {
 			return;
 		}
 
-		const target = 'transactions_count';
+		const target = 'usd_avg';
 		const {dataset, max} = this.filter(res);
 
-		const container = document.querySelector("#trx-graph-container");
+		const container = document.querySelector("#price-graph-container");
 		//const computed = window.getComputedStyle(container);
 
 		// 2. Use the margin convention practice 
-		const margin = {top: 25, right: 50, bottom: 25, left: 25};
+		const margin = {top: 25, right: 70, bottom: 25, left: 25};
 		this.width = container.clientWidth - margin.left - margin.right;	 // Use the prrents's width 
 		this.height = container.clientHeight - margin.top - margin.bottom;	 // Use the parents's height
 
@@ -110,7 +109,7 @@ export class TrxGraphComponent implements OnInit {
 		    .curve(d3.curveMonotoneX) // apply smoothing to the line
 
 		// 1. Add the SVG to the page and employ #2
-		const svg = d3.select("#trx-graph-container").append("svg")
+		const svg = d3.select("#price-graph-container").append("svg")
 		    .attr("width", this.width + margin.left + margin.right)
 		    .attr("height", this.height + margin.top + margin.bottom)
 		  .append("g")
@@ -158,9 +157,9 @@ export class TrxGraphComponent implements OnInit {
 //			.style("fill", d => d.light);
 
 		valueLabel.append("text")
-			.text(d => last(dataset)[target])
+			.text(d => "$"+last(dataset)[target])
 			.attr("dy", 5)
-			.attr("dx", 10)
+			.attr("dx",10)
 			.style("font-family", "Open Sans")
 			.style("font-weight", "300")
 			.style("fill", d => "#777");
@@ -219,7 +218,7 @@ export class TrxGraphComponent implements OnInit {
 			     d1 = dataset[i],
 			     d = x0 - d0.ts > d1.ts - x0 ? d1 : d0;
 			 focus.attr("transform", "translate(" + xScale(d.ts) + "," + yScale(d[target]) + ")");
-			 focus.select("text").text(d[target]);
+			 focus.select("text").text("$"+d[target]);
 		}
 
 		this.loading = -1;

@@ -41,17 +41,22 @@
 
 
 .section.block-n-stats {
+	padding-top: 15px;
+
 	.column.blocks {
 		padding: 0 55px;
 	}
 
 	.column.stats {
+		padding-top: 40px;
+
 		.info {
 			display: block;
 			margin: 25px 0 0 0;
 		}
 
 		.graph {
+			margin: 25px 0 0 0;
 			display: block;
 			height: 100px;
 			width: 100%;

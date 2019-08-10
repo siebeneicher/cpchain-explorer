@@ -1,5 +1,5 @@
-const {dashboard, aggregate, updateAll, blocks, /*rnodes,*/ kpi, transactions} = require('./app/middleware');
-const {rewards, balances, price} = require('./app/data');
+const {dashboard, aggregate, updateAll, blocks, /*rnodes,*/ price, kpi, transactions} = require('./app/middleware');
+const {rewards, balances} = require('./app/data');
 const {python_exe} = require('./app/helper');
 const {versions, blockNumber, transaction, generation, rnodes, perfTest, blockProposer, block, balance} = require('./cpc-fusion/api');
 
@@ -16,7 +16,7 @@ setTimeout(async () => {
 	//console.log(await rewards.last_merged("month", 2, '0x3160B1B5ed4eB77560Af85C5c0835e6188F69147'));
 	//console.log(await rewards.last_merged("day", 7));
 
-	console.log(await blockProposer(378325));
+	console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
 	//await aggregate.reset();
 	//await aggregate.reset("month");

@@ -39,6 +39,12 @@ $color-validated-empty: rgba(18, 159, 67, 0.4);
 // UNIT HOUR
 
 .main-container.unit-hour {
+	.blocks-title {
+		margin: 0 0 25px 0;
+
+		.subtitle {font-size: 1.5em;}
+	}
+
 	.blocks {
 		display: flex;
 		flex-flow: row wrap;
