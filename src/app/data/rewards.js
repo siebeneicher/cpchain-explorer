@@ -30,6 +30,13 @@ async function last_merged (unit, times, rnode_addr = null) {
 		total_reward_fixed_fee_ratio: 0,
 	}
 
+	// avoid <200k balances, which means, the rnode has not enough balance anymore, and can dramatically change the average ROI
+	for (let i in merged.rnodes) {
+		if (merged.rnodes[i].balance < 200000)
+			merged.rnodes.splice(i,1);
+	}
+
+
 	let units_per_year = 0;
 	if (unit == "minute") units_per_year = 365 * 24 * 60;
 	if (unit == "hour") units_per_year = 365 * 24;
