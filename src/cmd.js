@@ -16,7 +16,7 @@ setTimeout(async () => {
 	//console.log(await transaction("0x6764996826a1cbb1224ade30d180669b4b056f97a8105a92b093199f78926c68"));
 	//console.log(await generation());
 
-	console.log(await data.rewards.last("month", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
+	//console.log(await data.rewards.last("month", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
 	//console.log(await rewards.last_merged("day", 7));
 
 	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
