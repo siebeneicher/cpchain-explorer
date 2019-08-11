@@ -131,22 +131,18 @@ app.get('/aggregate', async function (req, res) {
 
 // TODO: duplicate in nginx for production
 
-// UI (ORDER AFTER API ROUTES)
-app.use('/', express.static(__dirname + '/../ui-build'));
-
-app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|rnodes)/, async function (req, res) {
+app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|rnodes|$)/, async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	console.log("SERVING HTML");
-	console.log(__dirname + '/../MAINTENANCE');
-
-res.sendFile(path.join(__dirname + '/maintenance.html'));
-return;
 
 	if (await maintenance())
 		res.sendFile(path.join(__dirname + '/maintenance.html'));
 	else
 		res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
 })
+
+// UI (ORDER AFTER API ROUTES)
+app.use('/', express.static(__dirname + '/../ui-build'));
+
 
 // last one, as its wildcard
 app.get('/*', async function (req, res) {
