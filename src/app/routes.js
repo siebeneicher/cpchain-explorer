@@ -85,6 +85,11 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.json(await rnodes.blocks(req.params.addr));
 })
 
+.get('/api/v1/rnodes/blocks-count/:addr', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await rnodes.blocks_count(req.params.addr));
+})
+
 .get('/api/v1/address/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await addresses.get(req.params.addr));
@@ -131,11 +136,12 @@ app.use('/', express.static(__dirname + '/../ui-build'));
 
 app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|rnodes)/, async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-/*	console.log("SERVING HTML");
+	console.log("SERVING HTML");
 	console.log(__dirname + '/../MAINTENANCE');
 
-	res.sendFile(path.join(__dirname + '/maintenance.html'));
-	return;*/
+res.sendFile(path.join(__dirname + '/maintenance.html'));
+return;
+
 	if (await maintenance())
 		res.sendFile(path.join(__dirname + '/maintenance.html'));
 	else

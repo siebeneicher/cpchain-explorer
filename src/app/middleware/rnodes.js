@@ -304,7 +304,7 @@ const all = {
 	}
 }
 
-async function blocks (addr) {
+async function blocks (addr, offset = 0, limit = null) {
 	return new Promise(async function (resolve, reject) {
 		try {
 			if (!isAddress(addr)) {
@@ -319,4 +319,19 @@ async function blocks (addr) {
 	});
 }
 
-module.exports = {user, streamgraph, all, blocks};
+async function blocks_count (addr) {
+	return new Promise(async function (resolve, reject) {
+		try {
+			if (!isAddress(addr)) {
+				return resolve({invalidAddress: true});
+			}
+
+			resolve(await rnodes.blocks_count(addr));
+		} catch (err) {
+			if (!err) resolve({empty: true});
+			else resolve({err: err.message});
+		}
+	});
+}
+
+module.exports = {user, streamgraph, all, blocks, blocks_count};

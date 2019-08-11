@@ -5,7 +5,8 @@ const {convert_ts, last_unit_ts} = require('../helper');
 const {web3, balance} = require('../../cpc-fusion/api');
 
 
-module.exports = {last, items, get, ofBlock, ofAddress}
+module.exports = {last, items, get, ofBlock, ofAddress, ofAddress_count}
+
 
 async function last (unit, times = 1) {
 	return new Promise(async function (resolve, reject) {
@@ -121,12 +122,12 @@ async function ofBlock (blockNumber) {
 }
 
 async function ofAddress (addrHash) {
-	const t_start = now();
-
-	// sanitize given addr
-	addrHash = web3.utils.toChecksumAddress(addrHash);
-
 	return new Promise((resolve, reject) => {
+		const t_start = now();
+
+		// sanitize given addr
+		addrHash = web3.utils.toChecksumAddress(addrHash);
+
 		mongo.db(config.mongo.db.sync).collection('balances')
 			.aggregate([
 				{ $match: {address: addrHash} },
@@ -185,9 +186,28 @@ async function ofAddress (addrHash) {
 				delete addr[0].transactions_from;
 				delete addr[0].transactions_to;
 
-				//console.log("transactions.ofAddress(", addrHash, ") took", now() - t_start);
+				console.log("transactions.ofAddress(", addrHash, ") took", now() - t_start);
 
 				resolve(addr[0]);
+			});
+	});
+}
+
+async function ofAddress_count (addrHash) {
+	return new Promise((resolve, reject) => {
+		const t_start = now();
+
+		// sanitize given addr
+		addrHash = web3.utils.toChecksumAddress(addrHash);
+
+		mongo.db(config.mongo.db.sync).collection('transactions')
+			.find({ __from_to: { $elemMatch: { $eq: addrHash } } })
+			.count()
+			.then((cnt, err) => {
+				console.log("transactions.ofAddress_count(", addrHash, "): ",cnt," took", now() - t_start);
+
+				if (err) return reject(err);
+				else resolve(cnt);
 			});
 	});
 }

@@ -15,12 +15,12 @@ let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
 let last_blockNumber = 0;			// most recent block number
 
-const max_backwards = 3 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
+const max_backwards = 999999999 * 3 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
 const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
-const backwards_delay = 10000;
+const backwards_delay = 1000;
 const sync_missing_addresses_delay = 5000;
-const maxNewBlocksBackwardsPerCycle = 250;
+const maxNewBlocksBackwardsPerCycle = 500000;
 
 
 // linux> mongodump --db cpc_watcher
@@ -285,10 +285,12 @@ async function syncBlock (targetBlockNum = null) {
 
 	if (!trxs || !trxs.length) return Promise.resolve({b, trxs: []});
 
+	// INSERT TRANSACTIONS
 	try {
 		for (let i in trxs) {
 			// add transaction
 			trxs[i].__ts = b.timestamp;	// block timestamp
+			trxs[i].__from_to = [trxs[i].from, trxs[i].to];
 			await mongo_db_transactions.updateOne({hash: trxs[i].hash}, {$set: trxs[i]}, { upsert: true });			// insert transaction into mongo, if not yet done so
 			console.log("added transaction:", trxs[i].hash);
 		}
@@ -438,6 +440,8 @@ function ensure_indexes () {
 			if (err) return;
 			if (!indexes.timestamp_1)
 				await mongo_db_blocks.createIndex({ timestamp: -1 }, { unique: true });
+			if (!indexes.__proposer_1)
+				await mongo_db_blocks.createIndex({ __proposer: 1 }, { unique: false });
 			if (!indexes.number_1)
 				await mongo_db_blocks.createIndex({ number: -1 }, { unique: true });
 			if (!indexes['__aggregated.by_minute_1'])
@@ -502,6 +506,8 @@ function ensure_indexes () {
 				await mongo_db_transactions.createIndex({ hash: 1 }, { unique: true });
 			if (!indexes.to_1_from_1)
 				await mongo_db_transactions.createIndex({ to: 1, from: 1 }, { unique: false });
+			if (!indexes.__from_to_1)
+				await mongo_db_transactions.createIndex({ __from_to: 1 }, { unique: false });
 			if (!indexes.__ts_1)
 				await mongo_db_transactions.createIndex({ __ts: 1 }, { unique: false });
 		})
@@ -690,7 +696,6 @@ async function backwardsFindNewAddresses () {
 				{ $group: { _id: '$addresses' } },
 				{ $match: { _id: { $nin: known } }}
 			]).toArray(async (err, result) => {
-				debugger;
 				if (result) {
 					for (let i in result) {
 						try {

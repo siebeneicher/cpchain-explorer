@@ -1,7 +1,7 @@
-const {dashboard, aggregate, updateAll, blocks, /*rnodes,*/ price, kpi, transactions} = require('./app/middleware');
-const {rewards, balances} = require('./app/data');
+const {dashboard, aggregate, updateAll, blocks, rnodes, price, kpi, transactions} = require('./app/middleware');
+const data = require('./app/data');
 const {python_exe} = require('./app/helper');
-const {versions, blockNumber, transaction, generation, rnodes, perfTest, blockProposer, block, balance} = require('./cpc-fusion/api');
+const {versions, blockNumber, transaction, generation, /*rnodes, */perfTest, blockProposer, block, balance} = require('./cpc-fusion/api');
 
 setTimeout(async () => {
 
@@ -9,18 +9,20 @@ setTimeout(async () => {
 
 	//await perfTest();
 
+	//await data.rnodes.blocks_count('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');
+	//await data.transactions.ofAddress_count('0x2A186bE66Dd20c1699Add34A49A3019a93a7Fcd0');
+
 	//console.log(await balance("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F"));
 	//console.log(await transaction("0x6764996826a1cbb1224ade30d180669b4b056f97a8105a92b093199f78926c68"));
 	//console.log(await generation());
 
-	//console.log(await rewards.last_merged("month", 2, '0x3160B1B5ed4eB77560Af85C5c0835e6188F69147'));
+	console.log(await data.rewards.last("month", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
 	//console.log(await rewards.last_merged("day", 7));
 
-	console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
+	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
-	//await aggregate.reset();
-	//await aggregate.reset("month");
-	//await aggregate.run();
+	await aggregate.reset();
+	await aggregate.run();
 	//await aggregate.test();
 
 /*	try {

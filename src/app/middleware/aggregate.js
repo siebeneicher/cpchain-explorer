@@ -16,7 +16,7 @@ const units = {
 	'year': {}
 };
 
-const max_blocks_per_aggregation = 1000;		// limit blocks per aggregation, specially when aggregating from 0
+const max_blocks_per_aggregation = 5000;		// limit blocks per aggregation, specially when aggregating from 0
 const cpc_digits = parseInt(1+("0".repeat(18)));
 let indexes_ensured = false;
 
@@ -50,7 +50,7 @@ async function reset (unit = null) {
 	});
 }
 
-async function run () {
+async function run (unit = null) {
 	const t_start = now();
 
 	// avoid parallel calls, instead chain them
@@ -58,9 +58,10 @@ async function run () {
 
 	async function _run () {
 		// sequential aggregate all timespan units
-		const result = await Object.keys(units).reduce(async (previousPromise, unit) => {
+		const result = await Object.keys(units).reduce(async (previousPromise, _unit) => {
 			await previousPromise;		// wait previous chunk to finish
-			return aggregate_all(unit);
+			if (unit !== null && unit != _unit) return Promise.resolve();
+			return aggregate_all(_unit);
 		}, Promise.resolve());
 
 		// create/ensure indexes
@@ -146,11 +147,9 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 
 		// min/max/block
 		if (chunks[ts].min === null || chunks[ts].min > b.number) chunks[ts].min = b.number;
-		if (chunks[ts].max === null || chunks[ts].max > b.number) chunks[ts].max = b.number;
+		if (chunks[ts].max === null || chunks[ts].max < b.number) chunks[ts].max = b.number;
 		chunks[ts].blocks.push(b);
 	}
-
-//debugger;
 
 	// load aggregated data for each chunk
 	const aggregations = await getAggregatedUnitByTime(from, to, unit);
@@ -166,8 +165,10 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 			if (block.number >= aggregations[key].block_min && block.number <= aggregations[key].block_max)
 				overlaps.push(i);
 		});
-		if (overlaps.length)
-			;//throw "NOT FULLY IMPLEMENTED: make sure, to not double aggregate a block into exiting aggregation"
+		if (overlaps.length) {
+			console.error("ERROR: overlap of aggregated blocks with new blocks!!", overlaps, blocks, unit);//throw "NOT FULLY IMPLEMENTED: make sure, to not double aggregate a block into exiting aggregation"
+			debugger;
+		}
 	}
 
 	return Promise.resolve(chunks);
@@ -358,10 +359,10 @@ async function getBlocksByAggregated (unit, limit) {
 	return await new Promise(function (resolve, reject) {
 		mongo.db(config.mongo.db.sync).collection('blocks')
 			.find({ ['__aggregated.by_'+unit]: false })
-			//.sort({timestamp: 1})
+			.sort({number: 1})
 			.limit(limit)
 			.toArray((err, blocks) => {
-				//console.log("getBlocksByAggregated("+unit+", "+limit+") took", now() - t_start);
+				console.log("getBlocksByAggregated("+unit+", "+limit+") took", now() - t_start);
 
 				if (err) console.error(err);
 				resolve(blocks || []);

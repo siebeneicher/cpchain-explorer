@@ -46,21 +46,16 @@ export class AddressComponent implements OnInit {
 	async load () {
 		let url = environment.backendBaseUrl + '/address/' + this.addr;
 
-		return new Promise((resolve, reject) => {
-			return this.httpClient.get(url).subscribe(res => {
-				let addr = <any> res;
+		return this.httpClient.get(url).subscribe(res => {
+			let addr = <any> res;
 
-				if (addr.invalidAddress) {
-					this.invalidAddress = true;
-					resolve();
-					return;
-				}
+			if (addr.invalidAddress) {
+				this.invalidAddress = true;
+				return;
+			}
 
-				this.invalidAddress = false;
-				this.info = addr;
-
-				resolve();
-			});
+			this.invalidAddress = false;
+			this.info = addr;
 		});
 	}
 

@@ -182,6 +182,43 @@ let time_multiply = units_per_year / times;
 		}
 
 
+		// YEAR
+		if (unit == "year") {
+			let from = last_unit_ts('year', times);
+			let till_y = moment.utc(convert_ts(from, 13)).add(1, 'year').startOf('year').unix();
+			let till_m = moment.utc(convert_ts(from, 13)).add(1, 'month').startOf('month').unix();
+			let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
+			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
+			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+			//console.log("days till_m:", moment.utc(till_m*1000).toISOString(), "("+till_m+")");
+			//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
+			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+
+			// the current month + previous including "times" span.
+			// does not include most month ago (which we will include in next $lookup)
+			unions.push({ $lookup: { from: 'by_year', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_year' }});
+			included_units.push('$by_year');
+
+			// the current month + previous including "times" span.
+			// does not include most month ago (which we will include in next $lookup)
+			unions.push({ $lookup: { from: 'by_month', pipeline: [{$match: {ts: {$gte: from, $lt: till_y}}}], as: 'by_month' }});
+			included_units.push('$by_month');
+
+			// the current day + previous including "times" span.
+			// does not include most day ago (which we will include in next $lookup)
+			unions.push({ $lookup: { from: 'by_day', pipeline: [{$match: {ts: {$gte: from, $lt: till_m}}}], as: 'by_day' }});
+			included_units.push('$by_day');
+
+			// include hours before the latest day (from previous union)
+			unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from, $lt: till_d}}}], as: 'by_hour' }});
+			included_units.push('$by_hour');
+
+			// include minutes before the latest hour (from previous union)
+			unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
+			included_units.push('$by_minute');
+		}
+
+
 
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
 			.aggregate(

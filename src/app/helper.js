@@ -51,7 +51,7 @@ function clone (obj) {
 
 function unit_ts (ts, unit, digits = 10) {
 	// set time to start time of timespan based on unit
-	t = moment.utc(convert_ts(ts, 13));
+	let t = moment.utc(convert_ts(ts, 13));
 
 	if (unit == "minute") {
 		t.seconds(0);

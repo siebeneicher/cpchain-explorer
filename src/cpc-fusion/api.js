@@ -1,6 +1,6 @@
 const now = require('performance-now');
 const config = require('../app/config');
-const {python_exe} = require('../app/helper');
+const {python_exe, clone} = require('../app/helper');
 const Web3 = require('web3');
 const web3 = new Web3(config.node.rpc_url, null, {});
 //const web3 = new Web3('ws://127.0.0.1:8546', null, {});
@@ -48,6 +48,7 @@ const apis = {
 	rpc: async (action, params = []) => {
 		const t = now();
 		let method;
+		let params_ori = clone(params);
 
 		// Docs: https://docs.cpchain.io/api/rpc.html#json-rpc-api
 		// ETH: https://web3js.readthedocs.io/en/v1.2.0/web3-utils.html?highlight=isValidAddress#utils-tobn
@@ -97,35 +98,43 @@ const apis = {
 			}
 
 			if (res && res.error) {
+				debugger; params_ori;
 				throw res.error;
 			}
 
-			if (action == "balance") {
-				return {balance: web3.utils.toBN(res.result) / config.cpc.unit_convert};
-			}
-			if (action == "blockNumber") {
-				return web3.utils.hexToNumber(res.result);
-			}
-			if (action == "block") {
-				res.result.number = web3.utils.hexToNumber(res.result.number);
-				res.result.gasLimit = web3.utils.hexToNumber(res.result.gasLimit);
-				res.result.gasUsed = web3.utils.hexToNumber(res.result.gasUsed);
-				res.result.size = web3.utils.hexToNumber(res.result.size);
-				res.result.timestamp = web3.utils.hexToNumber(res.result.timestamp);
+			try {
+				if (action == "balance") {
+					return {balance: web3.utils.toBN(res.result) / config.cpc.unit_convert};
+				}
+				if (action == "blockNumber") {
+					return web3.utils.hexToNumber(res.result);
+				}
+				if (action == "block") {
 
-				res.result.transactions.forEach(t => {
-					t.blockNumber = web3.utils.hexToNumber(t.blockNumber);
-					t.gas = web3.utils.hexToNumber(t.gas);
-					t.gasPrice = web3.utils.hexToNumber(t.gasPrice);
-					t.type = web3.utils.hexToNumber(t.type);
-					t.nonce = web3.utils.hexToNumber(t.nonce);
-					t.transactionIndex = web3.utils.hexToNumber(t.transactionIndex);
-					t.value = web3.utils.hexToNumber(t.value);
-					t.v = web3.utils.hexToNumber(t.v);
-				});
-			}
-			if (action == "block-proposer") {
-				return {proposer: res.result};
+						res.result.number = web3.utils.hexToNumber(res.result.number);
+						res.result.gasLimit = web3.utils.hexToNumber(res.result.gasLimit);
+						res.result.gasUsed = web3.utils.hexToNumber(res.result.gasUsed);
+						res.result.size = web3.utils.hexToNumber(res.result.size);
+						res.result.timestamp = web3.utils.hexToNumber(res.result.timestamp);
+
+						res.result.transactions.forEach(t => {
+							t.blockNumber = web3.utils.hexToNumber(t.blockNumber);
+							t.gas = web3.utils.hexToNumber(t.gas);
+							t.gasPrice = web3.utils.hexToNumber(t.gasPrice);
+							t.type = web3.utils.hexToNumber(t.type);
+							t.nonce = web3.utils.hexToNumber(t.nonce);
+							t.transactionIndex = web3.utils.hexToNumber(t.transactionIndex);
+							t.value = web3.utils.toBN(t.value) / config.cpc.unit_convert;
+							t.v = web3.utils.hexToNumber(t.v);
+						});
+				}
+				if (action == "block-proposer") {
+					return {proposer: res.result};
+				}
+			} catch (e) {
+				console.log(e);
+				debugger;
+				throw (e);
 			}
 
 			return res.result;

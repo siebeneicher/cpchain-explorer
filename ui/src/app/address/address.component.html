@@ -18,10 +18,10 @@
 		<div class="submenu tabs">
 			<ul>
 				<li class="is-size-5" [routerLink]="['/address', addr, 'transactions']" routerLinkActive="is-active"><a [routerLink]="['/address', addr, 'transactions']">
-					Transactions
+					Transactions ({{info.transactions_count}})
 				</a></li>
 				<li class="is-size-5" [routerLink]="['/address', addr, 'blocks']" routerLinkActive="is-active"><a [routerLink]="['/address', addr, 'blocks']">
-					Proposed Blocks
+					Proposed Blocks ({{info.blocks_count}})
 				</a></li>
 			</ul>
 		</div>

@@ -5,7 +5,7 @@ const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
 const {web3} = require('../../cpc-fusion/api');
 
-module.exports = {last, last_rpt, type, items, blocks}
+module.exports = {last, last_rpt, type, items, blocks, blocks_count}
 
 async function type (addr) {
 	// sanitize given addr
@@ -92,10 +92,11 @@ async function last () {
 	});
 }
 
-async function blocks (addr) {
-	addr = web3.utils.toChecksumAddress(addr);
-
+async function blocks (addr, offset = 0, limit = null) {
 	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+		addr = web3.utils.toChecksumAddress(addr);
+
 		mongo.db(config.mongo.db.sync).collection('blocks')
 			.aggregate([
 				{ $match: {__proposer: addr} },
@@ -116,8 +117,10 @@ async function blocks (addr) {
 						__fixed_reward: 1,
 					}
 				},
-				{ $sort: { number: -1 } }
+				{ $sort: { number: -1 } },
 			]).toArray((err, result) => {
+				console.log("rewards.blocks(", addr, ")", now() - t_start);
+
 				if (err) {
 					console.error("rnodes.blocks error:", err);
 					reject();
@@ -127,6 +130,28 @@ async function blocks (addr) {
 			});
 	});
 }
+
+async function blocks_count (addr) {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+		addr = web3.utils.toChecksumAddress(addr);
+
+		mongo.db(config.mongo.db.sync).collection('blocks')
+			.find({__proposer: addr})
+			.count()
+			.then((result, err) => {
+				console.log("rewards.blocks_count(", addr, "):",result,"in", now() - t_start);
+
+				if (err) {
+					console.error("rnodes.blocks_count error:", err);
+					reject();
+				} else {
+					resolve(result);
+				}
+			});
+	});
+}
+
 
 async function items (unit, times, ts_start) {
 	return new Promise(async function (resolve, reject) {
