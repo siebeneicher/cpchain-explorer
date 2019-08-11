@@ -15,12 +15,12 @@ let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
 let last_blockNumber = 0;			// most recent block number
 
-const max_backwards = 999999999 * 3 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
+const max_backwards = 5 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
 const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 10000;
 const sync_missing_addresses_delay = 5000;
-const maxNewBlocksBackwardsPerCycle = 25000;
+const maxNewBlocksBackwardsPerCycle = 2500;
 
 
 // linux> mongodump --db cpc_watcher
@@ -235,7 +235,7 @@ async function syncBlock (targetBlockNum = null) {
 
 	let b, number;
 
-	console.log(targetBlockNum);
+	//console.log(targetBlockNum);
 
 	// LAST BLOCK
 	if (targetBlockNum === null) {
