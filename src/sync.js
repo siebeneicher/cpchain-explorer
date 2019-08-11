@@ -235,6 +235,8 @@ async function syncBlock (targetBlockNum = null) {
 
 	let b, number;
 
+	console.log(targetBlockNum);
+
 	// LAST BLOCK
 	if (targetBlockNum === null) {
 		let last_b = await data_blocks.last();
