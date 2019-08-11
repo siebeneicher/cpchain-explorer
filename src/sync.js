@@ -18,9 +18,9 @@ let last_blockNumber = 0;			// most recent block number
 const max_backwards = 999999999 * 3 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
 const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
-const backwards_delay = 1000;
+const backwards_delay = 10000;
 const sync_missing_addresses_delay = 5000;
-const maxNewBlocksBackwardsPerCycle = 500000;
+const maxNewBlocksBackwardsPerCycle = 25000;
 
 
 // linux> mongodump --db cpc_watcher
