@@ -11,7 +11,7 @@
 			<tr><td>Block Number</td><td><a [routerLink]="['/block', trx.blockNumber]">{{trx.blockNumber}}</a></td></tr>
 			<tr><td>From</td><td><a [routerLink]="['/address', trx.from]">{{trx.from}}</a>&nbsp;<i ngxClipboard [cbContent]="trx.from" class="typcn typcn-clipboard is-clickable"></i></td></tr>
 			<tr><td>To</td><td><a [routerLink]="['/address', trx.to]">{{trx.to}}</a>&nbsp;<i ngxClipboard [cbContent]="trx.to" class="typcn typcn-clipboard is-clickable"></i></td></tr>
-			<tr><td>Value</td><td>{{trx.value | convertCpc}}</td></tr>
+			<tr><td>Value</td><td>{{trx.value}}</td></tr>
 			<tr><td>gas</td><td>{{trx.gas}}</td></tr>
 			<tr><td>gasPrice</td><td>{{trx.gasPrice}}</td></tr>
 			<tr><td>Type</td><td>{{trx.type}}</td></tr>

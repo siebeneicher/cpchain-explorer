@@ -27,18 +27,18 @@
 		    </a>
 		  </p>
 		  <p class="control">
-		    <a class="button" [class.is-loading]="loading == 'day-1'" [class.is-success]="unit == 'day' && times == 1" (click)="setTimespan('day', 1)">
+		    <a class="button" [class.is-loading]="loading == 'hour-24'" [class.is-success]="unit == 'hour' && times == 24" (click)="setTimespan('hour', 24)">
 		      <span>1 day</span>
 		    </a>
 		  </p>
 		  <p class="control">
-		    <a class="button" [class.is-loading]="loading == 'day-7'" [class.is-success]="unit == 'day' && times == 7" (click)="setTimespan('day', 7)">
+		    <a class="button" [class.is-loading]="loading == 'hour-168'" [class.is-success]="unit == 'hour' && times == 168" (click)="setTimespan('hour', 168)">
 		      <span>7 days</span>
 		    </a>
 		  </p>
 		  <p class="control">
-		    <a class="button" [class.is-loading]="loading == 'month-1'" [class.is-success]="unit == 'month' && times == 1" (click)="setTimespan('month', 1)">
-		      <span>1 month</span>
+		    <a class="button" [class.is-loading]="loading == 'day-30'" [class.is-success]="unit == 'day' && times == 30" (click)="setTimespan('day', 30)">
+		      <span>30 days</span>
 		    </a>
 		  </p>
 		  <p class="control">
@@ -46,11 +46,11 @@
 		      <span>1 year</span>
 		    </a>
 		  </p>
-		  <p class="control">
-		    <a class="button" [class.is-loading]="loading == 'month-200'" [class.is-success]="unit == 'month' && times == 200" (click)="setTimespan('month', 200)">
+<!-- 		  <p class="control">
+		    <a class="button" [class.is-loading]="loading == 'month-24'" [class.is-success]="unit == 'month' && times == 24" (click)="setTimespan('month', 24)">
 		      <span>All</span>
 		    </a>
-		  </p>
+		  </p> -->
 		</span>
 	</h3>
 
@@ -99,7 +99,7 @@
 				<td class="left-line has-text-centered">{{rnode.balance | number : '1.0-0'}}</td>
 				<td class="has-text-centered">{{rnode.rpt}} (#{{rnode.rpt_rank}})</td>
 				<td class="has-text-centered"><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
-				<td class="left-line has-text-centered"><a [routerLink]="['/address', rnode.rnode, 'blocks']">{{rnode.mined}}</a></td>
+				<td class="left-line has-text-centered"><a [routerLink]="['/address', rnode.rnode, 'blocks']">{{rnode.mined}}<span *ngIf="rnode.mined_pre_diff !== undefined" class="value_diff" [class.plus]="rnode.mined_pre_diff >= 0" [class.minus]="rnode.mined_pre_diff < 0">&nbsp;(<span *ngIf="rnode.mined_pre_diff > 0">+</span>{{rnode.mined_pre_diff}})</span></a></td>
 				<td class="has-text-centered"><a [routerLink]="['/address', rnode.rnode, 'blocks']">{{rnode.impeached}}</a></td>
 				<td class="has-text-centered">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.2-2'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.2-2'}}</span></td>
 				<td class="has-text-centered">{{rnode.roi_year |  number : '1.2-2'}}%</td>

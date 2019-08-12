@@ -15,7 +15,7 @@ async function last_merged (unit, times, rnode_addr = null) {
 	if (rnode_addr) rnode_addr = web3.utils.toChecksumAddress(rnode_addr);
 
 	const merged = {
-		rnodes: await last (unit, times, rnode_addr),
+		rnodes: await last (unit, times, 'latest', rnode_addr),
 		total_rnodes: 0,
 		total_mined: 0,
 		total_rewards_from_fixed: 0,
@@ -70,10 +70,9 @@ async function last_merged (unit, times, rnode_addr = null) {
  * Returns last cumulated rewards and related info.
  * Example: unit=hour times=1 will return a full hour from now backwards including minutes from previous hour.
  */
-async function last (unit, times, rnode_addr = null) {
+async function last (unit, times, ts_start = "latest", rnode_addr = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
-		const last_ts = last_unit_ts(unit, times);
 
 		// sanitize given addr
 		if (rnode_addr) rnode_addr = web3.utils.toChecksumAddress(rnode_addr);
@@ -97,127 +96,26 @@ let time_multiply = units_per_year / times;
 		let included_units = [];
 
 
-		// MINUTE
-		if (unit == "minute") {
-			let from = last_unit_ts('minute', times);
-			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-
-			// the current minute + previous including "times" span.
-			// include minutes before the latest hour (from previous union)
-			unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_minute' }});
-			included_units.push('$by_minute');
+		// final end if timespan
+		let till_end = moment.utc().unix();			// aka latest
+		let subtract_global = 0;
+		if (ts_start == "prelatest") { 				// one complete timeframe before latest
+			till_end = moment.utc().subtract(times, unit).unix();
+			subtract_global = moment.utc().unix() - till_end;
 		}
+		//console.log("till_end", moment.utc(till_end*1000).toISOString(), "("+till_end+")");
+		console.log("subtract_global",subtract_global)
 
 
-		// HOUR
-		if (unit == "hour") {
-			let from = last_unit_ts('hour', times);
-			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
-			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
-
-			// the current hour + previous including "times" span.
-			// does not include most hour ago (which we will include in next $lookup)
-			unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_hour' }});
-			included_units.push('$by_hour');
-
-			// include minutes before the latest hour (from previous union)
-			unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
-			included_units.push('$by_minute');
+		try {
+			if (unit == "minute") set_timespan_unions_by_minute(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "hour") set_timespan_unions_by_hour(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "day") set_timespan_unions_by_day(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "month") set_timespan_unions_by_month(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "year") set_timespan_unions_by_year(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+		} catch (e) {
+			reject(e);
 		}
-
-
-		// DAY
-		if (unit == "day") {
-			let from = last_unit_ts('day', times);
-			let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
-			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
-			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-			//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
-			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
-
-			// the current day + previous including "times" span.
-			// does not include most day ago (which we will include in next $lookup)
-			unions.push({ $lookup: { from: 'by_day', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_day' }});
-			included_units.push('$by_day');
-
-			// include hours before the latest day (from previous union)
-			unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from, $lt: till_d}}}], as: 'by_hour' }});
-			included_units.push('$by_hour');
-
-			// include minutes before the latest hour (from previous union)
-			unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
-			included_units.push('$by_minute');
-		}
-
-
-		// MONTH
-		if (unit == "month") {
-			let from = last_unit_ts('month', times);
-			let till_m = moment.utc(convert_ts(from, 13)).add(1, 'month').startOf('month').unix();
-			let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
-			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
-			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-			//console.log("days till_m:", moment.utc(till_m*1000).toISOString(), "("+till_m+")");
-			//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
-			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
-
-			// the current month + previous including "times" span.
-			// does not include most month ago (which we will include in next $lookup)
-			unions.push({ $lookup: { from: 'by_month', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_month' }});
-			included_units.push('$by_month');
-
-			// the current day + previous including "times" span.
-			// does not include most day ago (which we will include in next $lookup)
-			unions.push({ $lookup: { from: 'by_day', pipeline: [{$match: {ts: {$gte: from, $lt: till_m}}}], as: 'by_day' }});
-			included_units.push('$by_day');
-
-			// include hours before the latest day (from previous union)
-			unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from, $lt: till_d}}}], as: 'by_hour' }});
-			included_units.push('$by_hour');
-
-			// include minutes before the latest hour (from previous union)
-			unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
-			included_units.push('$by_minute');
-		}
-
-
-		// YEAR
-		if (unit == "year") {
-			let from = last_unit_ts('year', times);
-			let till_y = moment.utc(convert_ts(from, 13)).add(1, 'year').startOf('year').unix();
-			let till_m = moment.utc(convert_ts(from, 13)).add(1, 'month').startOf('month').unix();
-			let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
-			let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
-			//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
-			//console.log("days till_m:", moment.utc(till_m*1000).toISOString(), "("+till_m+")");
-			//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
-			//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
-
-			// the current month + previous including "times" span.
-			// does not include most month ago (which we will include in next $lookup)
-			unions.push({ $lookup: { from: 'by_year', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_year' }});
-			included_units.push('$by_year');
-
-			// the current month + previous including "times" span.
-			// does not include most month ago (which we will include in next $lookup)
-			unions.push({ $lookup: { from: 'by_month', pipeline: [{$match: {ts: {$gte: from, $lt: till_y}}}], as: 'by_month' }});
-			included_units.push('$by_month');
-
-			// the current day + previous including "times" span.
-			// does not include most day ago (which we will include in next $lookup)
-			unions.push({ $lookup: { from: 'by_day', pipeline: [{$match: {ts: {$gte: from, $lt: till_m}}}], as: 'by_day' }});
-			included_units.push('$by_day');
-
-			// include hours before the latest day (from previous union)
-			unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from, $lt: till_d}}}], as: 'by_hour' }});
-			included_units.push('$by_hour');
-
-			// include minutes before the latest hour (from previous union)
-			unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
-			included_units.push('$by_minute');
-		}
-
 
 
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
@@ -286,4 +184,184 @@ let time_multiply = units_per_year / times;
 				}
 			});
 	});
+}
+
+
+function set_timespan_unions_by_year (unit, times, ts_start, till_end, subtract_global, unions, included_units) {
+
+	if (ts_start == "prelatest") {
+// TODOD: impelment
+		throw "month prelatest not implemented";
+	}
+
+
+	let from = last_unit_ts('year', times);
+	let till_y = moment.utc(convert_ts(from, 13)).add(1, 'year').startOf('year').unix();
+	let till_m = moment.utc(convert_ts(from, 13)).add(1, 'month').startOf('month').unix();
+	let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
+	let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
+	//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+	//console.log("days till_m:", moment.utc(till_m*1000).toISOString(), "("+till_m+")");
+	//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
+	//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+
+	// the current month + previous including "times" span.
+	// does not include most month ago (which we will include in next $lookup)
+	unions.push({ $lookup: { from: 'by_year', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_year' }});
+	included_units.push('$by_year');
+
+	// the current month + previous including "times" span.
+	// does not include most month ago (which we will include in next $lookup)
+	unions.push({ $lookup: { from: 'by_month', pipeline: [{$match: {ts: {$gte: from, $lt: till_y}}}], as: 'by_month' }});
+	included_units.push('$by_month');
+
+	// the current day + previous including "times" span.
+	// does not include most day ago (which we will include in next $lookup)
+	unions.push({ $lookup: { from: 'by_day', pipeline: [{$match: {ts: {$gte: from, $lt: till_m}}}], as: 'by_day' }});
+	included_units.push('$by_day');
+
+	// include hours before the latest day (from previous union)
+	unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from, $lt: till_d}}}], as: 'by_hour' }});
+	included_units.push('$by_hour');
+
+	// include minutes before the latest hour (from previous union)
+	unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
+	included_units.push('$by_minute');
+}
+
+function set_timespan_unions_by_minute (unit, times, ts_start, till_end, subtract_global, unions, included_units) {
+	let from = last_unit_ts('minute', times) - subtract_global;
+	console.log("from:", moment.utc(from*1000).toISOString(), "("+from+") - ", moment.utc(till_end*1000).toISOString(), "("+till_end+")");
+
+	// the current minute + previous including "times" span.
+	// include minutes before the latest hour (from previous union)
+	unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_end}}}], as: 'by_minute' }});
+	included_units.push('$by_minute');
+}
+
+function set_timespan_unions_by_month (unit, times, ts_start, till_end, subtract_global, unions, included_units) {
+	let from = last_unit_ts('month', times) - subtract_global;
+
+	if (ts_start == "latest") {
+		let till_m = moment.utc(convert_ts(from, 13)).add(1, 'month').startOf('month').unix();
+		let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
+		let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
+		//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+		//console.log("days till_m:", moment.utc(till_m*1000).toISOString(), "("+till_m+")");
+		//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
+		//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+
+		// the current month + previous including "times" span.
+		// does not include most month ago (which we will include in next $lookup)
+		unions.push({ $lookup: { from: 'by_month', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_month' }});
+		included_units.push('$by_month');
+
+		// the current day + previous including "times" span.
+		// does not include most day ago (which we will include in next $lookup)
+		unions.push({ $lookup: { from: 'by_day', pipeline: [{$match: {ts: {$gte: from, $lt: till_m}}}], as: 'by_day' }});
+		included_units.push('$by_day');
+
+		// include hours before the latest day (from previous union)
+		unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from, $lt: till_d}}}], as: 'by_hour' }});
+		included_units.push('$by_hour');
+
+		// include minutes before the latest hour (from previous union)
+		unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
+		included_units.push('$by_minute');
+	}
+
+	if (ts_start == "prelatest") {
+// TODOD: impelment
+		throw "month prelatest not implemented";
+	}
+}
+
+
+function set_timespan_unions_by_day (unit, times, ts_start, till_end, subtract_global, unions, included_units) {
+	let from = last_unit_ts('day', times) - subtract_global;
+
+	if (ts_start == "latest") {
+		let till_d = moment.utc(convert_ts(from, 13)).add(1, 'day').startOf('day').unix();
+		let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
+		//console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+		//console.log("hours till_d:", moment.utc(till_d*1000).toISOString(), "("+till_d+")");
+		//console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+
+		// the current day + previous including "times" span.
+		// does not include most day ago (which we will include in next $lookup)
+		unions.push({ $lookup: { from: 'by_day', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_day' }});
+		included_units.push('$by_day');
+
+		// include hours before the latest day (from previous union)
+		unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from, $lt: till_d}}}], as: 'by_hour' }});
+		included_units.push('$by_hour');
+
+		// include minutes before the latest hour (from previous union)
+		unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
+		included_units.push('$by_minute');
+	}
+
+	if (ts_start == "prelatest") {
+		let last_full_h = moment.utc(convert_ts(till_end, 13)).startOf('hour').unix();
+		let first_full_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
+
+		console.log("1st.min: ", moment.utc(last_full_h*1000).toISOString(), "  -  ", moment.utc(till_end*1000).toISOString());
+		console.log("2nd.h:   ", moment.utc(first_full_h*1000).toISOString(), "  -  ", moment.utc(last_full_h*1000).toISOString());
+		console.log("3nd.m:   ", moment.utc(from*1000).toISOString(), "  -  ", moment.utc(first_full_h*1000).toISOString());
+
+		// 1. part gets covered by minutes
+		unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: last_full_h, $lt: till_end}}}], as: 'by_minute' }});
+		included_units.push('$by_minute');
+
+		// 2nd part a full hour(s)
+		unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: first_full_h, $lt: last_full_h}}}], as: 'by_hour' }});
+		included_units.push('$by_hour');
+
+		// 3rd again minutes to close to the last full hour
+		unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: first_full_h}}}], as: 'by_minute_2' }});
+		included_units.push('$by_minute_2');
+	}
+}
+
+
+
+function set_timespan_unions_by_hour (unit, times, ts_start, till_end, subtract_global, unions, included_units) {
+	let from = last_unit_ts('hour', times) - subtract_global;
+
+	if (ts_start == "latest") {
+		let till_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
+		console.log("from:", moment.utc(from*1000).toISOString(), "("+from+")");
+		console.log("minutes till_h:", moment.utc(till_h*1000).toISOString(), "("+till_h+")");
+
+		// the current hour + previous including "times" span.
+		// does not include most hour ago (which we will include in next $lookup)
+		unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: from}}}], as: 'by_hour' }});
+		included_units.push('$by_hour');
+
+		// include minutes before the latest hour (from previous union)
+		unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: till_h}}}], as: 'by_minute' }});
+		included_units.push('$by_minute');
+	}
+
+	if (ts_start == "prelatest") {
+		// 1 hour prelatest can only be covered properly by 60 minutes, not by any hour unit, which would catch minutes outside the desired timespan
+		let last_full_h = moment.utc(convert_ts(till_end, 13)).startOf('hour').unix();
+		let first_full_h = moment.utc(convert_ts(from, 13)).add(1, 'hour').startOf('hour').unix();
+
+		console.log("1st.min: ", moment.utc(last_full_h*1000).toISOString(), "  -  ", moment.utc(till_end*1000).toISOString());
+		times != 1 && console.log("2nd.h:   ", moment.utc(first_full_h*1000).toISOString(), "  -  ", moment.utc(last_full_h*1000).toISOString());
+		console.log("3nd.m:   ", moment.utc(from*1000).toISOString(), "  -  ", moment.utc(first_full_h*1000).toISOString());
+
+		// 1. part gets covered by minutes
+		unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: last_full_h, $lt: till_end}}}], as: 'by_minute' }});
+		included_units.push('$by_minute');
+
+		// 2nd part a full hour(s)
+		times != 1 && unions.push({ $lookup: { from: 'by_hour', pipeline: [{$match: {ts: {$gte: first_full_h, $lt: last_full_h}}}], as: 'by_hour' }});
+		times != 1 && included_units.push('$by_hour');
+
+		// 3rd again minutes to close to the last full hour
+		unions.push({ $lookup: { from: 'by_minute', pipeline: [{$match: {ts: {$gte: from, $lt: first_full_h}}}], as: 'by_minute_2' }});
+		included_units.push('$by_minute_2');
+	}
 }

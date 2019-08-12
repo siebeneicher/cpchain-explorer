@@ -15,7 +15,7 @@ let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
 let last_blockNumber = 0;			// most recent block number
 
-const max_backwards = 5 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
+const max_backwards = 3 * 60 * 6;		// 3h; max limit of time to look for missing blocks backwards
 const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 10000;
@@ -42,6 +42,7 @@ async function collect () {
 	_syncBackwards();
 	_syncNewAddressBalanceFromTransactions();
 	_syncCPCPrice();
+
 
 	function _snapshot () {
 		setTimeout(async () => {
@@ -408,23 +409,6 @@ async function syncRNodes () {
 	});
 }*/
 
-/*async function sendTestTrx () {
-	let from = "0x6026ab99f0345e57c7855a790376b47eb308cb40";
-	let to = "0xcdc888799762436da4d4c9b171ae2a1008cde986";
-	let amount = "1000000000000000000";
-
-	console.log("sendTestTrx() sending", amount, "from:", from, "to:", to);
-
-	try {
-		let t = await web3.eth.sendTransaction({from, to, value: amount});
-		console.log("sendTestTrx() done", t);
-	} catch (e) {
-		console.error(e);
-	}
-
-	return Promise.resolve();
-}*/
-
 async function clearAll () {
 	console.log("Dropping all data from mongo");
 	await mongo_db_blocks.drop();
@@ -714,6 +698,26 @@ async function backwardsFindNewAddresses () {
 
 	// invalid address: 0x45621603C070b051C0FC337294cAa7b4a21a8b79
 }
+
+
+/*async function sendTrx () {
+	let from = "0x6026ab99f0345e57c7855a790376b47eb308cb40";
+	let to = "0xcdc888799762436da4d4c9b171ae2a1008cde986";
+	let amount = "1000000000000000000";
+
+	console.log("sendTestTrx() sending", amount, "from:", from, "to:", to);
+
+	try {
+		let t = await web3.eth.sendTransaction({from, to, value: amount});
+		console.log("sendTestTrx() done", t);
+	} catch (e) {
+		console.error(e);
+	}
+
+	return Promise.resolve();
+}*/
+
+
 
 
 async function init (clearAll = false) {

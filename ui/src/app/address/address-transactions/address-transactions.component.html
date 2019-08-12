@@ -23,7 +23,7 @@
 					<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:12}}...</a></td>
 					<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'warning' : 'success' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
 					<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:12}}...</a></td>
-					<td>{{trx.value | convertCpc }} CPC</td>
+					<td>{{trx.value}} CPC</td>
 					<td>TODO</td>
 				</tr>
 			</ng-container>

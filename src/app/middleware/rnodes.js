@@ -245,7 +245,11 @@ const all = {
 				const t_start = now();
 
 				let _rnodes = [];
-				let _rewards = await rewards.last(unit, times);
+				let _rewards = await rewards.last(unit, times, 'latest');
+				let _rewards_pre = [];
+				try {
+					_rewards_pre = await rewards.last(unit, times, 'prelatest');
+				} catch (e) {}
 				let rpts = await rnodes.last_rpt();
 				let addrs = [...new Set(rpts.map(_ => _.address).concat(_rewards.map(_ => _.rnode)))];
 				let _addresses = await addresses.get(addrs);
@@ -289,6 +293,12 @@ const all = {
 							rewards_usd: 0,
 							roi_year: 0,
 						});
+					}
+
+					// REWARDS PRELATEST, IF EXISTS
+					let [f4] = _rewards_pre.filter(_ => _.rnode == addr);
+					if (f4) {
+						rnode.mined_pre_diff = rnode.mined - f4.mined;
 					}
 				});
 

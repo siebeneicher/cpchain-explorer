@@ -10,8 +10,8 @@ import { WatchService } from '../services/watch.service';
 })
 export class RnodesComponent implements OnInit {
 
-	unit:string = "day";
-	times:number = 1;
+	unit:string = "hour";
+	times:number = 24;
 	sortBy:string = "mined";
 	sortOrder:number = -1;
 	loading:string;

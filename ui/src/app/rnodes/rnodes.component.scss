@@ -32,4 +32,14 @@ tr.watching-address {
 	.watch-btn {
 		color: white;
 	}
+
+	.value_diff {
+		&.plus {color: white;}
+		&.minus {color: white;}
+	}
+}
+
+.value_diff {
+	&.plus {color: #17d517;}
+	&.minus {color: red;}
 }
