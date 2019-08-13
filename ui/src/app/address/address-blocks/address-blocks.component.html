@@ -1,40 +1,67 @@
 <div class="element is-loading" *ngIf="loading"></div>
 
 <ng-container *ngIf="loaded">
-	<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="data.length">
-		<thead>
-			<th>#</th>
-			<th width="1%">Block</th>
-			<th width="1%"></th>
-			<th>When</th>
-			<th>Trxs</th>
-			<th>Gas Used</th>
-			<th>Gas Limit</th>
-			<th>Gas Price</th>
-			<th>Rewards</th>
-		</thead>
-		<tbody>
-			<ng-container *ngFor="let blk of data; let i = index">
-				<tr *ngIf="i < limit">
-					<td>#{{data.length - i}}</td>
-					<td><a [routerLink]="['/block', blk.number]">{{blk.number}}</a></td>
-					<td>
-						<span *ngIf="!blk.__impeached" class="tag is-success"><i class="typcn typcn-tick"></i>&nbsp;Success</span>
-						<span *ngIf="blk.__impeached" class="tag is-danger"><i class="typcn typcn-cancel"></i>&nbsp;Failed</span>
-					</td>
-					<td>{{blk.timestamp | dateAgo}} | {{blk.timestamp | date: 'long' : 'UTC' }}</td>
-					<td><a [routerLink]="['/block', blk.number]">{{blk.transactions.length}}</a></td>
-					<td>{{blk.gasUsed}}</td>
-					<td>{{blk.gasLimit}}</td>
-					<td>{{blk.__gasPrice}}</td>
-					<td>{{blk.__reward}}</td>
-				</tr>
-			</ng-container>
-		</tbody>
-	</table>
+
+	<div class="container border-box">
+
+		<div class="filters columns">
+			<div class="column is-7">
+				<span class="label">Filter blocks:</span>
+				<span class="field has-addons">
+				  <p class="control">
+				    <a class="button" [class.is-dark]="filter_select == 'all'" (click)="setFilter('all')">
+				      <span>All<span *ngIf="filter_select == 'all'">&nbsp;({{filtered.length}})</span></span>
+				    </a>
+				  </p>
+				  <p class="control">
+				    <a class="button" [class.is-success]="filter_select == 'sealed'" (click)="setFilter('sealed')">
+				      <span>Sealed<span *ngIf="filter_select == 'sealed'">&nbsp;({{filtered.length}})</span></span>
+				    </a>
+				  </p>
+				  <p class="control">
+				    <a class="button" [class.is-danger]="filter_select == 'impeached'" (click)="setFilter('impeached')">
+				      <span>Impeached<span *ngIf="filter_select == 'impeached'">&nbsp;({{filtered.length}})</span></span>
+				    </a>
+				  </p>
+				</span>
+			</div>
+		</div>
+
+		<table class="table is-hoverable table is-fullwidth is-striped" *ngIf="data.length">
+			<thead>
+				<th>#</th>
+				<th width="1%">Block</th>
+				<th width="1%"></th>
+				<th>When</th>
+				<th>Trxs</th>
+				<th>Gas Used</th>
+				<th>Gas Limit</th>
+				<th>Gas Price</th>
+				<th>Rewards</th>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let blk of filtered; let i = index">
+					<tr *ngIf="i < limit">
+						<td>#{{data.length - i}}</td>
+						<td><a [routerLink]="['/block', blk.number]">{{blk.number}}</a></td>
+						<td>
+							<span *ngIf="!blk.__impeached" class="tag is-success"><i class="typcn typcn-tick"></i>&nbsp;Success</span>
+							<span *ngIf="blk.__impeached" class="tag is-danger"><i class="typcn typcn-cancel"></i>&nbsp;Failed</span>
+						</td>
+						<td>{{blk.timestamp | dateAgo}} | {{blk.timestamp | date: 'long' : 'UTC' }}</td>
+						<td><a [routerLink]="['/block', blk.number]">{{blk.transactions.length}}</a></td>
+						<td>{{blk.gasUsed}}</td>
+						<td>{{blk.gasLimit}}</td>
+						<td>{{blk.__gasPrice}}</td>
+						<td>{{blk.__reward}}</td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
 
 	<div class="container has-text-centered" *ngIf="data.length > limit">
-		<a class="button is-small" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> Show more</a>
-		<a class="button is-small" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> Show all</a>
+		<a class="button" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> Show {{step}} more</a>
+		<a class="button" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> Show all</a>
 	</div>
 </ng-container>

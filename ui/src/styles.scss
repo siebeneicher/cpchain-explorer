@@ -73,8 +73,9 @@ router-outlet.is-root ~ * {
 }
 
 
-.table {
+.border-box {
 	box-shadow: 0 0 6px 1px #1f7bbd20;
+    background-color: white;
 }
 
 td {border:0;}

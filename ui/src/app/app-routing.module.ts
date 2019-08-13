@@ -23,7 +23,7 @@ const routes: Routes = [
 	{ path: 'address/:addr', component: AddressComponent, data: {animation: 'addressPage'}, children: [
 		{ path: '', redirectTo: 'transactions', pathMatch: 'full' },
 		{ path: 'transactions', component: AddressTransactionsComponent },
-		{ path: 'blocks', component: AddressBlocksComponent }
+		{ path: 'blocks', component: AddressBlocksComponent },
 	] },
 	{ path: 'system-status', component: SystemStatusComponent, data: {animation: 'systemStatusPage'} },
 	{ path: 'rich-list', component: RichListComponent, data: {animation: 'richListPage'} },

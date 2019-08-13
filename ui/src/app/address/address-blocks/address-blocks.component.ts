@@ -16,6 +16,11 @@ export class AddressBlocksComponent implements OnInit {
 	loading:boolean = false;
 	loaded:boolean = false;
 	data:Array<any>;
+	step:number = 15;
+	filter_select:string = "all";
+	filtered:Array<any>;
+	sortBy:string = "number";
+	sortOrder:number = -1;
 
 	constructor(
 		private httpClient: HttpClient,
@@ -25,9 +30,14 @@ export class AddressBlocksComponent implements OnInit {
 		this.route.parent.params.subscribe(async (params) => {
 			this.addr = params.addr;
 			this.data = [];
-			this.limit = 15;
+			this.filtered = [];
+			this.limit = this.step;
 			this.loaded = false;
 			this.load();
+		});
+
+		this.route.params.subscribe(async (params) => {
+			this.filter_select = params.select;
 		});
 	}
 
@@ -43,16 +53,29 @@ export class AddressBlocksComponent implements OnInit {
 				this.data = res ? <Array<any>> res : [];
 				this.loading = false;
 				this.loaded = true;
+				this.filter();
 				resolve();
 			});
 		});
 	}
 
+	filter () {
+		if (this.filter_select == "all") this.filtered = this.data;
+		if (this.filter_select == "sealed") this.filtered = this.data.filter(_ => !_.__impeached);
+		if (this.filter_select == "impeached") this.filtered = this.data.filter(_ => _.__impeached);
+		this.filtered.sort((a,b) => (a[this.sortBy] > b[this.sortBy]) ? 1*this.sortOrder : ((b[this.sortBy] > a[this.sortBy]) ? -1*this.sortOrder : 0));
+	}
+
 	showMore () {
-		this.limit += 15;
+		this.limit += this.step;
 	}
 
 	showAll (what) {
 		this.limit = this.data.length;
+	}
+
+	setFilter (to) {
+		this.filter_select = to;
+		this.filter();
 	}
 }
