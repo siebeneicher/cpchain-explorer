@@ -104,7 +104,7 @@ let time_multiply = units_per_year / times;
 			subtract_global = moment.utc().unix() - till_end;
 		}
 		//console.log("till_end", moment.utc(till_end*1000).toISOString(), "("+till_end+")");
-		console.log("subtract_global",subtract_global)
+		//console.log("subtract_global",subtract_global)
 
 
 		try {

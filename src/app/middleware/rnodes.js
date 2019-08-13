@@ -250,8 +250,10 @@ const all = {
 				try {
 					_rewards_pre = await rewards.last(unit, times, 'prelatest');
 				} catch (e) {}
+
+				let _gen = await rnodes.last_generation();
 				let rpts = await rnodes.last_rpt();
-				let addrs = [...new Set(rpts.map(_ => _.address).concat(_rewards.map(_ => _.rnode)))];
+				let addrs = [...new Set(rpts.map(_ => _.address).concat(_rewards.map(_ => _.rnode)).concat(_gen.Proposers))];
 				let _addresses = await addresses.get(addrs);
 
 				addrs.forEach(addr => {
@@ -264,7 +266,8 @@ const all = {
 					_extend = {
 						rpt: f ? f.rpt : 0,
 						rpt_rank: f ? f.rank : 0,
-						elected: f ? f.status == 0 : false,
+						elected: _gen.Proposers.includes(addr),
+						proposing: _gen.Proposers[_gen.ProposerIndex] == addr
 					};
 					Object.assign(rnode, _extend);
 

@@ -16,8 +16,8 @@ setTimeout(async () => {
 	//console.log(await transaction("0x6764996826a1cbb1224ade30d180669b4b056f97a8105a92b093199f78926c68"));
 	//console.log(await generation());
 
-	console.log(await data.rewards.last("month", 14, 'latest', '0x8d16adafb4633a3956691aa4636b603e8f328446'));
-	console.log(await data.rewards.last("month", 1, 'prelatest', '0x8d16adafb4633a3956691aa4636b603e8f328446'));
+	//console.log(await data.rewards.last("month", 14, 'latest', '0x8d16adafb4633a3956691aa4636b603e8f328446'));
+	//console.log(await data.rewards.last("month", 1, 'prelatest', '0x8d16adafb4633a3956691aa4636b603e8f328446'));
 
 	//console.log(await data.rewards.last("hour", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
 	//console.log(await data.rewards.last("day", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
@@ -62,7 +62,7 @@ setTimeout(async () => {
 	//let addr = '0x501f6cf7b2437671d770998e3b785474878fef1d';
 	//await balances.latest(addr);
 	//await blocks.latest('minute', addr);
-	//console.log(await rnodes.user.update("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2f"));
+	console.log(await rnodes.all.update("day", 1));
 	//await rnodes.user.cache_flush_all();
 
 	//await dashboard.update();

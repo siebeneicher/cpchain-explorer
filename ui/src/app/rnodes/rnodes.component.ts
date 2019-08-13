@@ -15,17 +15,33 @@ export class RnodesComponent implements OnInit {
 	sortBy:string = "mined";
 	sortOrder:number = -1;
 	loading:string;
-
+	loadInterval:number = 10000;
+	loadPromise:any;
+	filtered:Array<any> = [];
 	rnodes:Array<any> = [];
+	stats:any = {};
+	showVisLine:string = "sealed";
+	width_left:number = 0;
+	width_right:number = 0;
+	filter_community_only:boolean;
 
 	constructor(private httpClient: HttpClient, public watchService: WatchService,) { }
 
 	ngOnInit() {
+		this.stats = {};
+		this.filter_community_only = false;
+		this.loadPromise = Promise.resolve();
 		this.load();
+		setInterval(() => this.load(), this.loadInterval);
 	}
 
 	sort () {
-		this.rnodes.sort((a,b) => (a[this.sortBy] > b[this.sortBy]) ? 1*this.sortOrder : ((b[this.sortBy] > a[this.sortBy]) ? -1*this.sortOrder : 0));
+		// 1st. by sealed (primite sort by this.sortBy, minied)
+		if (this.sortBy != "mined")
+			this.filtered.sort((a,b) => (a["mined"] > b["mined"]) ? 1*-1 : ((b["mined"] > a["mined"]) ? -1*-1 : 0));
+
+		// 2nd. by user choice
+		this.filtered.sort((a,b) => (a[this.sortBy] > b[this.sortBy]) ? 1*this.sortOrder : ((b[this.sortBy] > a[this.sortBy]) ? -1*this.sortOrder : 0));
 	}
 
 	clickSort (by) {
@@ -36,6 +52,47 @@ export class RnodesComponent implements OnInit {
 		}
 
 		this.sort();
+		this.calcTableWidths();
+	}
+
+	filter () {
+		if (!this.filter_community_only)
+			this.filtered = this.rnodes;
+		else
+			this.filtered = this.rnodes.filter(_ => _.owned_by != "cpchain");
+
+		this.calcStats();
+	}
+
+	calcTableWidths () {
+		setTimeout(() => _calc(), 25);
+		setTimeout(() => _calc(), 155);
+
+		let _this = this;
+
+		function _calc () {
+			_this.width_left = 0;
+			["pos","address","owned","balance","rpt","elected"].forEach(_ => {
+				_this.width_left += document.querySelector('table.rnodes th.'+_).clientWidth;
+			});
+
+			_this.width_right = 0;
+			["sealed","impeached","rewards","roi"].forEach(_ => {
+				_this.width_right += document.querySelector('table.rnodes th.'+_).clientWidth;
+			});
+		}
+	}
+
+	calcStats () {
+		this.stats = {
+			mined_max: 0,
+			rpt_max: 0,
+		};
+
+		this.filtered.forEach(_ => {
+			this.stats.mined_max = Math.max(this.stats.mined_max, _.mined);
+			this.stats.rpt_max = Math.max(this.stats.rpt_max, _.rpt);
+		});
 	}
 
 	setTimespan (unit, times) {
@@ -44,18 +101,30 @@ export class RnodesComponent implements OnInit {
 		this.load();
 	}
 
+	toggleCommunityOnly () {
+		this.filter_community_only = !this.filter_community_only;
+		this.filter();
+		this.sort();
+		this.calcTableWidths();
+	}
+
 	async load () {
+		let _this = this;
 		let url = environment.backendBaseUrl + '/rnodes/'+this.unit+'/'+this.times;
 		this.loading = this.unit+'-'+this.times;
 
-		return new Promise((resolve, reject) => {
-			return this.httpClient.get(url).subscribe((res: Array<any>) => {
-				this.rnodes = res;
-				this.sort();
-				this.loading = "";
-				resolve();
+		// chain loads
+		return this.loadPromise = this.loadPromise.then(_load);
+
+		async function _load () {
+			return _this.httpClient.get(url).subscribe((res: Array<any>) => {
+				_this.rnodes = res;
+				_this.filter();
+				_this.sort();
+				_this.loading = "";
+				_this.calcTableWidths();
 			});
-		});
+		}
 	}
 
 }

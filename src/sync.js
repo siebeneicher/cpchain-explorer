@@ -19,6 +19,7 @@ const max_backwards = 3 * 60 * 6;		// 3h; max limit of time to look for missing 
 const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 10000;
+const sync_generation_delay = 5000;
 const sync_missing_addresses_delay = 5000;
 const maxNewBlocksBackwardsPerCycle = 2500;
 
@@ -42,7 +43,7 @@ async function collect () {
 	_syncBackwards();
 	_syncNewAddressBalanceFromTransactions();
 	_syncCPCPrice();
-
+	_syncGeneration();
 
 	function _snapshot () {
 		setTimeout(async () => {
@@ -108,6 +109,9 @@ async function collect () {
 
 			_syncCPCPrice();	// loop
 		}, cpc_price_delay);
+	}
+	function _syncGeneration () {
+		setInterval(() => syncGeneration(), sync_generation_delay);
 	}
 }
 
@@ -234,7 +238,7 @@ async function syncBackwards () {
 async function syncBlock (targetBlockNum = null) {
 	const t_start = now();
 
-	let b, number;
+	let b, g, number;
 
 	//console.log(targetBlockNum);
 
@@ -248,12 +252,10 @@ async function syncBlock (targetBlockNum = null) {
 		if (last_b && last_b.timestamp > moment.utc().unix()*1000 - config.cpc.block_each_second*1000)
 			return Promise.resolve(false);
 
-		// block and generation at same time, so we dont miss generation info,
-		// allthough it might be unused if block is fetched allready
-		//await Promise.all([block().then(_ => b = _), generation().then(_ => g = _)]);
-
 		b = await block();
 		number = b.number;
+
+		await generation().then(_ => g = _);
 
 		// no new block
 		if (last_b && last_b.number == number) return Promise.resolve(false);
@@ -354,6 +356,13 @@ function sanitizeRNodes (rnodes) {
 	rnodes.forEach(rnode => rnode.Address = web3.utils.toChecksumAddress(rnode.Address));
 }
 
+function sanitizeGeneration (gen) {
+	gen.Proposer = web3.utils.toChecksumAddress(gen.Proposer);
+	for (let i in gen.Proposers) {
+		gen.Proposers[i] = web3.utils.toChecksumAddress(gen.Proposers[i]);
+	}
+}
+
 function sanitizeTransaction (trans) {
 	trans.from = web3.utils.toChecksumAddress(trans.from);
 	trans.to = web3.utils.toChecksumAddress(trans.to);
@@ -394,27 +403,24 @@ async function syncRNodes () {
 	});
 }
 
-/*async function syncGeneration () {
+async function syncGeneration () {
 	const ts = Math.floor(new Date() / 1000);
 
 	return generation().then(async (_generation) => {
-		// store only new versions
-		if (JSON.stringify(_generation) != JSON.stringify(cur_generation)) {
-			cur_generation = _generation;
-			await mongo_db_generation.insertOne({ts, _generation});
+		try {
+			sanitizeGeneration(_generation);
+			await mongo_db_generation.insertOne(_generation);
 			console.log("added generation");
-			return true;
-		}
-		return false;
+		} catch (e) {}
 	});
-}*/
+}
 
 async function clearAll () {
 	console.log("Dropping all data from mongo");
 	await mongo_db_blocks.drop();
 	await mongo_db_transactions.drop();
 	await mongo_db_rnodes.drop();
-	//await mongo_db_generation.drop();
+	await mongo_db_generation.drop();
 }
 
 function ensure_indexes () {
@@ -443,15 +449,15 @@ function ensure_indexes () {
 		})
 	}
 
-/*	if (mongo_db_generation) {
+	if (mongo_db_generation) {
 		mongo_db_generation.indexInformation(async (err, indexes) => {
 			if (err) return;
-			if (!indexes.ts_1)
-				await mongo_db_generation.createIndex({ ts: -1 }, { unique: true });
-			if (!indexes['generation.BlockNumber_1'])
-				await mongo_db_generation.createIndex({ 'generation.BlockNumber': -1 }, { unique: false });
+			//if (!indexes.ts_1)
+			//	await mongo_db_generation.createIndex({ ts: -1 }, { unique: true });
+			if (!indexes['BlockNumber_1'])
+				await mongo_db_generation.createIndex({ 'BlockNumber': -1 }, { unique: true });
 		})
-	}*/
+	}
 
 	if (mongo_db_rnodes) {
 		mongo_db_rnodes.indexInformation(async (err, indexes) => {
@@ -731,7 +737,7 @@ async function init (clearAll = false) {
 			mongo_db_rnodes = mongo_db.collection('rnodes');
 			mongo_db_balances = mongo_db.collection('balances');
 			mongo_db_price_cmc = mongo_db.collection('price_cmc');
-			//mongo_db_generation = mongo_db.collection('generation');
+			mongo_db_generation = mongo_db.collection('generation');
 
 			// clear all data
 			if (clearAll) {

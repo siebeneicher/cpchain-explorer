@@ -2,10 +2,9 @@
 <div class="container">
 
 	<h3 class="columns">
-		<span class="title column is-3">{{rnodes.length}}&nbsp;RNodes</span>
+		<span class="subtitle column is-2 is-size-4">{{rnodes.length}}&nbsp;RNodes</span>
 
-
-		<span class="filter column is-9 field has-addons">
+		<span class="filter column is-8 field has-addons">
 		  <p class="control">
 		    <a class="button" [class.is-loading]="loading == 'minute-15'" [class.is-success]="unit == 'minute' && times == 15" (click)="setTimespan('minute', 15)">
 		      <span>last 15 minutes</span>
@@ -46,51 +45,54 @@
 		      <span>1 year</span>
 		    </a>
 		  </p>
-<!-- 		  <p class="control">
-		    <a class="button" [class.is-loading]="loading == 'month-24'" [class.is-success]="unit == 'month' && times == 24" (click)="setTimespan('month', 24)">
-		      <span>All</span>
+		</span>
+
+		<span class="filter column is-2 field has-addons">
+		  <p class="control">
+		    <a class="button" [class.is-success]="filter_community_only" (click)="toggleCommunityOnly()">
+		      <span>Community Only</span>
 		    </a>
-		  </p> -->
+		  </p>
 		</span>
 	</h3>
 
-	<table class="table border-box is-fullwidth is-striped">
+	<table class="table border-box is-fullwidth is-striped rnodes">
 		<thead>
-			<th>#</th>
-			<th>Address</th>
-			<th></th>
-			<th (click)="clickSort('balance')" class="is-clickable left-line has-text-centered">
+			<th class="pos">#</th>
+			<th class="address">Address</th>
+			<th class="owned"></th>
+			<th (click)="clickSort('balance')" class="is-clickable left-line has-text-centered balance">
 				Balance
 				<i *ngIf="sortBy == 'balance'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('rpt_rank')" class="is-clickable has-text-centered">
+			<th (click)="clickSort('rpt_rank')" class="is-clickable has-text-centered rpt">
 				RPT
 				<i *ngIf="sortBy == 'rpt_rank'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('elected')" class="is-clickable has-text-centered">
+			<th (click)="clickSort('elected')" class="is-clickable has-text-centered elected">
 				Elected
 				<i *ngIf="sortBy == 'elected'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('mined')" class="is-clickable left-line has-text-centered">
+			<th (click)="clickSort('mined')" class="is-clickable left-line has-text-centered sealed">
 				Sealed
 				<i *ngIf="sortBy == 'mined'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('impeached')" class="is-clickable has-text-centered">
+			<th (click)="clickSort('impeached')" class="is-clickable has-text-centered impeached">
 				Impeached
 				<i *ngIf="sortBy == 'impeached'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('rewards')" class="is-clickable has-text-centered">
+			<th (click)="clickSort('rewards')" class="is-clickable has-text-centered rewards">
 				Rewards
 				<i *ngIf="sortBy == 'rewards'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th (click)="clickSort('roi_year')" class="is-clickable has-text-centered">
+			<th (click)="clickSort('roi_year')" class="is-clickable has-text-centered roi">
 				ROI Year
 				<i *ngIf="sortBy == 'roi_year'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
 			<!-- <th>Proposing</th> -->
 		</thead>
 		<tbody>
-			<tr *ngFor="let rnode of rnodes; let i = index" [class.watching-address]="watchService.watching(rnode.rnode)">
+			<tr *ngFor="let rnode of filtered; let i = index" [class.watching-address]="watchService.watching(rnode.rnode)">
 				<td width="1%">{{i+1}}</td>
 				<td width="1%">
 					<a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode | slice:0:10}}...</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(rnode.rnode)"></i>
@@ -98,11 +100,11 @@
 				<td width="1%"><span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'cpchain'">CPC-Team</span></td>
 				<td class="left-line has-text-centered">{{rnode.balance | number : '1.0-0'}}</td>
 				<td class="has-text-centered">{{rnode.rpt}} (#{{rnode.rpt_rank}})</td>
-				<td class="has-text-centered"><i *ngIf="rnode.elected" class="typcn typcn-tick"></i></td>
-				<td class="left-line has-text-centered"><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'sealed'}]">{{rnode.mined}}<span *ngIf="rnode.mined_pre_diff !== undefined" class="value_diff" [class.plus]="rnode.mined_pre_diff >= 0" [class.minus]="rnode.mined_pre_diff < 0">&nbsp;(<span *ngIf="rnode.mined_pre_diff > 0">+</span>{{rnode.mined_pre_diff}})</span></a></td>
-				<td class="has-text-centered"><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'impeached'}]">{{rnode.impeached}}</a></td>
-				<td class="has-text-centered">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.2-2'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.2-2'}}</span></td>
-				<td class="has-text-centered">{{rnode.roi_year |  number : '1.2-2'}}%</td>
+				<td class="has-text-centered"><i *ngIf="rnode.elected" [class.typcn-media-record-outline]="!rnode.proposing" [class.typcn-media-record]="rnode.proposing" class="typcn"></i></td>
+				<td class="left-line has-text-centered sealed"><div *ngIf="showVisLine == 'sealed'" class="vis-line" [style.width.px]="rnode.mined / stats.mined_max * width_right + 1"></div><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'sealed'}]">{{rnode.mined}}<span *ngIf="rnode.mined_pre_diff !== undefined" class="value_diff" [class.plus]="rnode.mined_pre_diff >= 0" [class.minus]="rnode.mined_pre_diff < 0">&nbsp;(<span *ngIf="rnode.mined_pre_diff > 0">+</span>{{rnode.mined_pre_diff}})</span></a></td>
+				<td class="has-text-centered impeached"><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'impeached'}]">{{rnode.impeached}}</a></td>
+				<td class="has-text-centered rewards">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.2-2'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.2-2'}}</span></td>
+				<td class="has-text-centered roi">{{rnode.roi_year |  number : '1.2-2'}}%</td>
 				<!-- <td>{{rnode.proposing}}</td> -->
 			</tr>
 		</tbody>

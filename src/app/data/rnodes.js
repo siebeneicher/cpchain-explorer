@@ -5,7 +5,7 @@ const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
 const {web3} = require('../../cpc-fusion/api');
 
-module.exports = {last, last_rpt, type, items, blocks, blocks_count}
+module.exports = {last, last_rpt, type, items, blocks, blocks_count, last_generation}
 
 async function type (addr) {
 	// sanitize given addr
@@ -70,6 +70,23 @@ async function last_rpt (addr = null) {
 					} else {
 						resolve(result);
 					}
+				}
+			});
+	});
+}
+
+async function last_generation () {
+	return new Promise(async function (resolve, reject) {
+		mongo.db(config.mongo.db.sync).collection('generation')
+			.find()
+			.sort({BlockNumber: -1})
+			.limit(1)
+			.toArray((err, result) => {
+				if (err || result.length == 0) {
+					console.error("rnodes.last_generation error:", err);
+					reject();
+				} else {
+					resolve(result[0]);
 				}
 			});
 	});
@@ -177,3 +194,4 @@ async function items (unit, times, ts_start) {
 			});
 	});
 }
+

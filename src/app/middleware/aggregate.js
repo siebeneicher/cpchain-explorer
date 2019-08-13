@@ -163,11 +163,13 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 		let overlaps = [];
 		chunks[aggregations[key].ts].blocks.forEach((block,i) => {
 			if (block.number >= aggregations[key].block_min && block.number <= aggregations[key].block_max)
-				overlaps.push(i);
+				overlaps.push({block, aggregation: aggregations[key]});
 		});
 		if (overlaps.length) {
-			console.error("ERROR: overlap of aggregated blocks with new blocks!!", overlaps, blocks, unit);//throw "NOT FULLY IMPLEMENTED: make sure, to not double aggregate a block into exiting aggregation"
-			debugger;
+			// this is not necessary a proble, because these blocks ARE definetly not aggregated for this unit, so they are missing
+			// beside, the check is not 100% solid, anytime a block can be missed and then would overlap automatically as soon as synced
+			//console.error("ERROR: overlap of aggregated blocks with new blocks!!", overlaps, unit);//throw "NOT FULLY IMPLEMENTED: make sure, to not double aggregate a block into exiting aggregation"
+			//debugger;
 		}
 	}
 

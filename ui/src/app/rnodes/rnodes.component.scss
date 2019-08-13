@@ -1,5 +1,5 @@
 .filter {
-	margin-top: 7px;
+	margin-top: 0px;
 }
 
 .table { border-collapse: collapse; }
@@ -43,3 +43,15 @@ tr.watching-address {
 	&.plus {color: #17d517;}
 	&.minus {color: red;}
 }
+
+.vis-line {
+    position: absolute;
+    height: 100%;
+    background-color: #4497CC;
+    opacity: 0.13;
+    margin-top: -8px;
+    margin-left: -12px;
+}
+
+
+table.rnodes, td {position: relative;}
