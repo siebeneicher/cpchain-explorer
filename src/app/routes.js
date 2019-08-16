@@ -104,7 +104,8 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 /*	const ts = await rnodes.all.cache_timestamp(req.params.unit, parseInt(req.params.times), 'latest', {});
 	res.setHeader('X-Middleware-Cache-Timestamp', ts);*/
-	res.json(await rnodes.all.get(req.params.unit, parseInt(req.params.times), 'latest', {}, !!parseInt(req.query.forceUpdate)));
+	//res.json(await rnodes.all.all(req.params.unit, parseInt(req.params.times), 'latest', {}, !!parseInt(req.query.forceUpdate)));
+	res.json(await rnodes.all.update(req.params.unit, parseInt(req.params.times), 'latest', {});
 })
 
 .get('/api/v1/rnodes/roi/:unit/:times', cache.route(), async function (req, res) {
