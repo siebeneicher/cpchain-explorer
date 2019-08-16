@@ -1,25 +1,26 @@
 <!-- <img src="assets/logo_only.svg" class="main-bg"> -->
 
 <nav class="navbar main is-secondary" [class.full-menu]="fullMenu(outlet)" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
+  <div class="navbar-menu">
     <a class="navbar-item" routerLink="/" routerLinkActive="active">
       <img src="assets/logo_only.png" class="cpc-logo">
       RNodes.io
     </a>
 
-    <a *ngIf="lastBlockService.last_block.number" [routerLink]="['/block', lastBlockService.last_block.number]" class="navbar-item number-mono">#{{lastBlockService.last_block.number}}/{{lastBlockService.last_block.transactions.length}}</a>
+    <a *ngIf="lastBlockService.last_block.number" [routerLink]="['/block', lastBlockService.last_block.number]" class="navbar-item is-hoverable number-mono">#{{lastBlockService.last_block.number}}/{{lastBlockService.last_block.transactions.length}}</a>
 
-    <a class="navbar-item" [routerLink]="['/rich-list']"><b>$</b>&nbsp;Balances</a>
-    <a class="navbar-item" [routerLink]="['/blocks']"><i class="typcn typcn-th-small"></i>&nbsp;Blocks</a>
-    <a class="navbar-item" [routerLink]="['/rnodes']"><i class="typcn typcn-power"></i>&nbsp;RNodes</a>
-    <!-- <a class="navbar-item" [routerLink]="['/stats']">Stats</a> -->
-    <!-- <a class="navbar-item">Watch List</a> -->
+    <a class="navbar-item is-hoverable" [routerLink]="['/rich-list']"><b>$</b>&nbsp;Balances</a>
+    <a class="navbar-item is-hoverable" [routerLink]="['/blocks']"><i class="typcn typcn-th-small"></i>&nbsp;Blocks</a>
+    <div class="navbar-item has-dropdown is-hoverable">
+      <a class="navbar-link" [routerLink]="['/rnodes']">
+        <i class="typcn typcn-power"></i>&nbsp;RNodes
+      </a>
 
-<!--     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a> -->
+      <div class="navbar-dropdown">
+        <a class="navbar-item" [routerLink]="['/rnodes']">Overview</a>
+        <a class="navbar-item" [routerLink]="['/roi']">ROI Graph</a>
+      </div>
+    </div>
 
     <span class="navbar-item search-bar">
       <div class="field has-addons">

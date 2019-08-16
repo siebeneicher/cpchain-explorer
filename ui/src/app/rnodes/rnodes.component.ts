@@ -12,7 +12,7 @@ export class RnodesComponent implements OnInit {
 
 	unit:string = "hour";
 	times:number = 24;
-	sortBy:string = "mined";
+	sortBy:string = "elected";
 	sortOrder:number = -1;
 	loading:string;
 	loadInterval:number = 10000;
@@ -72,12 +72,12 @@ export class RnodesComponent implements OnInit {
 
 		function _calc () {
 			_this.width_left = 0;
-			["pos","address","owned","balance","rpt","elected"].forEach(_ => {
+			["pos","address","owned","balance","rpt","elected","roi"].forEach(_ => {
 				_this.width_left += document.querySelector('table.rnodes th.'+_).clientWidth;
 			});
 
 			_this.width_right = 0;
-			["sealed","impeached","rewards","roi"].forEach(_ => {
+			["sealed","impeached","rewards"].forEach(_ => {
 				_this.width_right += document.querySelector('table.rnodes th.'+_).clientWidth;
 			});
 		}

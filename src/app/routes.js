@@ -100,9 +100,16 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.json(await addresses.all());
 })
 
-.get('/api/v1/rnodes/:unit/:times', cache.route(), async function (req, res) {
+.get('/api/v1/rnodes/:unit/:times', /*cache.route(),*/ async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
+/*	const ts = await rnodes.all.cache_timestamp(req.params.unit, parseInt(req.params.times), 'latest', {});
+	res.setHeader('X-Middleware-Cache-Timestamp', ts);*/
 	res.json(await rnodes.all.get(req.params.unit, parseInt(req.params.times), 'latest', {}, !!parseInt(req.query.forceUpdate)));
+})
+
+.get('/api/v1/rnodes/roi/:unit/:times', cache.route(), async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await rnodes.roi.get(req.params.unit, parseInt(req.params.times), 'latest', {}, !!parseInt(req.query.forceUpdate)));
 })
 
 .get('/api/v1/search/:term', async function (req, res) {
@@ -131,7 +138,7 @@ app.get('/aggregate', async function (req, res) {
 
 // TODO: duplicate in nginx for production
 
-app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|rnodes|$)/, async function (req, res) {
+app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|roi|rnodes|$)/, async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 
 	if (await maintenance())

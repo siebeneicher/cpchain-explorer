@@ -18,7 +18,7 @@ async function tick () {
 	let received = false;
 	let sended = false;
 	//let number_hex = "0x"+(number).toString(16);
-
+debugger;
 	try {
 		let i = 0;
 		while (max_lookback > i) {

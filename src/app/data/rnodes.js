@@ -30,8 +30,10 @@ resolve("NOT-IMPLEMENTED");
 	});
 }
 
-async function last_rpt (addr = null) {
-	let match = {};
+async function last_rpt (addr = null, ts_start = 'latest') {
+	const match = ts_start == 'latest' ?
+		[{ $sort: { ts: -1 } }, { $limit: 1 }] :
+		[{ $match: { ts: { $gte: convert_ts(ts_start, 10) } } }, { $sort: { ts: 1 } }, { $limit: 1 }];
 
 	// sanitize given addr
 	if (addr) {
@@ -40,9 +42,8 @@ async function last_rpt (addr = null) {
 
 	return new Promise(async function (resolve, reject) {
 		mongo.db(config.mongo.db.sync).collection('rnodes')
-			.aggregate([
-				{ $sort: { ts: -1 } },
-				{ $limit: 1 },
+			.aggregate(
+				match.concat([
 				{ $unwind: '$rnodes' },
 				{ $sort: { 'rnodes.Rpt': -1 } },
 				{ $project: { _id:-1, address: '$rnodes.Address', rpt: '$rnodes.Rpt', status: '$rnodes.Status' } },
@@ -52,7 +53,7 @@ async function last_rpt (addr = null) {
 					foreignField: 'address',
 					as: 'address_info'
 				} }*/
-			])
+			]))
 			.toArray((err, result) => {
 				if (result.length == 0 || err) {
 					//console.log("rnodes.last_rpt empty");

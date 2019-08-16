@@ -2,10 +2,11 @@ const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
 const balances = require('../data/balances');
-const {convert_ts, clone, unique_array, unit_ts} = require('../helper');
+const {convert_ts, clone, unique_array, unit_ts, last_unit_ts} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
 const {blockNumber, rnodes, versions, generation, block, transaction, balance, web3} = require('../../cpc-fusion/api');
+const data_rnodes = require('../data/rnodes');
 
 const units = {
 	'minute': {},
@@ -29,20 +30,51 @@ module.exports = {run, reset, test};
 
 
 
-async function reset (unit = null) {
+async function reset (unit = null, times = null) {
 	const blocks = mongo.db(config.mongo.db.sync).collection('blocks');
 
 	return Promise.all(Object.keys(units).map((_unit) => {
 		if (unit != null && _unit != unit) return Promise.resolve();
 
-		try {
-			mongo.db(config.mongo.db.aggregation).collection('by_'+_unit).drop();
-		} catch (err) { console.error(err) }
+		let ts_start = 0;
+		if (unit != null && times != null)
+			ts_start = last_unit_ts(unit, times, 10);
+
+		let del_block_min = 0;
+		let del_block_max = 999999999999999999;
 
 		return new Promise((resolve) => {
-			blocks.updateMany({}, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
-				console.log("reset aggregations."+_unit+":", result.modifiedCount, err);
-				resolve();
+			try {
+				let collection = mongo.db(config.mongo.db.aggregation).collection('by_'+_unit);
+
+				if (times == null) {
+					collection.drop();
+					resolve();
+				} else {
+					collection
+						.find()
+						.project({ _id: 1 })
+						.sort({ts: -1})
+						.limit(times)
+						.toArray(async (err, res) => {
+							try {
+								del_block_min = res[res.length-1].block_min;		// most lowest block
+								del_block_max = res[0].block_max;					// most highest block
+								await collection.deleteMany({ _id: { $in: res.map(_ => _._id) } }).then((result, err) => {
+									console.log("deleted aggregations."+_unit+":", result.deletedCount, err);
+									resolve();
+								});
+							} catch (e) {
+								console.error(e);
+								resolve();
+							}
+						});
+				}
+			} catch (err) { /*console.error(err); */resolve(); }
+		}).then(() => {
+			console.log("resetting blocks... ", unit, del_block_min, del_block_max);
+			return blocks.updateMany({ number: { $gte: del_block_min, $lte: del_block_max } }, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
+				console.log("reseted aggregations."+_unit+":", result.modifiedCount, err);
 			});
 		});
 	})).then(() => {
@@ -200,10 +232,12 @@ async function aggregate_unit (unit, ts, chunk) {
 		const rnode_tpl = {
 			mined: 0,
 			impeached: 0,
-			balance: null,
+			balance: 0,
 			rewards_from_fixed: 0,
 			rewards_from_fee: 0,
 			rewards: 0,
+			rpt_max: 0,
+			rpt_min: 0,
 			//locked_cpc: 0,
 			//rewards_cpc_estimated: 0
 		};
@@ -265,9 +299,18 @@ async function aggregate_unit (unit, ts, chunk) {
 				aggregate.rnodes[m].rewards += config.cpc.rewardsPerBlock + trx_fee;
 			}
 
+			// all rnodes RPT of current block time
+			const rpts = await data_rnodes.last_rpt(null, b.timestamp);
+			if (!rpts || rpts.length == 0) console.error("aggregate: missing rpts");
+			else {
+				for (let i in rpts) {
+					let _rpt = rpts[i];
 
-			// rnode locked cpc
-			// TODO
+					if (!aggregate.rnodes[_rpt.address]) aggregate.rnodes[_rpt.address] = clone(rnode_tpl);
+					aggregate.rnodes[_rpt.address].rpt_max = Math.max(aggregate.rnodes[_rpt.address].rpt_max, _rpt.rpt);
+					aggregate.rnodes[_rpt.address].rpt_min = Math.min(aggregate.rnodes[_rpt.address].rpt_min, _rpt.rpt);
+				}
+			}
 
 			// blocks total / impeached
 			if (!b.__impeached) aggregate.blocks_mined++;

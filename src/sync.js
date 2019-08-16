@@ -409,8 +409,9 @@ async function syncGeneration () {
 	return generation().then(async (_generation) => {
 		try {
 			sanitizeGeneration(_generation);
-			await mongo_db_generation.insertOne(_generation);
-			console.log("added generation");
+			await mongo_db_generation.updateOne({BlockNumber: _generation.BlockNumber}, {$set: _generation}, { upsert: true }).then(res => {
+				if (res.upsertedCount) console.log("added generation");
+			});
 		} catch (e) {}
 	});
 }

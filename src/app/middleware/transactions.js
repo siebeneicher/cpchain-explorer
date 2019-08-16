@@ -31,7 +31,7 @@ const graph = {
 	update: async function (unit, times, ts_start = 'latest', options = {}) {
 		const exclude_last = options.exclude_last !== undefined ? options.exclude_last*1 : 0;
 
-		let ts = ts_start == 'latest' ? last_unit_ts(unit, times + exclude_last, 10) : unit_ts(ts_start, 10);
+		let ts = ts_start == 'latest' ? last_unit_ts(unit, times + exclude_last, 10) : unit_ts(ts_start, unit, 10);
 
 		// avoid parallel calls, instead chain them
 		return graph.update_promise_chain = graph.update_promise_chain.then(_update);

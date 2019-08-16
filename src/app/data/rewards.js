@@ -7,7 +7,7 @@ const {web3} = require('../../cpc-fusion/api');
 const moment = require('moment');
 const price = require('./price');
 
-module.exports = {last, last_merged};
+module.exports = {last, last_merged, roi};
 
 async function last_merged (unit, times, rnode_addr = null) {
 
@@ -95,7 +95,6 @@ let time_multiply = units_per_year / times;
 
 		let included_units = [];
 
-
 		// final end if timespan
 		let till_end = moment.utc().unix();			// aka latest
 		let subtract_global = 0;
@@ -105,7 +104,6 @@ let time_multiply = units_per_year / times;
 		}
 		//console.log("till_end", moment.utc(till_end*1000).toISOString(), "("+till_end+")");
 		//console.log("subtract_global",subtract_global)
-
 
 		try {
 			if (unit == "minute") set_timespan_unions_by_minute(unit, times, ts_start, till_end, subtract_global, unions, included_units);
@@ -185,6 +183,121 @@ let time_multiply = units_per_year / times;
 			});
 	});
 }
+
+
+
+
+
+async function roi (unit, times, ts_start = "latest") {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+
+let units_per_year = 0;
+if (unit == "minute") units_per_year = 365 * 24 * 60;
+if (unit == "hour") units_per_year = 365 * 24;
+if (unit == "day") units_per_year = 365;
+if (unit == "month") units_per_year = 12;
+let time_multiply = units_per_year / times;
+
+
+		// HERE GOES THE MAGIC: we combine different units together
+		// example: unit=month times=1 would include current month + diff-days in previous month + diff-hours in previous month of day + ...
+		let unions = [
+			{$limit: 1},						// only 1 document
+			{$project: {_id: '$$REMOVE'}}		// clear
+		];
+
+		let included_units = [];
+
+		// final end if timespan
+		let till_end = moment.utc().unix();			// aka latest
+		let subtract_global = 0;
+		if (ts_start == "prelatest") { 				// one complete timeframe before latest
+			till_end = moment.utc().subtract(times, unit).unix();
+			subtract_global = moment.utc().unix() - till_end;
+		}
+		//console.log("till_end", moment.utc(till_end*1000).toISOString(), "("+till_end+")");
+		//console.log("subtract_global",subtract_global)
+
+		try {
+			if (unit == "minute") set_timespan_unions_by_minute(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "hour") set_timespan_unions_by_hour(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "day") set_timespan_unions_by_day(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "month") set_timespan_unions_by_month(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+			if (unit == "year") set_timespan_unions_by_year(unit, times, ts_start, till_end, subtract_global, unions, included_units);
+		} catch (e) {
+			reject(e);
+		}
+
+console.log(unions);
+
+		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
+			.aggregate(
+				unions.concat([
+					{ $project: { union: { $concatArrays: included_units } }},		// concat collections into single array
+					{ $unwind: '$union' },
+					{
+						$project: {
+							ts: '$union.ts',
+							_blocks_aggregated: '$union._blocks_aggregated',
+							rnodes_: {
+								$objectToArray: '$union.rnodes'
+							}
+						}
+					},
+					{ $unwind: '$rnodes_' },
+					{ $project: {
+						ts: 1,
+						rnode: '$rnodes_.k',
+						_blocks_aggregated: 1,
+						rewards: '$rnodes_.v.rewards',
+						balance: '$rnodes_.v.balance',
+						rpt_max: '$rnodes_.v.rpt_max',
+						//roi_year: { $multiply: [ { $divide: [ '$rnodes_.v.rewards', { $add: [ '$rnodes_.v.rewards', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] },
+					} },
+					{ $match: { rewards: { $gt: 0 } }},
+					{ $group: {
+						_id: '$rnode',
+						_blocks_aggregated: { $sum: '$_blocks_aggregated' },
+						rewards: { $sum: '$rewards' },
+						balance_avg: { $avg: '$balance' },
+						rpt_max: { $max: '$rpt_max' }
+					} },
+					/*{ $match: { '_id': { $ne: config.cpc.impeached_miner } } },
+					{
+						$project: {
+							_id: 0,
+							rnode: '$_id',
+							balance: { $add: [ '$balance', config.cpc.rnode_lock_amount_min ] },
+							rewards: 1,
+							rpt_max: 1,
+							rpt_avg: 1,
+							// calculte roi: cond to avoid 0 balance division
+							roi_year: { $multiply: [ { $divide: [ '$rewards', { $add: [ '$balance', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] },
+						}
+					},*/
+				])
+			)
+			.toArray((err, result) => {
+				console.log("rewards.roi(",unit, times,")", now() - t_start);
+				//console.log(result);
+
+				if (err) {
+					console.error("rewards.roi(",unit, times,") error:", err);
+					reject(err);
+				} else {
+					// format to 2 digits after dot
+					//Object.keys(result[0]).forEach(k => result[0][k] = result[0][k].toFixed(2));
+
+					resolve(result);
+				}
+			});
+	});
+}
+
+
+
+
 
 
 function set_timespan_unions_by_year (unit, times, ts_start, till_end, subtract_global, unions, included_units) {
