@@ -306,6 +306,8 @@ async function aggregate_unit (unit, ts, chunk) {
 				for (let i in rpts) {
 					let _rpt = rpts[i];
 
+					if (!_rpt || !_rpt.address || !_rpt.rpt) continue;
+
 					if (!aggregate.rnodes[_rpt.address]) aggregate.rnodes[_rpt.address] = clone(rnode_tpl);
 					aggregate.rnodes[_rpt.address].rpt_max = Math.max(aggregate.rnodes[_rpt.address].rpt_max, _rpt.rpt);
 					aggregate.rnodes[_rpt.address].rpt_min = Math.min(aggregate.rnodes[_rpt.address].rpt_min, _rpt.rpt);

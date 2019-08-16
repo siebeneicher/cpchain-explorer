@@ -27,7 +27,7 @@ setTimeout(async () => {
 
 	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
-	await aggregate.reset("day", 2);
+	await aggregate.reset();
 	await aggregate.run();
 	//await aggregate.test();
 
@@ -62,7 +62,7 @@ setTimeout(async () => {
 	//let addr = '0x501f6cf7b2437671d770998e3b785474878fef1d';
 	//await balances.latest(addr);
 	//await blocks.latest('minute', addr);
-	console.log((await rnodes.all.update("day", 1)).filter(_ => _.rnode =="0x8d16Adafb4633A3956691aA4636B603e8F328446").map(_ => [_.rnode, _.balance]));
+	//console.log((await rnodes.all.update("day", 1)).filter(_ => _.rnode =="0x8d16Adafb4633A3956691aA4636B603e8F328446").map(_ => [_.rnode, _.balance]));
 	//await rnodes.user.cache_flush_all();
 
 	//await dashboard.update();
