@@ -19,7 +19,6 @@ const max_backwards = 3 * 60 * 6;		// 3h; max limit of time to look for missing 
 const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 10000;
-const sync_generation_delay = 5000;
 const sync_missing_addresses_delay = 5000;
 const maxNewBlocksBackwardsPerCycle = 2500;
 
@@ -43,7 +42,6 @@ async function collect () {
 	_syncBackwards();
 	_syncNewAddressBalanceFromTransactions();
 	_syncCPCPrice();
-	_syncGeneration();
 
 	function _snapshot () {
 		setTimeout(async () => {
@@ -55,6 +53,7 @@ async function collect () {
 
 					// rnodes and balance update can be performed after aggregation, in parallel
 					await Promise.all([
+						syncGeneration(),
 						syncRNodes(),
 						updateBalancesOfBlockAddresses(newBlock.b, newBlock.trxs)
 					]);
@@ -109,9 +108,6 @@ async function collect () {
 
 			_syncCPCPrice();	// loop
 		}, cpc_price_delay);
-	}
-	function _syncGeneration () {
-		setInterval(() => syncGeneration(), sync_generation_delay);
 	}
 }
 
@@ -409,8 +405,13 @@ async function syncGeneration () {
 	return generation().then(async (_generation) => {
 		try {
 			sanitizeGeneration(_generation);
-			await mongo_db_generation.updateOne({BlockNumber: _generation.BlockNumber}, {$set: _generation}, { upsert: true }).then(res => {
-				if (res.upsertedCount) console.log("added generation");
+			return mongo_db_generation.updateOne({BlockNumber: _generation.BlockNumber}, {$set: _generation}, { upsert: true }).then(res => {
+				if (res.upsertedCount) {
+					return true;
+					console.log("added generation");
+				}
+
+				return false;
 			});
 		} catch (e) {}
 	});
