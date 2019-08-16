@@ -758,6 +758,6 @@ async function init (clearAll = false) {
 init(false)
 	//.then(syncCPCPrice)
 	//.then(backwardsBlock)
-	//.then(updateAllBalances)
+	.then(updateAllBalances)
 	//.then(backwardsFindNewAddresses)
 	.then(collect);
