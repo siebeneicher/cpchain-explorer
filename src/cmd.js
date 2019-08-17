@@ -20,14 +20,15 @@ setTimeout(async () => {
 	//console.log(await data.rewards.last("month", 1, 'prelatest', '0x8d16adafb4633a3956691aa4636b603e8f328446'));
 
 	//console.log(await data.rewards.last("hour", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
-	//console.log(await data.rewards.last("day", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
+	//console.log((await data.rewards.last("day", 1)).map(_ => _.rnodes_.v));
 	//console.log(await data.rewards.last("month", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
 	//console.log(await data.rewards.last("year", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
 	//console.log(await rewards.last_merged("day", 7));
 
 	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
-	await aggregate.reset();
+	await aggregate.reset("hour", 5);
+	await aggregate.reset("minute", 5*60);
 	await aggregate.run();
 	//await aggregate.test();
 

@@ -33,15 +33,15 @@ module.exports = {run, reset, test};
 async function reset (unit = null, times = null) {
 	const blocks = mongo.db(config.mongo.db.sync).collection('blocks');
 
+	let del_block_min = 0;
+	let del_block_max = 999999999999999999;
+
 	return Promise.all(Object.keys(units).map((_unit) => {
 		if (unit != null && _unit != unit) return Promise.resolve();
 
 		let ts_start = 0;
 		if (unit != null && times != null)
 			ts_start = last_unit_ts(unit, times, 10);
-
-		let del_block_min = 0;
-		let del_block_max = 999999999999999999;
 
 		return new Promise((resolve) => {
 			try {
@@ -53,7 +53,7 @@ async function reset (unit = null, times = null) {
 				} else {
 					collection
 						.find()
-						.project({ _id: 1 })
+						.project({ _id: 1, block_min: 1, block_max: 1 })
 						.sort({ts: -1})
 						.limit(times)
 						.toArray(async (err, res) => {
@@ -308,9 +308,11 @@ async function aggregate_unit (unit, ts, chunk) {
 
 					if (!_rpt || !_rpt.address || !_rpt.rpt) continue;
 
-					if (!aggregate.rnodes[_rpt.address]) aggregate.rnodes[_rpt.address] = clone(rnode_tpl);
-					aggregate.rnodes[_rpt.address].rpt_max = Math.max(aggregate.rnodes[_rpt.address].rpt_max, _rpt.rpt);
-					aggregate.rnodes[_rpt.address].rpt_min = Math.min(aggregate.rnodes[_rpt.address].rpt_min, _rpt.rpt);
+					// store RPT only on rnodes being registered (and having mined or impeached blocks!). We dont want 0-block entries each unit, which is expensive for rewards calculations
+					if (aggregate.rnodes[_rpt.address]) {
+						aggregate.rnodes[_rpt.address].rpt_max = Math.max(aggregate.rnodes[_rpt.address].rpt_max, _rpt.rpt);
+						aggregate.rnodes[_rpt.address].rpt_min = Math.min(aggregate.rnodes[_rpt.address].rpt_min, _rpt.rpt);
+					}
 				}
 			}
 

@@ -131,6 +131,7 @@ let time_multiply = units_per_year / times;
 					},
 					{ $unwind: '$rnodes_' },
 					{ $match: { 'rnodes_.k': rnode_addr || { $exists: true } } },	// filter for rnode, if parameter given
+					{ $match: { $or: [ { 'rnodes_.v.impeached': { $gt: 0 } }, { 'rnodes_.v.mined': { $gt: 0 } } ] } },
 					{ $group: {
 						_id: '$rnodes_.k',
 						mined: { $sum: '$rnodes_.v.mined' },

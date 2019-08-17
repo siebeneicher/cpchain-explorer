@@ -141,7 +141,7 @@ app.get('/aggregate', async function (req, res) {
 app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|roi|rnodes|$)/, async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 
-	if (await maintenance())
+	if (await maintenance() && !parseInt(req.query.debug))
 		res.sendFile(path.join(__dirname + '/maintenance.html'));
 	else
 		res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
