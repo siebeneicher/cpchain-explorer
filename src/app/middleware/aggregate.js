@@ -49,6 +49,7 @@ async function reset (unit = null, times = null) {
 
 				if (times == null) {
 					collection.drop();
+					console.log("dropped aggregations."+_unit);
 					resolve();
 				} else {
 					collection
@@ -116,6 +117,7 @@ async function aggregate_all (unit) {
 	// aggregate until no more new blocks
 	while (1) {
 		let {new_blocks} = await aggregate_process_blocks(unit);		// limits new blocks to max_blocks_per_aggregation
+		console.log();
 		total_new_blocks += new_blocks;
 		if (new_blocks == 0) break;
 	}
@@ -130,6 +132,8 @@ async function aggregate_process_blocks (unit) {
 
 	// prepare chunks of timespan units based on new blocks
 	const new_blocks = await getBlocksByAggregated(unit, max_blocks_per_aggregation);
+
+	console.log("new_blocks: ", new_blocks.map(_ => _.number));
 
 	if (new_blocks.length == 0)
 		return Promise.resolve({new_blocks: 0});
@@ -149,10 +153,14 @@ async function aggregate_process_blocks (unit) {
 			return { updateOne: { filter: { number: block.number }, update: { $set: { ['__aggregated.by_'+unit]: true } } } };
 		});
 
+		console.log('bulk update:', bulk.map(_ => _.updateOne));
+
 		// update all new blocks __aggregated.by_ object
 		await mongo.db(config.mongo.db.sync).collection('blocks').bulkWrite(bulk).then((result, err) => {
-			console.log('flagged blocks as aggregated', unit, result.modifiedCount);
+			console.log('flagged blocks as aggregated', unit, result);
 		});
+
+		console.log("aggregate_process_blocks() done, new_blocks: ", new_blocks.length);
 
 		return {new_blocks: new_blocks.length}
 	});
@@ -411,7 +419,7 @@ async function getBlocksByAggregated (unit, limit) {
 			.sort({number: 1})
 			.limit(limit)
 			.toArray((err, blocks) => {
-				console.log("getBlocksByAggregated("+unit+", "+limit+") took", now() - t_start);
+				console.log("getBlocksByAggregated("+unit+", "+limit+"): got:",blocks.length," in", now() - t_start);
 
 				if (err) console.error(err);
 				resolve(blocks || []);
