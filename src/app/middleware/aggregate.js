@@ -2,7 +2,7 @@ const mongo = require('../mongo');
 const config = require('../config');
 const redis = require('../redis');
 const balances = require('../data/balances');
-const {convert_ts, clone, unique_array, unit_ts, last_unit_ts} = require('../helper');
+const {convert_ts, clone, unique_array, unit_ts, last_unit_ts, execShellCommand} = require('../helper');
 const now = require('performance-now');
 const moment = require('moment');
 const {blockNumber, rnodes, versions, generation, block, transaction, balance, web3} = require('../../cpc-fusion/api');
@@ -25,8 +25,21 @@ let run_promise = Promise.resolve();		// keep promise to chain run() calls and a
 
 
 
+async function init () {
+	// TODO: find better way to go: get informed when mongo is ready
+	setTimeout(() => {
+		if (process.argv.length > 2 && process.argv[2] && units[process.argv[2]] !== undefined) {
+			aggregate_all(process.argv[2]);
+		}
+	}, 3000);
+}
 
-module.exports = {run, reset, test};
+init();
+
+
+
+
+module.exports = {run, reset, test, aggregate_all};
 
 
 
@@ -73,7 +86,7 @@ async function reset (unit = null, times = null) {
 				}
 			} catch (err) { /*console.error(err); */resolve(); }
 		}).then(() => {
-			console.log("resetting blocks... ", unit, del_block_min, del_block_max);
+			console.log("resetting blocks... ", _unit, del_block_min, del_block_max);
 			return blocks.updateMany({ number: { $gte: del_block_min, $lte: del_block_max } }, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
 				console.log("reseted aggregations."+_unit+":", result.modifiedCount, err);
 			});
@@ -90,22 +103,19 @@ async function run (unit = null) {
 	return run_promise = run_promise.then(_run);
 
 	async function _run () {
-		// sequential aggregate all timespan units
-		const result = await Object.keys(units).reduce(async (previousPromise, _unit) => {
-			await previousPromise;		// wait previous chunk to finish
-			if (unit !== null && unit != _unit) return Promise.resolve();
+		// parellel: aggregate all timespan units
+		return Promise.all(Object.keys(units).map(_unit => {
+			//return execShellCommand("node aggregate.js "+_unit);
 			return aggregate_all(_unit);
-		}, Promise.resolve());
+		})).then(async () => {
+			// create/ensure indexes
+			if (!indexes_ensured) {
+				await ensure_indexes();
+				indexes_ensured = true;
+			}
 
-		// create/ensure indexes
-		if (!indexes_ensured) {
-			await ensure_indexes();
-			indexes_ensured = true;
-		}
-
-		console.log("Aggregation took", now() - t_start);
-
-		return result;
+			console.log("Aggregation took", now() - t_start);
+		});
 	}
 }
 
@@ -133,7 +143,7 @@ async function aggregate_process_blocks (unit) {
 	// prepare chunks of timespan units based on new blocks
 	const new_blocks = await getBlocksByAggregated(unit, max_blocks_per_aggregation);
 
-	console.log("new_blocks: ", new_blocks.map(_ => _.number));
+	//console.log("new_blocks: ", new_blocks.map(_ => _.number));
 
 	if (new_blocks.length == 0)
 		return Promise.resolve({new_blocks: 0});
@@ -153,11 +163,11 @@ async function aggregate_process_blocks (unit) {
 			return { updateOne: { filter: { number: block.number }, update: { $set: { ['__aggregated.by_'+unit]: true } } } };
 		});
 
-		console.log('bulk update:', bulk.map(_ => _.updateOne));
+		//console.log('bulk update:', bulk.map(_ => _.updateOne));
 
 		// update all new blocks __aggregated.by_ object
 		await mongo.db(config.mongo.db.sync).collection('blocks').bulkWrite(bulk).then((result, err) => {
-			console.log('flagged blocks as aggregated', unit, result);
+			console.log('flagged blocks as aggregated', unit, result.modifiedCount);
 		});
 
 		console.log("aggregate_process_blocks() done, new_blocks: ", new_blocks.length);

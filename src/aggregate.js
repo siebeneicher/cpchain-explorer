@@ -1,6 +1,6 @@
 const {messaging, config, middleware} = require('./app');
 
-// this process is doing the aggregation work
+// this process is doing the aggregation work via redis messaging
 
 async function run () {
 	// initial
@@ -25,4 +25,4 @@ async function run () {
 	});
 }
 
-setTimeout(run, 2500);
+setTimeout(run, 3500);
