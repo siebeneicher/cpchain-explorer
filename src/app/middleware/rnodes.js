@@ -22,8 +22,12 @@ const user = {
 		return redis.delPrefix(CACHE_KEY);
 	},
 	get: async function (addr, forceUpdate = false) {
-		let data = !forceUpdate ? await redis.get(user.cache_key(addr)) : null;
-		return data || await user.update(addr);
+		try {
+			let data = !forceUpdate ? await redis.get(user.cache_key(addr)) : null;
+			return data || await user.update(addr);
+		} catch (e) {
+			return {error: e};
+		}
 	},
 	update: async function (addr) {
 		// avoid parallel calls, instead chain them
