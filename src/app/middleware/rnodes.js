@@ -41,7 +41,7 @@ const user = {
 
 				// is address
 				if (!isAddress(addr))
-					return Promise.reject({invalidAddress: true});
+					return reject({invalidAddress: true});
 
 				// sanitize given addr
 				addr = web3.utils.toChecksumAddress(addr);
