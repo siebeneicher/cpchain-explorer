@@ -1,3 +1,95 @@
-<p>
-  my-rnode works!
-</p>
+<div class="content">
+  <p class="title is-size-3">Watch Address #{{index_+1}}</p>
+  <p class="subtitle" *ngIf="address" >
+    <span class=""><a [routerLink]="['/address',address]">{{address | slice:0:26}}...</a></span>
+    <span (click)="resetUserRNode()" class="is-size-4 typcn typcn-backspace is-clickable"></span>
+  </p>
+  <div class="subtitle is-size-4" *ngIf="!address" >
+    <div class="field has-addons">
+      <p class="control has-icons-left">
+        <input class="input" type="text" placeholder="Your address..." id="address_input">
+        <span class="icon is-small is-left">
+          <i class="typcn typcn-database"></i>
+        </span>
+      </p>
+      <div class="control">
+        <a class="button is-info" (click)="addUserRNode()">Register</a>
+      </div>
+    </div>
+  </div>
+  <div class="content my-rnode-loading-placeholder has-text-centered" *ngIf="address && !kpi.isLoaded('myrnode', this.address)">
+    <span>
+      <i class="typcn typcn-chart-area-outline"></i>
+    </span>
+  </div>
+  <div class="content" *ngIf="address && kpi.isLoaded('myrnode', this.address) && kpi.datasets.myrnode.data[this.address]">
+     <div class="keys-values-container is-size-5">
+      <div class="keys-container">
+        <div class="item">Blocks sealed</div>
+        <div class="item">Impeached</div>
+        <div class="item">Total Rewards</div>
+        <div class="item">ROI</div>
+        <div class="item">RPT</div>
+        <div class="item">Balance</div>
+        <!-- <div class="item">Proposer</div> -->
+        <!-- <div class="item">Type of RNode</div> -->
+      </div>
+      <div class="values-container is-size-5">
+        <div class="item onhover">
+          <span class="onhover-hide">
+            <span class="number-mono">{{kpi.data('myrnode','last_rewards','total_mined','dashboard.myrnode', this.address)}}</span> / {{kpi.selectedOption('myrnode','last_rewards', 'total_mined', 'dashboard.myrnode', this.address).full}}
+          </span>
+
+          <div class="buttons has-addons onhover-show">
+            <a *ngFor="let option of kpi.options('myrnode','last_rewards', this.address)"
+              class="button is-small {{kpi.unitSelected('myrnode','last_rewards', 'total_mined', 'dashboard.myrnode', this.address) == option.unit ? 'is-info is-selected' : ''}} tooltip"
+              [attr.data-tooltip]="option.full"
+              (click)="kpi.selectUnit('myrnode','last_rewards', 'total_mined', 'dashboard.myrnode', option.unit, this.address)">{{option.abbrev}}</a>
+          </div> 
+        </div>
+        <div class="item onhover">
+          <span class="onhover-hide">
+            <span class="number-mono">{{kpi.data('myrnode','last_blocks','impeached','dashboard.myrnode', this.address)}}</span> / {{kpi.selectedOption('myrnode','last_blocks', 'impeached', 'dashboard.myrnode', this.address).full}}
+          </span>
+
+          <div class="buttons has-addons onhover-show">
+            <a *ngFor="let option of kpi.options('myrnode','last_blocks', this.address)"
+              class="button is-small {{kpi.unitSelected('myrnode','last_blocks', 'impeached', 'dashboard.myrnode', this.address) == option.unit ? 'is-info is-selected' : ''}} tooltip"
+              [attr.data-tooltip]="option.full"
+              (click)="kpi.selectUnit('myrnode','last_blocks', 'impeached', 'dashboard.myrnode', option.unit, this.address)">{{option.abbrev}}</a>
+          </div> 
+        </div>
+        <div class="item onhover">
+          <span class="onhover-hide">
+            <span class="number-mono">{{kpi.data('myrnode','last_rewards','total_rewards','dashboard.myrnode', this.address) | number : '1.2-2'}} CPC</span> / {{kpi.selectedOption('myrnode','last_rewards', 'total_rewards', 'dashboard.myrnode', this.address).abbrev}}
+          </span>
+
+          <div class="buttons has-addons onhover-show">
+            <a *ngFor="let option of kpi.options('myrnode','last_rewards', this.address)"
+              class="button is-small {{kpi.unitSelected('myrnode','last_rewards', 'total_rewards', 'dashboard.myrnode', this.address) == option.unit ? 'is-info is-selected' : ''}} tooltip"
+              [attr.data-tooltip]="option.full"
+              (click)="kpi.selectUnit('myrnode','last_rewards', 'total_rewards', 'dashboard.myrnode', option.unit, this.address)">{{option.abbrev}}</a>
+          </div>
+        </div>
+        <div class="item onhover">
+           <span class="onhover-hide">
+              <span class="number-mono">{{kpi.data('myrnode','last_rewards','avg_roi_year','dashboard.myrnode', this.address) | number : '1.2-2'}}%</span> / {{kpi.selectedOption('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode', this.address).abbrev}} (#?)
+            </span>
+
+          <div class="buttons has-addons onhover-show">
+            <a *ngFor="let option of kpi.options('myrnode','last_rewards', this.address)"
+              class="button is-small {{kpi.unitSelected('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode', this.address) == option.unit ? 'is-info is-selected' : ''}} tooltip"
+              [attr.data-tooltip]="option.full"
+              (click)="kpi.selectUnit('myrnode','last_rewards', 'avg_roi_year', 'dashboard.myrnode', option.unit, this.address)">{{option.abbrev}}</a>
+          </div> 
+        </div>
+        <div class="item">
+          <span class="number-mono">{{kpi.datasets.myrnode.data[this.address].last_rpt.rpt}}</span> (#{{kpi.datasets.myrnode.data[this.address].last_rpt.rank}} of {{kpi.datasets.dashboard.data.default.last_rnodes.rnodes.length}})
+        </div>
+        <div class="item">
+          <span class="number-mono">{{kpi.datasets.myrnode.data[this.address].last_balance | number : '1.2-2'}} ({{kpi.datasets.myrnode.data[this.address].last_balance_rank}}th)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,7 +2,7 @@
 <div class="container">
 
 	<h3 class="subtitle is-size-4">
-		Block #{{number}}
+		<span i18n="block-page|title">Block</span> #{{number}}
 		&nbsp;
 		<a class="button is-small" [routerLink]="['/block',number-1]"><i class="typcn typcn-chevron-left"></i></a>
 		<a class="button is-small" [routerLink]="['/block',number+1]"><i class="typcn typcn-chevron-right"></i></a>
@@ -10,47 +10,47 @@
 
 	<div *ngIf="empty" class="subtitle">
 		<br>
-		Not yet...
+		<span i18n="block-page|block not yet available description">Not yet...</span>
 	</div>
 
 	<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="!empty">
 		<tbody>
-			<tr><td>Height</td><td>{{number}}</td></tr>
-			<tr><td>State</td><td>
-				<span *ngIf="!block.__impeached"><i class="typcn typcn-tick"></i> Success</span>
-				<span *ngIf="block.__impeached"><i class="typcn typcn-cancel"></i> Failed</span>
+			<tr><td i18n="block-page|block number label">Height</td><td>{{number}}</td></tr>
+			<tr><td i18n="block-page|block state label">State</td><td>
+				<span *ngIf="!block.__impeached"><i class="typcn typcn-tick"></i> <span i18n="block-page|block state success">Success</span></span>
+				<span *ngIf="block.__impeached"><i class="typcn typcn-cancel"></i> <span i18n="block-page|block state failed">Failed</span></span>
 			</td></tr>
-			<tr><td>Timestamp</td><td>{{ago(block.timestamp)}} | {{block.timestamp | date: 'long' : 'UTC' }}</td></tr>
-			<tr><td>Transactions</td><td>
-				{{block.transactions ? block.transactions.length : '-'}} trx's
+			<tr><td i18n="block-page|block timestamp label">Timestamp</td><td>{{ago(block.timestamp)}} | {{block.timestamp | date: 'long' : 'UTC' }}</td></tr>
+			<tr><td i18n="block-page|block transactions label">Transactions</td><td>
+				{{block.transactions ? block.transactions.length : '-'}} <span i18n="block-page|block transaction abbrev">trx's</span>
 			</td></tr>
-			<tr><td>Proposer</td><td>
+			<tr><td i18n="block-page|block proposer label">Proposer</td><td>
 				<span>
 					<a [routerLink]="['/address', block.__proposer]">{{block.__proposer}}</a>&nbsp;<i ngxClipboard [cbContent]="__proposer" class="typcn typcn-clipboard is-clickable"></i>
 				</span>
 			</td></tr>
-			<tr><td>Reward</td><td>{{block.__reward}} CPC ({{block.__fixed_reward}} fixed + {{block.__fee}} fee)</td></tr>
-			<tr><td>Gas Used</td><td>{{block.gasUsed}}</td></tr>
-			<tr><td>Gas Limit</td><td>{{block.gasLimit}}</td></tr>
-			<tr><td>Size</td><td>{{block.size}}</td></tr>
-			<tr><td>Hash</td><td>{{block.hash}}&nbsp;<i ngxClipboard [cbContent]="block.hash" class="typcn typcn-clipboard is-clickable"></i></td></tr>
-			<tr><td>Parent Hash</td><td>{{block.parentHash}}&nbsp;<i ngxClipboard [cbContent]="block.parentHash" class="typcn typcn-clipboard is-clickable"></i></td></tr>
+			<tr><td i18n="block-page|block reward label">Reward</td><td>{{block.__reward}} CPC ({{block.__fixed_reward}} fixed + {{block.__fee}} fee)</td></tr>
+			<tr><td i18n="block-page|block gas used label">Gas Used</td><td>{{block.gasUsed}}</td></tr>
+			<tr><td i18n="block-page|block gas limit label">Gas Limit</td><td>{{block.gasLimit}}</td></tr>
+			<tr><td i18n="block-page|block size label">Size</td><td>{{block.size}}</td></tr>
+			<tr><td i18n="block-page|block hash label">Hash</td><td>{{block.hash}}&nbsp;<i ngxClipboard [cbContent]="block.hash" class="typcn typcn-clipboard is-clickable"></i></td></tr>
+			<tr><td i18n="block-page|block parent hash label">Parent Hash</td><td>{{block.parentHash}}&nbsp;<i ngxClipboard [cbContent]="block.parentHash" class="typcn typcn-clipboard is-clickable"></i></td></tr>
 		</tbody>
 	</table>
 
 	<h2 class="subtitle is-size-5" *ngIf="!empty">
-		Transactions
+		<span i18n="block-page|block transactions tab label">Transactions</span>
 		<span *ngIf="!loadingTrx && transactions">({{transactions.length}})</span>
 		<span *ngIf="loadingTrx" class="">(Loading)</span>
 	</h2>
 
 	<table class="table table is-hoverable table is-fullwidth is-striped" *ngIf="transactions.length">
 		<thead>
-			<th>TxHash</th>
-			<th>From</th>
-			<th>To</th>
-			<th>Value</th>
-			<th>TxFee</th>
+			<th i18n="block-page|block transactions table header">TxHash</th>
+			<th i18n="block-page|block transactions table header">From</th>
+			<th i18n="block-page|block transactions table header">To</th>
+			<th i18n="block-page|block transactions table header">Value</th>
+			<th i18n="block-page|block transactions table header">TxFee</th>
 		</thead>
 		<tbody>
 			<tr *ngFor="let trx of transactions">
@@ -58,7 +58,7 @@
 				<td><a [routerLink]="['/address', trx.from]">{{trx.from | slice:0:12}}...</a></td>
 				<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:12}}...</a></td>
 				<td>{{trx.value}} CPC</td>
-				<td>TODO</td>
+				<td>-</td>
 			</tr>
 		</tbody>
 	</table>

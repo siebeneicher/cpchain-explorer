@@ -216,10 +216,12 @@ async function chunkAggregationByBlockUnit (blocks, unit) {
 				overlaps.push({block, aggregation: aggregations[key]});
 		});
 		if (overlaps.length) {
-			// this is not necessary a proble, because these blocks ARE definetly not aggregated for this unit, so they are missing
+			// this is not necessary a problem, because these blocks ARE definetly not aggregated for this unit, so they are missing
 			// beside, the check is not 100% solid, anytime a block can be missed and then would overlap automatically as soon as synced
 			//console.error("ERROR: overlap of aggregated blocks with new blocks!!", overlaps, unit);//throw "NOT FULLY IMPLEMENTED: make sure, to not double aggregate a block into exiting aggregation"
 			//debugger;
+
+			// what should be improved: when a block signed as aggregated but due to any reasons not aggregated, a rejection whatever
 		}
 	}
 

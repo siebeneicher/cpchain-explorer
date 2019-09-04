@@ -2,6 +2,7 @@ const {dashboard, aggregate, updateAll, blocks, rnodes, price, kpi, transactions
 const data = require('./app/data');
 const {python_exe} = require('./app/helper');
 const {versions, blockNumber, transaction, generation, /*rnodes, */perfTest, blockProposer, block, balance} = require('./cpc-fusion/api');
+const redis = require('./app/redis');
 
 setTimeout(async () => {
 
@@ -14,10 +15,12 @@ setTimeout(async () => {
 
 	//console.log(await balance("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F"));
 	//console.log(await transaction("0x6764996826a1cbb1224ade30d180669b4b056f97a8105a92b093199f78926c68"));
-	//console.log(await data.rewards.roi('hour', 24));
 
-	//console.log(await data.rewards.last("month", 14, 'latest', '0x8d16adafb4633a3956691aa4636b603e8f328446'));
-	//console.log(await data.rewards.last("month", 1, 'prelatest', '0x8d16adafb4633a3956691aa4636b603e8f328446'));
+	//let roi = await data.rewards.roi('hour', 24);
+	//console.log(roi.avg_performance, roi.data.filter(_ => ['0x8d16Adafb4633A3956691aA4636B603e8F328446','0x17d52a444CF2462e68a2bE459CA640FC3b326906'].includes(_._id)));
+
+	//console.log(await data.rewards.last("month", 14, 'latest', '0x8d16Adafb4633A3956691aA4636B603e8F328446'));
+	//console.log(await data.rewards.last("month", 1, 'prelatest', '0x8d16Adafb4633A3956691aA4636B603e8F328446'));
 
 	//console.log(await data.rewards.last("hour", 99, '0x482c08849B8818A2F288DF8901C4873B891599b8'));
 	//console.log((await data.rewards.last("day", 1)).map(_ => _.rnodes_.v));
@@ -27,8 +30,8 @@ setTimeout(async () => {
 
 	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
-	await aggregate.reset();
-	await aggregate.run();
+	//await aggregate.reset();
+	//await aggregate.run();
 	//await aggregate.test();
 
 /*	try {
@@ -55,6 +58,8 @@ setTimeout(async () => {
 /*	await blocks.last();
 	await blocks.last(true);
 	await blocks.last();*/
+
+	console.log(await redis.keys());
 
 	//await transactions.graph.update('day', 20, 'latest');
 	//console.log(await blocks.squared.update('day', new Date().getTime()));

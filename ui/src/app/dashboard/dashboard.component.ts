@@ -19,10 +19,8 @@ import { Router } from '@angular/router';
 	providers: [ DateAgoPipe, ConvertTsPipe ]
 })
 export class DashboardComponent implements OnInit {
-	user_rnode_data:Object;
 	dashboard_data:any = null;
-	user_rnode_addr:string;
-	COOKIE_USER_RNODE:string = "cpc-user-rnode-favorite";		// todo: env.
+	user_rnodes:Array<any> = [];
 
 	constructor (
 		private httpClient: HttpClient,
@@ -39,38 +37,26 @@ export class DashboardComponent implements OnInit {
 		setInterval(() => {
 			this.tick();
 		}, 500);
+
+		setInterval(() => {
+			this.updateUserRnodes();
+		}, 25);
 	}
 
 	ngOnInit () {
 		this.kpi.require('dashboard');
-
-		this.updateUserRNode(this.cookieService.get(this.COOKIE_USER_RNODE));
 	}
 	ngOnDestroy () {
 		this.kpi.unrequire('dashboard');
-		this.kpi.unrequire('myrnode');
 	}
 
-	resetUserRNode () {
-		this.updateUserRNode();
-	}
+	updateUserRnodes () {
+		this.user_rnodes = [];
 
-	addUserRNode () {
-		let ele = document.querySelector('#user_rnode_addr_input') as HTMLInputElement;
-		this.updateUserRNode(ele ? ele.value : null);
-	}
-
-	updateUserRNode (newAddr = null) {
-		// TOOD: check addr
-
-		if (!newAddr) {
-			this.user_rnode_addr = null;
-			this.cookieService.delete(this.COOKIE_USER_RNODE);
-			this.kpi.unrequire('myrnode');
-		} else {
-			this.user_rnode_addr = newAddr;
-			this.cookieService.set(this.COOKIE_USER_RNODE, newAddr);
-			this.kpi.require('myrnode', {addr: this.user_rnode_addr});
+		try {
+			this.user_rnodes = <Array<any>> JSON.parse(this.cookieService.get(environment.dashboardUserRnodeFavorites));
+		} catch (e) {
+			this.cookieService.set(environment.dashboardUserRnodeFavorites, JSON.stringify([]));
 		}
 	}
 

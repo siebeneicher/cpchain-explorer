@@ -17,7 +17,11 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "../src/ui-build",
+            "outputPath": "../src/ui-build/en/",
+            "i18nFile": "src/locale/messages.en.xlf",
+            "i18nFormat": "xlf",
+            "i18nLocale": "en",
+            "baseHref": "/en/",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -38,16 +42,23 @@
             },
             "scripts": [
             ],
-            "es5BrowserSupport": true
+            "budgets": [
+              {
+                "type": "initial",
+                "maximumWarning": "2mb",
+                "maximumError": "5mb"
+              }
+            ],
+            "fileReplacements": [
+              {
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.prod.ts"
+              }
+            ],
           },
           "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                }
-              ],
+            "en": {
+              "es5BrowserSupport": true,
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -57,22 +68,29 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                }
-              ]
+              "outputPath": "../src/ui-build/en/",
+              "i18nFile": "src/locale/messages.en.xlf",
+              "i18nFormat": "xlf",
+              "i18nLocale": "en",
+              "baseHref": "/en/",
             },
-            "local": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.local.ts"
-                }
-              ]
-            }
+            "zh-hans": {
+              "es5BrowserSupport": true,
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "outputPath": "../src/ui-build/cn/",
+              "i18nFile": "src/locale/messages.zh-hans.xlf",
+              "i18nFormat": "xlf",
+              "i18nLocale": "zh-hans",
+              "baseHref": "/cn/",
+            },
           }
         },
         "serve": {

@@ -104,103 +104,107 @@
 
 
 
-.keys-values-container {
-	width: 100%;
-	display: flex;
-	//border: 1px solid red;
+::ng-deep {
+	.keys-values-container {
+		width: 100%;
+		display: flex;
+		//border: 1px solid red;
 
-	.keys-container {
-		width: 45%;
-		padding: 0 15px 0 0;
-		text-align: right;
-		border-right: 1px solid #1f7bbd20;
+		.keys-container {
+			width: 45%;
+			padding: 0 15px 0 0;
+			text-align: right;
+			border-right: 1px solid #1f7bbd20;
 
-		@include mobile {
-			font-size: 0.55em !important;	
-		}
-		@include tablet {
-			font-size: 0.65em !important;	
-		}
-		@include desktop {
-			font-size: 0.71em !important;
-			line-height: 17px !important;
-		}
-		@include widescreen {
-			font-size: 0.85em !important;	
-		}
-		@include fullhd {
-			font-size: 1em !important;
-		}
+			@include mobile {
+				font-size: 0.55em !important;	
+			}
+			@include tablet {
+				font-size: 0.65em !important;	
+			}
+			@include desktop {
+				font-size: 0.71em !important;
+				line-height: 17px !important;
+			}
+			@include widescreen {
+				font-size: 0.85em !important;	
+			}
+			@include fullhd {
+				font-size: 1em !important;
+			}
 
-		.item {
-			height: 27px;
-			margin: 7px 0;
-			//border: 1px solid blue;
+			.item {
+				height: 27px;
+				margin: 7px 0;
+				//border: 1px solid blue;
 
-			@include desktop { height: 33px; }
+				@include desktop { height: 33px; }
+			}
+		}
+		.values-container {
+			width: 55%;
+			padding: 0 0 0 15px;
+			white-space: nowrap;
+
+			@include mobile {
+				font-size: 0.6em !important;	
+			}
+			@include tablet {
+				font-size: 0.7em !important;	
+			}
+			@include desktop {
+				font-size: 0.75em !important;
+				line-height: 17px !important;
+			}
+			@include widescreen {
+				font-size: 0.9em !important;	
+			}
+			@include fullhd {
+				font-size: 1em !important;	
+			}
+
+			.item {
+				overflow: visible;
+				height: 27px;
+				margin: 7px 0;
+				//border: 1px solid green;
+
+				@include desktop { height: 33px; }
+			}
 		}
 	}
-	.values-container {
-		width: 55%;
-		padding: 0 0 0 15px;
-		white-space: nowrap;
 
-		@include mobile {
-			font-size: 0.6em !important;	
+	.onhover {
+		.onhover-show {
+			display: none;
+			animation-name: hide;
+			animation-duration: 0.75s;
 		}
-		@include tablet {
-			font-size: 0.7em !important;	
-		}
-		@include desktop {
-			font-size: 0.75em !important;
-			line-height: 17px !important;
-		}
-		@include widescreen {
-			font-size: 0.9em !important;	
-		}
-		@include fullhd {
-			font-size: 1em !important;	
+		.onhover-hide {
+			display: initial;
+
 		}
 
-		.item {
-			overflow: visible;
-			height: 27px;
-			margin: 7px 0;
-			//border: 1px solid green;
+		&:hover {
+			.onhover-show {display: initial;}
+			.onhover-hide {display: none;}
+		}
 
-			@include desktop { height: 33px; }
+		@keyframes hide {
+			from {opacity: 0;}
+			to {opacity: 1;}
 		}
 	}
+
+	.my-rnode-loading-placeholder {
+		margin-top: 150px;
+		.typcn {
+			font-size: 120px;
+			animation: blink normal 1.15s infinite ease-in-out;
+		}
+	}
+
+	@keyframes blink {0%{opacity:1;} 50%{opacity:0.45;} 100%{opacity:1;}}
+
 }
 
-.onhover {
-	.onhover-show {
-		display: none;
-		animation-name: hide;
-		animation-duration: 0.75s;
-	}
-	.onhover-hide {
-		display: initial;
-
-	}
-
-	&:hover {
-		.onhover-show {display: initial;}
-		.onhover-hide {display: none;}
-	}
-
-	@keyframes hide {
-		from {opacity: 0;}
-		to {opacity: 1;}
-	}
-}
-
-.my-rnode-loading-placeholder {
-	margin-top: 150px;
-	.typcn {
-		font-size: 120px;
-		animation: blink normal 1.15s infinite ease-in-out;
-	}
-}
-
-@keyframes blink {0%{opacity:1;} 50%{opacity:0.45;} 100%{opacity:1;}}

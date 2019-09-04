@@ -22,6 +22,7 @@
     "express": "4.15.2",
     "express-redis-cache": "~1.1.x",
     "express-session": "~1.15.6",
+    "helmet": "^3.20.0",
     "inspect-process": "~0.x",
     "lodash": "~4.17.5",
     "md5": "~2.2.x",

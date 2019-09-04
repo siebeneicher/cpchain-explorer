@@ -35,6 +35,11 @@ import { AddressBlocksComponent } from './address/address-blocks/address-blocks.
 import { PriceGraphComponent } from './price-graph/price-graph.component';
 import { RnodesRoiGraphComponent } from './rnodes-roi-graph/rnodes-roi-graph.component';
 
+/*import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import localeFrExtra from '@angular/common/locales/extra/fr';
+registerLocaleData(localeFr, 'fr-FR', localeFrExtra);*/
+
 @NgModule({
   declarations: [
     AppComponent,

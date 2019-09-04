@@ -230,7 +230,7 @@ let time_multiply = units_per_year / times;
 			reject(e);
 		}
 
-console.log(unions);
+console.log(JSON.stringify(unions));
 
 		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
 			.aggregate(
@@ -252,6 +252,7 @@ console.log(unions);
 						rnode: '$rnodes_.k',
 						_blocks_aggregated: 1,
 						rewards: '$rnodes_.v.rewards',
+						mined: '$rnodes_.v.mined',
 						balance: '$rnodes_.v.balance',
 						rpt_max: '$rnodes_.v.rpt_max',
 						//roi_year: { $multiply: [ { $divide: [ '$rnodes_.v.rewards', { $add: [ '$rnodes_.v.rewards', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] },
@@ -261,9 +262,20 @@ console.log(unions);
 						_id: '$rnode',
 						_blocks_aggregated: { $sum: '$_blocks_aggregated' },
 						rewards: { $sum: '$rewards' },
+						mined: { $sum: '$mined' },
 						balance_avg: { $avg: '$balance' },
-						rpt_max: { $max: '$rpt_max' }
+						rpt_max: { $max: '$rpt_max' },
 					} },
+					{ $project : {
+						_id: 1,
+						_blocks_aggregated: 1,
+						rewards: 1,
+						balance_avg: 1,
+						rpt_max: 1,
+						mined: 1,
+						balance_rewards_ratio: { $divide: [ '$rewards', { $add: [ '$balance_avg', config.cpc.rnode_lock_amount_min ]} ] },
+						roi_year: { $multiply: [ { $divide: [ '$rewards', { $add: [ '$balance_avg', config.cpc.rnode_lock_amount_min ]} ] }, 100, time_multiply ] },
+					}},
 					/*{ $match: { '_id': { $ne: config.cpc.impeached_miner } } },
 					{
 						$project: {
@@ -290,7 +302,32 @@ console.log(unions);
 					// format to 2 digits after dot
 					//Object.keys(result[0]).forEach(k => result[0][k] = result[0][k].toFixed(2));
 
-					resolve(result);
+					let sum_roi = 0;
+					let sum_index = 0;
+
+					let max_roi = 0;
+					let max_rpt = 0;
+					let max_index = 0;
+
+					for (let i in result) {
+						let _ = result[i];
+						sum_roi += _.roi_year;
+						sum_index += _.balance_rewards_ratio;
+
+						max_roi = Math.max(max_roi, _.roi_year);
+						max_rpt = Math.max(max_rpt, _.rpt_max);
+					}
+
+					let avg_roi = sum_roi / result.length;
+					let avg_index = sum_index / result.length;
+
+					for (let i in result) {
+						let _ = result[i];
+						_.index = _.balance_rewards_ratio / avg_index;
+						max_index = Math.max(max_index, _.index);
+					}
+
+					resolve({avg_roi, avg_index, dataset: result, max_roi, max_rpt, max_index});
 				}
 			});
 	});

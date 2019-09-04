@@ -4,14 +4,14 @@
 	<table class="table border-box is-hoverable table is-fullwidth is-striped" *ngIf="data.length">
 		<thead>
 			<th></th>
-			<th>TxHash</th>
-			<th>Block</th>
-			<th>When</th>
-			<th>From</th>
+			<th i18n="address-transactions|table header">TxHash</th>
+			<th i18n="address-transactions|table header">Block</th>
+			<th i18n="address-transactions|table header">When</th>
+			<th i18n="address-transactions|table header">From</th>
 			<th></th>
-			<th>To</th>
-			<th>Value</th>
-			<th>TxFee</th>
+			<th i18n="address-transactions|table header">To</th>
+			<th i18n="address-transactions|table header">Value</th>
+			<th i18n="address-transactions|table header">TxFee</th>
 		</thead>
 		<tbody>
 			<ng-container *ngFor="let trx of data; let i = index">
@@ -24,14 +24,14 @@
 					<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'warning' : 'success' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
 					<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:12}}...</a></td>
 					<td>{{trx.value}} CPC</td>
-					<td>TODO</td>
+					<td>-</td>
 				</tr>
 			</ng-container>
 		</tbody>
 	</table>
 
 	<div class="container has-text-centered" *ngIf="data.length > limit">
-		<a class="button is-small" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> Show more</a>
-		<a class="button is-small" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> Show all</a>
+		<a class="button is-small" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show more">Show more</span></a>
+		<a class="button is-small" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show all">Show all</span></a>
 	</div>
 </ng-container>

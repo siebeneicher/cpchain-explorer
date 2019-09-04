@@ -8,12 +8,17 @@ const redis = require('./redis');
 const config = require('./config');
 const cache = require('express-redis-cache')({ client: redis.client, prefix: config.redis.prefix_express });
 const now = require('performance-now');
+const helmet = require('helmet')
 
+
+
+
+app.use(helmet());
 
 
 app.use((req, res, next)=> {
 	res.setHeader('X-Used-Frontend-Cache', 'yes');
-	//console.log("REQ: ", req.url);
+	console.log("REQ: ", req.url);
 
 	// manually avoid frontend cache
 	if (req.query.forceUpdate == "1")
@@ -24,10 +29,9 @@ app.use((req, res, next)=> {
 
 
 
-
 app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await rnodes.user.get(req.params.addr));
+	res.json(await rnodes.user.get(req.params.addr, !!parseInt(req.query.forceUpdate)));
 })
 
 .get('/api/v1/dashboard', cache.route(), async function (req, res) {
@@ -138,13 +142,22 @@ app.get('/aggregate', async function (req, res) {
 
 // TODO: duplicate in nginx for production
 
-app.get(/^\/(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|roi|rnodes|$)/, async function (req, res) {
+app.get(/^\/((en|cn)\/)*(blocks|block|transaction|transactions|trx|txs|tx|address|rnode|rich-list|system-status|stats|roi|rnodes|$)/, async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
+
+	let langs = ['en','cn'];
+	let lang = "en";
+	let lang_m = req.url.match(/\/(en|cn)(\/|$)/);
+
+	if (lang_m && langs.includes(lang_m[1]))
+		lang = lang_m[1];
+
+	console.log(req.url, lang);
 
 	if (await maintenance() && !parseInt(req.query.debug))
 		res.sendFile(path.join(__dirname + '/maintenance.html'));
 	else
-		res.sendFile(path.join(__dirname + '/../ui-build/index.html'));
+		res.sendFile(path.join(__dirname + '/../ui-build/'+lang+'/index.html'));
 })
 
 // UI (ORDER AFTER API ROUTES)

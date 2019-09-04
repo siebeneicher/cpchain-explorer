@@ -212,13 +212,15 @@ export class PriceGraphComponent implements OnInit {
 		   .on("mousemove", mousemove);
 
 		function mousemove() {
-			 var x0 = xScale.invert(d3.mouse(this)[0]),
-			     i = bisectDate(dataset, x0, 1),
-			     d0 = dataset[i - 1],
-			     d1 = dataset[i],
-			     d = x0 - d0.ts > d1.ts - x0 ? d1 : d0;
-			 focus.attr("transform", "translate(" + xScale(d.ts) + "," + yScale(d[target]) + ")");
-			 focus.select("text").text("$"+d[target]);
+			try {
+				 var x0 = xScale.invert(d3.mouse(this)[0]),
+				     i = bisectDate(dataset, x0, 1),
+				     d0 = dataset[i - 1],
+				     d1 = dataset[i],
+				     d = x0 - d0.ts > d1.ts - x0 ? d1 : d0;
+				 focus.attr("transform", "translate(" + xScale(d.ts) + "," + yScale(d[target]) + ")");
+				 focus.select("text").text("$"+d[target]);
+			} catch (e) {}
 		}
 
 		this.loading = -1;
