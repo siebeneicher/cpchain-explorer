@@ -10,6 +10,7 @@ import { RnodesRoiGraphComponent } from './rnodes-roi-graph/rnodes-roi-graph.com
 import { AddressComponent } from './address/address.component';
 import { AddressTransactionsComponent } from './address/address-transactions/address-transactions.component';
 import { AddressBlocksComponent } from './address/address-blocks/address-blocks.component';
+import { AddressAnalyticsComponent } from './address/address-analytics/address-analytics.component';
 import { SystemStatusComponent } from './system-status/system-status.component';
 import { RichListComponent } from './rich-list/rich-list.component';
 import { StatsComponent } from './stats/stats.component';
@@ -25,6 +26,7 @@ const routes: Routes = [
 		{ path: '', redirectTo: 'transactions', pathMatch: 'full' },
 		{ path: 'transactions', component: AddressTransactionsComponent },
 		{ path: 'blocks', component: AddressBlocksComponent },
+		{ path: 'analytics', component: AddressAnalyticsComponent },
 	] },
 	{ path: 'system-status', component: SystemStatusComponent, data: {animation: 'systemStatusPage'} },
 	{ path: 'rich-list', component: RichListComponent, data: {animation: 'richListPage'} },

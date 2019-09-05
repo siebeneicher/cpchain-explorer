@@ -94,6 +94,11 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.json(await rnodes.blocks_count(req.params.addr));
 })
 
+.get('/api/v1/rnodes/rewards/:addr', async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await rnodes.blocks(req.params.addr));
+})
+
 .get('/api/v1/address/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await addresses.get(req.params.addr));

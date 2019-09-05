@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="zh-Hans" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="163b26fd461d0cf323671bfe8b1338bb01605938" datatype="html">
+        <source>Address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address.component.html</context>
+          <context context-type="linenumber">5</context>
+        </context-group>
+        <note priority="1" from="description">Title of the page</note>
+        <note priority="1" from="meaning">address-page</note>
+      </trans-unit>
+      <trans-unit id="ee400ea6558fbef64f0143e735fc180bed16d617" datatype="html">
+        <source>Balance</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <note priority="1" from="description">Title of the balance of the address</note>
+        <note priority="1" from="meaning">address-page</note>
+      </trans-unit>
+      <trans-unit id="4eadf6c0aba9ebdcc989c6935d5cf02853992a5b" datatype="html">
+        <source>CPC</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <note priority="1" from="description">CPC Token Symbol</note>
+      </trans-unit>
+      <trans-unit id="4536f7c957ed622a9d27bf2407416d947fa95ece" datatype="html">
+        <source>Rank</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <note priority="1" from="description">Whats the rank of the address with the current balance it has</note>
+        <note priority="1" from="meaning">address-page</note>
+      </trans-unit>
+      <trans-unit id="00a408ab9e1e51249a20c3cb1b1026cffba29b28" datatype="html">
+        <source>Transactions</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address.component.html</context>
+          <context context-type="linenumber">21</context>
+        </context-group>
+        <note priority="1" from="description">Title of the transactions</note>
+        <note priority="1" from="meaning">address-page</note>
+      </trans-unit>
+      <trans-unit id="dc9676b7abe7bd076743d5853967dafc04b2a488" datatype="html">
+        <source>Proposed Blocks</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address.component.html</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <note priority="1" from="description">Title of the blocks being proposed by the rnode of this address</note>
+        <note priority="1" from="meaning">address-page</note>
+      </trans-unit>
+      <trans-unit id="cfb6b7746d074219c03bc1ea42ef0fb6d5f7903b" datatype="html">
+        <source>Invalid Address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address.component.html</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+        <note priority="1" from="description">Description when the given address is not valid</note>
+        <note priority="1" from="meaning">address-page</note>
+      </trans-unit>
+      <trans-unit id="9868652443c5b7d3aa722a2d3dfc1a038e4f5960" datatype="html">
+        <source>Filter blocks:</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+        <note priority="1" from="description">filter title</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="d18efddedcc7ba3eaafc8f27947f915621a7a574" datatype="html">
+        <source>All</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <note priority="1" from="description">filter setting</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="2663715c1c994536db83d3870c11a2ea47f8130c" datatype="html">
+        <source>Sealed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <note priority="1" from="description">filter setting</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="bbd47967f147bd05af8eb0d20846430f31b64d53" datatype="html">
+        <source>Impeached</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+        <note priority="1" from="description">filter setting</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="1d03a219f9b8a901518567f9cc8533fc60223988" datatype="html">
+        <source>Block</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+        <note priority="1" from="description">table header</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="c29d7c326a15a9a9d389fa8e0244483870d01f5b" datatype="html">
+        <source>When</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+        <note priority="1" from="description">table header</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="2f4760318b5f6299ae09291cace55b08a1814411" datatype="html">
+        <source>Trxs</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+        <note priority="1" from="description">table header</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="46649935b73e3dc5f0e8d753b81b990837fb167c" datatype="html">
+        <source>Gas Used</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">37</context>
+        </context-group>
+        <note priority="1" from="description">table header</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="5bcb0d14f1d20d82083c57af9732fb7284a6e6ca" datatype="html">
+        <source>Gas Limit</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+        <note priority="1" from="description">table header</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="264c6a6827de2da73b0862d1267815e8e64cf4e0" datatype="html">
+        <source>Gas Price</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+        <note priority="1" from="description">table header</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="3ac05005635fafa1b0a52f1984fdd0edc6ebe6d1" datatype="html">
+        <source>Rewards</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+        <note priority="1" from="description">table header</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="107e0711900060decb398ed8786fca732106ed2e" datatype="html">
+        <source>Success</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">48</context>
+        </context-group>
+        <note priority="1" from="description">block state</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="2a2e96f1b456a5f3f4660004cc1e49da95ca6ba0" datatype="html">
+        <source>Failed</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">49</context>
+        </context-group>
+        <note priority="1" from="description">block state</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="4efb10c649fbac6e43bd525fd6d74b9e7e6ebc27" datatype="html">
+        <source>Show more</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+        <note priority="1" from="description">table show more</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+      <trans-unit id="4152aba651f9bf3e040814f5c792958e41445d89" datatype="html">
+        <source>Show all</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/address/address-blocks/address-blocks.component.html</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+        <note priority="1" from="description">table show all</note>
+        <note priority="1" from="meaning">address-blocks</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

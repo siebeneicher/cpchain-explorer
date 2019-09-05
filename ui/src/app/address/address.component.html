@@ -18,10 +18,13 @@
 		<div class="submenu tabs">
 			<ul>
 				<li class="is-size-5" [routerLink]="['/address', addr, 'transactions']" routerLinkActive="is-active"><a [routerLink]="['/address', addr, 'transactions']">
-					<span i18n="address-page|Title of the transactions">Transactions</span> ({{info.transactions_count}})
+					<span i18n="address-page|Title of the transactions">Transactions</span>&nbsp;({{info.transactions_count}})
 				</a></li>
 				<li class="is-size-5" [routerLink]="['/address', addr, 'blocks', {select: 'all'}]" routerLinkActive="is-active"><a [routerLink]="['/address', addr, 'blocks']">
-					<span i18n="address-page|Title of the blocks being proposed by the rnode of this address">Proposed Blocks</span> ({{info.blocks_count}})
+					<span i18n="address-page|Title of the blocks being proposed by the rnode of this address">Proposed Blocks</span>&nbsp;({{info.blocks_count}})
+				</a></li>
+				<li class="is-size-5" [routerLink]="['/address', addr, 'analytics']" routerLinkActive="is-active"><a [routerLink]="['/address', addr, 'analytics']">
+					<span i18n="address-page|Title of analytics tab">Analytics</span>
 				</a></li>
 			</ul>
 		</div>

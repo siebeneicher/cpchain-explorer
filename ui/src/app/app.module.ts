@@ -34,6 +34,7 @@ import { AddressTransactionsComponent } from './address/address-transactions/add
 import { AddressBlocksComponent } from './address/address-blocks/address-blocks.component';
 import { PriceGraphComponent } from './price-graph/price-graph.component';
 import { RnodesRoiGraphComponent } from './rnodes-roi-graph/rnodes-roi-graph.component';
+import { AddressAnalyticsComponent } from './address/address-analytics/address-analytics.component';
 
 /*import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
@@ -65,6 +66,7 @@ registerLocaleData(localeFr, 'fr-FR', localeFrExtra);*/
     AddressBlocksComponent,
     PriceGraphComponent,
     RnodesRoiGraphComponent,
+    AddressAnalyticsComponent,
   ],
   imports: [
     FormsModule,
