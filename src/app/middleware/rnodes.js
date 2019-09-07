@@ -12,6 +12,9 @@ const {web3} = require('../../cpc-fusion/api');
 const CACHE_KEY = 'CPC-DATA-RNODES-USER_';
 const CACHE_EXPIRE_FOREVER = 99999999999;			// redis cache lives forever, values are updated via aggregate.js
 
+
+
+
 const user = {
 	update_promise_chain: Promise.resolve(),
 
@@ -369,6 +372,51 @@ const roi = {
 	}
 }
 
+
+const timeline = {
+	update_promise_chain: Promise.resolve(),
+
+	cache_key: function (unit, times, ts_start, addr, options = {}) {
+		return 'CPC-DATA-RNODES-TIMELINE_'+unit+'_'+times+'_'+ts_start+'_'+addr+'_'+JSON.stringify(options);
+	},
+	cache_flush_all: async function () {
+		return redis.delPrefix('CPC-DATA-RNODES-TIMELINE_');
+	},
+	get: async function (unit, times, ts_start = 'latest', addr = null, options = {}, forceUpdate = false) {
+		let data = await redis.get(roi.cache_key(unit, times, ts_start, addr, options));
+
+		if (!forceUpdate && data) console.log("Serving rnodes.timeline from redis");
+		if (forceUpdate || !data)
+			data = await timeline.update(unit, times, ts_start, addr, options);
+
+		return data;
+	},
+	update: async function (unit, times, ts_start = 'latest', addr = null, options = {}) {
+
+		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
+
+		// avoid parallel calls, instead chain them
+		return roi.update_promise_chain = roi.update_promise_chain.then(_update);
+
+		async function _update () {
+			return new Promise(async function (resolve, reject) {
+				const t_start = now();
+
+				let data = await rnodes.items(unit, times, ts, addr);
+
+				redis.set(roi.cache_key(unit, times, ts_start, addr, options), data);
+				redis.expire(roi.cache_key(unit, times, ts_start, addr, options), CACHE_EXPIRE_FOREVER);
+
+				console.log('rnodes.timeline.update took', now()-t_start);
+
+				resolve(data);
+			});
+		}
+	}
+}
+
+
+
 async function blocks (addr, offset = 0, limit = null) {
 	return new Promise(async function (resolve, reject) {
 		try {
@@ -399,4 +447,4 @@ async function blocks_count (addr) {
 	});
 }
 
-module.exports = {user, streamgraph, all, blocks, blocks_count, roi};
+module.exports = {user, streamgraph, all, blocks, blocks_count, roi, timeline};

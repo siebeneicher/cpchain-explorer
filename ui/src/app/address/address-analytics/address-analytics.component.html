@@ -1,8 +1,40 @@
-<div class="element is-loading" *ngIf="loading"></div>
+<div class="container border-box">
+	<div class="title is-3" i18n="address-analytics|title">Blocks sealed</div>
 
-<ng-container *ngIf="loaded">
-
-	<div class="container border-box">
-		Coming soooon...
+	<div class="filters columns">
+		<div class="column is-7">
+			<!-- <span class="label" i18n="address-blocks|filter title">Units</span> -->
+			<span class="field has-addons">
+			  <p class="control">
+			    <a class="button" [class.is-success]="filter_select == '24-hours'" (click)="setFilter('24-hours')">
+			      <span i18n="address-analytics|graph setting">24 hours</span>
+			    </a>
+			  </p>
+			  <p class="control">
+			    <a class="button" [class.is-success]="filter_select == '48-hours'" (click)="setFilter('48-hours')">
+			      <span i18n="address-analytics|graph setting">48 hours</span>
+			    </a>
+			  </p>
+			  <p class="control">
+			    <a class="button" [class.is-success]="filter_select == '7-days'" (click)="setFilter('7-days')">
+			      <span i18n="address-analytics|graph setting">7 days</span>
+			    </a>
+			  </p>
+			  <p class="control">
+			    <a class="button" [class.is-success]="filter_select == '30-days'" (click)="setFilter('30-days')">
+			      <span i18n="address-analytics|graph setting">30 days</span>
+			    </a>
+			  </p>
+			  <p class="control">
+			    <a class="button" [class.is-success]="filter_select == 'all-days'" (click)="setFilter('all-days')">
+			      <span i18n="address-analytics|graph setting">All days</span>
+			    </a>
+			  </p>
+			</span>
+		</div>
 	</div>
-</ng-container>
+
+	<div id="addr-rewards-container">
+		<div id="addr-rewards-graph"></div>
+	</div>
+</div>

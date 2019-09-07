@@ -171,23 +171,37 @@ async function blocks_count (addr) {
 }
 
 
-async function items (unit, times, ts_start) {
+async function items (unit, times, ts_start, addr = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
 
-		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
-			.aggregate([
-				{ $project: { _id:0, ts:1, 'rnodes':1 } },
-				{ $sort: { ts: 1 } },
-				{ $match: { ts: { $gte: convert_ts(ts_start, 10) } } },
-				{ $limit: times },
-			])
-			.toArray((err, result) => {
-				console.log("rewards.items(", unit, times, ts_start, ")", now() - t_start);
-				//console.log(result);
+		const project = { _id:0, ts:1 };
 
-				if (err || result.length == 0) {
-					console.error("rewards.items(",unit, times ,") error:", err);
+		if (addr) {
+			addr = web3.utils.toChecksumAddress(addr);
+			project['rnodes.'+addr] = 1;
+		} else {
+			project.rnodes = 1;
+		}
+
+		const aggr = [
+			{ $project: project },
+			{ $sort: { ts: 1 } },
+		];
+
+		if (times != -1) {
+			aggr.push({ $match: { ts: { $gte: convert_ts(ts_start, 10) } } });
+			aggr.push({ $limit: times });
+		} 
+
+		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
+			.aggregate(aggr)
+			.toArray((err, result) => {
+				console.log("rewards.items(", unit, times, ts_start, addr, ")", now() - t_start);
+				console.log("rewards.items aggregate: ", JSON.stringify(aggr));
+
+				if (err) {
+					console.error("rewards.items(",unit, times ,addr,") error:", err);
 					resolve(null);
 				} else {
 					resolve(result);
@@ -195,4 +209,5 @@ async function items (unit, times, ts_start) {
 			});
 	});
 }
+
 
