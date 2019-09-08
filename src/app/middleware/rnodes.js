@@ -383,7 +383,7 @@ const timeline = {
 		return redis.delPrefix('CPC-DATA-RNODES-TIMELINE_');
 	},
 	get: async function (unit, times, ts_start = 'latest', addr = null, options = {}, forceUpdate = false) {
-		let data = await redis.get(roi.cache_key(unit, times, ts_start, addr, options));
+		let data = await redis.get(timeline.cache_key(unit, times, ts_start, addr, options));
 
 		if (!forceUpdate && data) console.log("Serving rnodes.timeline from redis");
 		if (forceUpdate || !data)
@@ -396,7 +396,7 @@ const timeline = {
 		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
 
 		// avoid parallel calls, instead chain them
-		return roi.update_promise_chain = roi.update_promise_chain.then(_update);
+		return timeline.update_promise_chain = timeline.update_promise_chain.then(_update);
 
 		async function _update () {
 			return new Promise(async function (resolve, reject) {
@@ -404,8 +404,8 @@ const timeline = {
 
 				let data = await rnodes.items(unit, times, ts, addr);
 
-				redis.set(roi.cache_key(unit, times, ts_start, addr, options), data);
-				redis.expire(roi.cache_key(unit, times, ts_start, addr, options), CACHE_EXPIRE_FOREVER);
+				redis.set(timeline.cache_key(unit, times, ts_start, addr, options), data);
+				redis.expire(timeline.cache_key(unit, times, ts_start, addr, options), CACHE_EXPIRE_FOREVER);
 
 				console.log('rnodes.timeline.update took', now()-t_start);
 
