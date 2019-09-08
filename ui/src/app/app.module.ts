@@ -77,7 +77,7 @@ registerLocaleData(localeFr, 'fr-FR', localeFrExtra);*/
     AppRoutingModule,
     HttpClientModule,
     DeferLoadModule ,
-    ClipboardModule
+    ClipboardModule,
   ],
   providers: [CookieService],
   bootstrap: [AppComponent]

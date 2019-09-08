@@ -41,6 +41,7 @@ async function updateAll () {
 				update_rnodes_overview(),
 
 				rnodes.streamgraph.cache_flush_all(),
+				rnodes.timeline.cache_flush_all(),
 				transactions.graph.cache_flush_all(),
 			]);
 		}).then(() => {

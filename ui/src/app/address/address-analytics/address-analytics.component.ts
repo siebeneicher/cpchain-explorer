@@ -71,7 +71,7 @@ export class AddressAnalyticsComponent implements OnInit {
 		let max = 0;
 		let min = null;
 
-		const dataset = this.data.map(({ts, rnodes}) => {
+		let dataset = this.data.map(({ts, rnodes}) => {
 			const r = rnodes[this.addr];
 			let b = {ts, mined: 0};
 			if (!r) return b;
@@ -79,6 +79,14 @@ export class AddressAnalyticsComponent implements OnInit {
 			max = Math.max(r.mined, max);
 			min = min === null ? r.mined : Math.min(min, r.mined);
 			return b;
+		});
+
+		// filter away, empty items from start to first non-empty
+		let has = false;
+		dataset = dataset.filter(_ => {
+			if (has) return true;
+			if (_.mined) return has = true;
+			return false;
 		});
 
 		return {dataset, max, min};
