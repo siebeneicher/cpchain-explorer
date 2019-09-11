@@ -35,10 +35,10 @@ async function get (hash, extended = true) {
 	});
 }
 
-async function all () {
+async function all (ignoreSmallBalances, calculate_usd) {
 	return new Promise(async function (resolve, reject) {
 		try {
-			let r = await addresses.all();
+			let r = await addresses.all(ignoreSmallBalances, calculate_usd);
 			resolve(r);
 		} catch (err) {
 			if (!err) resolve({empty: true});

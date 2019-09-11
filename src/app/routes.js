@@ -106,7 +106,7 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 
 .get('/api/v1/addresses', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await addresses.all());
+	res.json(await addresses.all(!!parseInt(req.query.ignoreSmallBalances), !!parseInt(req.query.calculateUSD)));
 })
 
 .get('/api/v1/rnodes/:unit/:times', /*cache.route(),*/ async function (req, res) {

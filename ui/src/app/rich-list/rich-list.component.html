@@ -8,6 +8,7 @@
 			<th class="has-text-right" width="1px">Rank</th>
 			<th>Address</th>
 			<th class="has-text-right">CPC Balance</th>
+			<th class="has-text-right">USD</th>
 			<th>Percentage</th>
 			<th></th>
 		</thead>
@@ -15,7 +16,8 @@
 			<tr *ngFor="let addr of addresses" [class.watching-address]="watchService.watching(addr.address)">
 				<td class="has-text-right">#{{addr.rank}}</td>
 				<td><a [routerLink]="['/address', addr.address]">{{addr.address}}</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(addr.address)"></i></td>
-				<td class="has-text-right"><span class="number-mono">{{addr.latest_balance | number: '1.0-18'}}</span></td>
+				<td class="has-text-right"><span class="number-mono">{{addr.latest_balance | number: '1.0-18'}} CPC</span></td>
+				<td class="has-text-right"><span class="number-mono">$ {{addr.latest_balance_usd | number: '1.0-2'}}</span></td>
 				<td>{{addr.balance_pct_of_total | number : '1.1-3'}}%</td>
 				<td><span class="tag is-primary is-small" *ngIf="addr.owned_by == 'cpchain'">CPC-Team</span></td>
 			</tr>

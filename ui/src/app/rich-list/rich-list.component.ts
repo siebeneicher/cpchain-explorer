@@ -20,7 +20,7 @@ export class RichListComponent implements OnInit {
 	}
 
 	async load () {
-		let url = environment.backendBaseUrl + '/addresses';
+		let url = environment.backendBaseUrl + '/addresses' + '?ignoreSmallBalances=0&calculateUSD=1';
 
 		this.loading = true;
 
