@@ -89,21 +89,25 @@
 				Rewards
 				<i *ngIf="sortBy == 'rewards'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
+			<th class="has-text-centered graph">Last 5 days</th>
 		</thead>
 		<tbody>
 			<tr *ngFor="let rnode of filtered; let i = index" [class.watching-address]="watchService.watching(rnode.rnode)">
-				<td width="1%">{{i+1}}</td>
-				<td width="1%">
-					<a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode | slice:0:10}}...</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(rnode.rnode)"></i>
-				</td>
-				<td width="1%"><span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'cpchain'">CPC-Team</span></td>
-				<td class="has-text-centered"><i *ngIf="rnode.elected" [class.typcn-media-record-outline]="!rnode.proposing" [class.typcn-media-record]="rnode.proposing" class="typcn"></i></td>
-				<td class="left-line has-text-centered">{{rnode.balance | number : '1.0-0'}}</td>
-				<td class="has-text-centered">{{rnode.rpt}}<span *ngIf="0">&nbsp;(#{{rnode.rpt_rank}})</span></td>
-				<td class="has-text-centered roi">{{rnode.roi_year |  number : '1.0-0'}}%</td>
-				<td class="left-line has-text-centered sealed"><div *ngIf="showVisLine == 'sealed'" class="vis-line" [style.width.px]="rnode.mined / stats.mined_max * width_right + 1"></div><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'sealed'}]">{{rnode.mined}}<span *ngIf="rnode.mined_pre_diff !== undefined" class="value_diff" [class.plus]="rnode.mined_pre_diff >= 0" [class.minus]="rnode.mined_pre_diff < 0">&nbsp;(<span *ngIf="rnode.mined_pre_diff > 0">+</span>{{rnode.mined_pre_diff}})</span></a></td>
-				<td class="has-text-centered impeached"><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'impeached'}]">{{rnode.impeached}}</a></td>
-				<td class="has-text-centered rewards">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.0-0'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.0-0'}}</span></td>
+				<ng-container >
+					<td width="1%">{{i+1}}</td>
+					<td width="1%">
+						<a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode | slice:0:10}}...</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(rnode.rnode)"></i>
+					</td>
+					<td width="1%"><span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'cpchain'">CPC-Team</span></td>
+					<td class="has-text-centered"><i *ngIf="rnode.elected" [class.typcn-media-record-outline]="!rnode.proposing" [class.typcn-media-record]="rnode.proposing" class="typcn"></i></td>
+					<td class="left-line has-text-centered">{{rnode.balance | number : '1.0-0'}}</td>
+					<td class="has-text-centered">{{rnode.rpt}}<span *ngIf="0">&nbsp;(#{{rnode.rpt_rank}})</span></td>
+					<td class="has-text-centered roi">{{rnode.roi_year |  number : '1.0-0'}}%</td>
+					<td class="left-line has-text-centered sealed"><div *ngIf="showVisLine == 'sealed'" class="vis-line" [style.width.px]="rnode.mined / stats.mined_max * width_right + 1"></div><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'sealed'}]" class="info-zindex">{{rnode.mined}}<span *ngIf="rnode.mined_pre_diff !== undefined" class="value_diff" [class.plus]="rnode.mined_pre_diff >= 0" [class.minus]="rnode.mined_pre_diff < 0">&nbsp;(<span *ngIf="rnode.mined_pre_diff > 0">+</span>{{rnode.mined_pre_diff}})</span></a></td>
+					<td class="has-text-centered impeached"><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'impeached'}]">{{rnode.impeached}}</a></td>
+					<td class="has-text-centered rewards">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.0-0'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.0-0'}}</span></td>
+					<td class="rnode-mined-graph"><app-rnode-mined-graph addr="{{rnode.rnode}}" index="{{i}}"></app-rnode-mined-graph></td>
+				</ng-container>
 			</tr>
 		</tbody>
 	</table>

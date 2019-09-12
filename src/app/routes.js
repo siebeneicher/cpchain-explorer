@@ -96,7 +96,7 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 
 .get('/api/v1/rnodes/timeline/:unit/:times/:ts_start/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await rnodes.timeline.get(req.params.unit, parseInt(req.params.times), req.params.ts_start, req.params.addr, {}, !!parseInt(req.query.forceUpdate)));
+	res.json(await rnodes.timeline.get(req.params.unit, parseInt(req.params.times), req.params.ts_start, req.params.addr, {fieldOnly: req.query.fieldOnly}, !!parseInt(req.query.forceUpdate)));
 })
 
 .get('/api/v1/address/:addr', async function (req, res) {

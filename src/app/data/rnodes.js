@@ -171,7 +171,7 @@ async function blocks_count (addr) {
 }
 
 
-async function items (unit, times, ts_start, addr = null) {
+async function items (unit, times, ts_start, addr = null, fieldOnly = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
 
@@ -179,7 +179,11 @@ async function items (unit, times, ts_start, addr = null) {
 
 		if (addr) {
 			addr = web3.utils.toChecksumAddress(addr);
-			project['rnodes.'+addr] = 1;
+
+			if (fieldOnly)
+				project[fieldOnly] = '$rnodes.'+addr+'.'+fieldOnly;
+			else
+				project['rnodes.'+addr] = 1;
 		} else {
 			project.rnodes = 1;
 		}

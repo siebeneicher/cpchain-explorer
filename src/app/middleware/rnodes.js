@@ -402,7 +402,7 @@ const timeline = {
 			return new Promise(async function (resolve, reject) {
 				const t_start = now();
 
-				let data = await rnodes.items(unit, times, ts, addr);
+				let data = await rnodes.items(unit, times, ts, addr, options.fieldOnly || null);
 
 				redis.set(timeline.cache_key(unit, times, ts_start, addr, options), data);
 				redis.expire(timeline.cache_key(unit, times, ts_start, addr, options), CACHE_EXPIRE_FOREVER);

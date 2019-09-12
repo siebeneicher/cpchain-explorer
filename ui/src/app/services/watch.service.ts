@@ -36,14 +36,14 @@ export class WatchService {
 	_add (addr) {
 		let _ = <Array<any>> this.watching();
 		_.push(addr);
-		this.cookieService.set(this.cookieKey, JSON.stringify(_));
+		this.cookieService.set(this.cookieKey, JSON.stringify(_), 365);
 	}
 
 	_del (addr) {
 		if (this.watching(addr)) {
 			let _ = <Array<any>> this.watching();
 			_.splice(_.indexOf(addr), 1);
-			this.cookieService.set(this.cookieKey, JSON.stringify(_));
+			this.cookieService.set(this.cookieKey, JSON.stringify(_), 365);
 		}
 	}
 }

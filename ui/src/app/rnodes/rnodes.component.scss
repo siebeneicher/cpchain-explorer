@@ -45,6 +45,7 @@ tr.watching-address {
 }
 
 .vis-line {
+	z-index: 0;
     position: absolute;
     height: 100%;
     background-color: #4497CC;
@@ -53,5 +54,14 @@ tr.watching-address {
     margin-left: -12px;
 }
 
+.info-zindex {
+	position: relative;
+	z-index: 99;
+}
+
+
+td.rnode-mined-graph {
+	width: 80px;
+}
 
 table.rnodes, td {position: relative;}

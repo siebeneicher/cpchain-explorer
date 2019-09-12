@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { WatchService } from '../services/watch.service';
+import { RnodeMinedGraphComponent } from '../rnode-mined-graph/rnode-mined-graph.component';
 
 @Component({
 	selector: 'app-rnodes',
@@ -15,7 +16,7 @@ export class RnodesComponent implements OnInit {
 	sortBy:string = "elected";
 	sortOrder:number = -1;
 	loading:string;
-	loadInterval:number = 10000;
+	loadInterval:number = 3000000;
 	loadPromise:any;
 	filtered:Array<any> = [];
 	rnodes:Array<any> = [];
@@ -77,7 +78,7 @@ export class RnodesComponent implements OnInit {
 			});
 
 			_this.width_right = 0;
-			["sealed","impeached","rewards"].forEach(_ => {
+			["sealed","impeached","rewards","graph"].forEach(_ => {
 				_this.width_right += document.querySelector('table.rnodes th.'+_).clientWidth;
 			});
 		}
