@@ -22,7 +22,7 @@ const backwards_delay = 10000;
 const sync_missing_addresses_delay = 5000;
 const maxNewBlocksBackwardsPerCycle = 250000;
 const sync_balances_delay = 1000 * 60 * 60 * 1;			// every hour
-const sync_rnodesFirstNLastBlockDate_delay = 1000 * 60 * 59 * 1;	// every hour - 1 min
+const sync_rnodesFirstNLastBlockDate_delay = 1000 * 60 * 5 /*59 * 1*/;	// every hour - 1 min
 
 // linux> mongodump --db cpc_watcher
 // windows> "C:\Program Files\MongoDB\Server\4.0\bin\mongorestore.exe" --db cpc_watcher --dir "D:\Bitbucket\cpc_watcher\dumpos\cpc_watcher"

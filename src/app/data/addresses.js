@@ -45,7 +45,7 @@ async function all (ignoreSmallBalances = true, calculateUSD = false) {
 
 	if (calculateUSD) {
 		let usd_price = await price.last();
-		aggr.push({ $project: { address: 1, balance_pct_of_total: 1, latest_balance: 1, rank: 1, latest_balance_usd: { $multiply: [ "$latest_balance", usd_price.USD.price ] } } });
+		aggr.push({ $project: { address: 1, balance_pct_of_total: 1, rnode_block_first_ts:1, rnode_block_last_ts:1, latest_balance: 1, rank: 1, latest_balance_usd: { $multiply: [ "$latest_balance", usd_price.USD.price ] } } });
 	}
 
 	aggr.push({ $sort: { rank: 1 } });

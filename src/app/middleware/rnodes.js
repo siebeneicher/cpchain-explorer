@@ -287,6 +287,8 @@ const all = {
 						owned_by: f2 ? f2.owned_by : null,
 						balance: f2 ? f2.latest_balance + config.cpc.rnode_lock_amount_min : 0,
 						balance_rank: f2 ? f2.rank == 0 : false,
+						rnode_block_first_ts: f2 ? f2.rnode_block_first_ts : null,
+						rnode_block_last_ts: f2 ? f2.rnode_block_last_ts : null,
 					};
 					Object.assign(rnode, _extend);
 
