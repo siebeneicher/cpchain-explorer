@@ -10,7 +10,7 @@ setTimeout(async () => {
 
 	//await perfTest();
 
-	//await data.rnodes.blocks_count('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');
+	await data.rnodes.update_firstNLastBlockDate('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');
 	//await data.transactions.ofAddress_count('0x2A186bE66Dd20c1699Add34A49A3019a93a7Fcd0');
 
 	//console.log(await balance("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F"));
@@ -59,7 +59,7 @@ setTimeout(async () => {
 	await blocks.last(true);
 	await blocks.last();*/
 
-	console.log(await redis.keys());
+	//console.log(await redis.keys());
 
 	//await transactions.graph.update('day', 20, 'latest');
 	//console.log(await blocks.squared.update('day', new Date().getTime()));

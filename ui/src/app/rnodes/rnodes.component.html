@@ -4,12 +4,7 @@
 	<h3 class="columns">
 		<span class="subtitle column is-2 is-size-4">{{rnodes.length}}&nbsp;RNodes</span>
 
-		<span class="filter column is-8 field has-addons">
-		  <p class="control">
-		    <a class="button" [class.is-loading]="loading == 'minute-15'" [class.is-success]="unit == 'minute' && times == 15" (click)="setTimespan('minute', 15)">
-		      <span>last 15 minutes</span>
-		    </a>
-		  </p>
+		<span class="filter column is-7 field has-addons">
 		  <p class="control">
 		    <a class="button" [class.is-loading]="loading == 'hour-1'" [class.is-success]="unit == 'hour' && times == 1" (click)="setTimespan('hour', 1)">
 		      <span>1 hour</span>
@@ -18,11 +13,6 @@
 		  <p class="control">
 		    <a class="button" [class.is-loading]="loading == 'hour-4'" [class.is-success]="unit == 'hour' && times == 4" (click)="setTimespan('hour', 4)">
 		      <span>4 hours</span>
-		    </a>
-		  </p>
-		  <p class="control">
-		    <a class="button" [class.is-loading]="loading == 'hour-12'" [class.is-success]="unit == 'hour' && times == 12" (click)="setTimespan('hour', 12)">
-		      <span>12 hours</span>
 		    </a>
 		  </p>
 		  <p class="control">
@@ -47,10 +37,15 @@
 		  </p>
 		</span>
 
-		<span class="filter column is-2 field has-addons">
+		<span class="filter column is-3 field has-addons">
 		  <p class="control">
-		    <a class="button" [class.is-success]="filter_community_only" (click)="toggleCommunityOnly()">
+		    <a class="button" [class.is-success]="filter_community_only" (click)="toggleOnly('community')">
 		      <span>Community Only</span>
+		    </a>
+		  </p>
+		  <p class="control">
+		    <a class="button" [class.is-success]="filter_favorite_only" (click)="toggleOnly('favorite')">
+		      <span><i class="typcn typcn-eye"></i> Favorites Only</span>
 		    </a>
 		  </p>
 		</span>
@@ -89,10 +84,10 @@
 				Rewards
 				<i *ngIf="sortBy == 'rewards'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
 			</th>
-			<th class="has-text-centered graph">Last 5 days</th>
+			<th class="has-text-centered graph">Last 7 days</th>
 		</thead>
 		<tbody>
-			<tr *ngFor="let rnode of filtered; let i = index" [class.watching-address]="watchService.watching(rnode.rnode)">
+			<tr *ngFor="let rnode of filtered; let i = index; trackBy: trackByFn" [class.watching-address]="watchService.watching(rnode.rnode)">
 				<ng-container >
 					<td width="1%">{{i+1}}</td>
 					<td width="1%">
@@ -106,7 +101,7 @@
 					<td class="left-line has-text-centered sealed"><div *ngIf="showVisLine == 'sealed'" class="vis-line" [style.width.px]="rnode.mined / stats.mined_max * width_right + 1"></div><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'sealed'}]" class="info-zindex">{{rnode.mined}}<span *ngIf="rnode.mined_pre_diff !== undefined" class="value_diff" [class.plus]="rnode.mined_pre_diff >= 0" [class.minus]="rnode.mined_pre_diff < 0">&nbsp;(<span *ngIf="rnode.mined_pre_diff > 0">+</span>{{rnode.mined_pre_diff}})</span></a></td>
 					<td class="has-text-centered impeached"><a [routerLink]="['/address', rnode.rnode, 'blocks', {select: 'impeached'}]">{{rnode.impeached}}</a></td>
 					<td class="has-text-centered rewards">CPC&nbsp;<span class="number-mono">{{rnode.rewards |  number : '1.0-0'}}</span> / $&nbsp;<span class="number-mono">{{rnode.rewards_usd |  number : '1.0-0'}}</span></td>
-					<td class="rnode-mined-graph"><app-rnode-mined-graph addr="{{rnode.rnode}}" index="{{i}}"></app-rnode-mined-graph></td>
+					<td class="rnode-mined-graph"><a [routerLink]="['/address', rnode.rnode, 'analytics']"><app-rnode-mined-graph addr="{{rnode.rnode}}" index="{{i}}"></app-rnode-mined-graph></a></td>
 				</ng-container>
 			</tr>
 		</tbody>

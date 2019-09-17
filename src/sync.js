@@ -21,7 +21,8 @@ const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 10000;
 const sync_missing_addresses_delay = 5000;
 const maxNewBlocksBackwardsPerCycle = 250000;
-
+const sync_balances_delay = 1000 * 60 * 60 * 1;			// every hour
+const sync_rnodesFirstNLastBlockDate_delay = 1000 * 60 * 59 * 1;	// every hour - 1 min
 
 // linux> mongodump --db cpc_watcher
 // windows> "C:\Program Files\MongoDB\Server\4.0\bin\mongorestore.exe" --db cpc_watcher --dir "D:\Bitbucket\cpc_watcher\dumpos\cpc_watcher"
@@ -42,6 +43,8 @@ async function collect () {
 	_syncBackwards();
 	_syncNewAddressBalanceFromTransactions();
 	_syncCPCPrice();
+	_syncBalances();
+	_syncRNodesFirstNLastBlockDate();
 
 	function _snapshot () {
 		setTimeout(async () => {
@@ -108,6 +111,34 @@ async function collect () {
 
 			_syncCPCPrice();	// loop
 		}, cpc_price_delay);
+	}
+
+	function _syncBalances () {
+		setTimeout(async () => {
+			try {
+				if (await syncBalances()) {
+					messaging.emit('SYNC-BALANCES', {});
+				}
+			} catch (err) {
+				console.error(err);
+			}
+
+			_syncBalances();	// loop
+		}, sync_balances_delay);
+	}
+
+	function _syncRNodesFirstNLastBlockDate () {
+		setTimeout(async () => {
+			try {
+				if (await syncRNodesFirstNLastBlockDates()) {
+					messaging.emit('SYNC-RNODES-DATES', {});
+				}
+			} catch (err) {
+				console.error(err);
+			}
+
+			_syncRNodesFirstNLastBlockDate();	// loop
+		}, sync_rnodesFirstNLastBlockDate_delay);
 	}
 }
 
@@ -603,9 +634,9 @@ async function backwardsCalculateTrxTimeOfBlock () {
 	});
 }
 
-async function updateAllBalances () {
+async function syncBalances () {
 	// legacy: remove history
-	mongo_db_balances.updateMany({}, {$unset: { history: "" }});
+	//mongo_db_balances.updateMany({}, {$unset: { history: "" }});
 
 	// update all balances
 	return new Promise((resolve, reject) => {
@@ -617,6 +648,23 @@ async function updateAllBalances () {
 		});
 	});
 }
+
+
+async function syncRNodesFirstNLastBlockDates () {
+	return new Promise((resolve, reject) => {
+		mongo_db_balances.find().toArray(async function (err, bs) {
+			for (let i in bs) {
+				await rnodes.update_firstNLastBlockDate(bs[i].address);
+			};
+			resolve();
+		});
+	});
+}
+
+
+
+
+
 
 /**
  * Backwards find unknown addresses in trx's and blocks
@@ -758,6 +806,7 @@ async function init (clearAll = false) {
 init(false)
 	//.then(syncCPCPrice)
 	//.then(backwardsBlock)
-	//.then(updateAllBalances)
+	//.then(syncRNodesFirstNLastBlockDates)
+	//.then(syncBalances)
 	//.then(backwardsFindNewAddresses)
 	.then(collect);

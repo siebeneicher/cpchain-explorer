@@ -16,7 +16,7 @@ export class RnodesComponent implements OnInit {
 	sortBy:string = "elected";
 	sortOrder:number = -1;
 	loading:string;
-	loadInterval:number = 3000000;
+	loadInterval:number = 10000;
 	loadPromise:any;
 	filtered:Array<any> = [];
 	rnodes:Array<any> = [];
@@ -25,12 +25,14 @@ export class RnodesComponent implements OnInit {
 	width_left:number = 0;
 	width_right:number = 0;
 	filter_community_only:boolean;
+	filter_favorite_only:boolean;
 
 	constructor(private httpClient: HttpClient, public watchService: WatchService,) { }
 
 	ngOnInit() {
 		this.stats = {};
 		this.filter_community_only = false;
+		this.filter_favorite_only = false;
 		this.loadPromise = Promise.resolve();
 		this.load();
 		setInterval(() => this.load(), this.loadInterval);
@@ -57,12 +59,20 @@ export class RnodesComponent implements OnInit {
 	}
 
 	filter () {
-		if (!this.filter_community_only)
-			this.filtered = this.rnodes;
-		else
+		if (this.filter_community_only)
 			this.filtered = this.rnodes.filter(_ => _.owned_by != "cpchain");
+		else if (this.filter_favorite_only)
+			this.filtered = this.rnodes.filter(_ => this.watchService.watching(_.rnode));
+		else
+			this.filtered = this.rnodes;
+			
 
 		this.calcStats();
+	}
+
+	trackByFn (index, item) {
+		if (!item) return null;
+		return item.rnode;
 	}
 
 	calcTableWidths () {
@@ -102,8 +112,16 @@ export class RnodesComponent implements OnInit {
 		this.load();
 	}
 
-	toggleCommunityOnly () {
-		this.filter_community_only = !this.filter_community_only;
+	toggleOnly (what) {
+
+		if (what == "community") {
+			this.filter_community_only = !this.filter_community_only;
+			this.filter_favorite_only = false;
+		} else if (what == "favorite") {
+			this.filter_favorite_only = !this.filter_favorite_only;
+			this.filter_community_only = false;
+		}
+		
 		this.filter();
 		this.sort();
 		this.calcTableWidths();

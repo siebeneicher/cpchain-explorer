@@ -1,11 +1,11 @@
 const mongo = require('../mongo');
 const config = require('../config');
-const {convert_ts, last_unit_ts} = require('../helper');
+const {convert_ts, last_unit_ts, isAddress} = require('../helper');
 const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
 const {web3} = require('../../cpc-fusion/api');
 
-module.exports = {last, last_rpt, type, items, blocks, blocks_count, last_generation}
+module.exports = {last, last_rpt, type, items, blocks, blocks_count, last_generation, update_firstNLastBlockDate, blocks_first, blocks_last}
 
 async function type (addr) {
 	// sanitize given addr
@@ -170,6 +170,50 @@ async function blocks_count (addr) {
 	});
 }
 
+async function blocks_first (addr) {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+		addr = web3.utils.toChecksumAddress(addr);
+
+		mongo.db(config.mongo.db.sync).collection('blocks')
+			.find({__proposer: addr})
+			.sort({timestamp: 1})
+			.limit(1)
+			.toArray((err, result) => {
+				//console.log("rewards.blocks_first(", addr, "):",result,"in", now() - t_start);
+
+				if (err) {
+					console.error("rnodes.blocks_first error:", err);
+					reject();
+				} else {
+					resolve(result.length ? result[0] : null);
+				}
+			});
+	});
+}
+
+async function blocks_last (addr) {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+		addr = web3.utils.toChecksumAddress(addr);
+
+		mongo.db(config.mongo.db.sync).collection('blocks')
+			.find({__proposer: addr})
+			.sort({timestamp: -1})
+			.limit(1)
+			.toArray((err, result) => {
+				//console.log("rewards.blocks_last(", addr, "):",result,"in", now() - t_start);
+
+				if (err) {
+					console.error("rnodes.blocks_last error:", err);
+					reject();
+				} else {
+					resolve(result.length ? result[0] : null);
+				}
+			});
+	});
+}
+
 
 async function items (unit, times, ts_start, addr = null, fieldOnly = null) {
 	return new Promise(async function (resolve, reject) {
@@ -215,3 +259,20 @@ async function items (unit, times, ts_start, addr = null, fieldOnly = null) {
 }
 
 
+async function update_firstNLastBlockDate (addr) {
+	const t_start = now();
+
+	// is address
+	if (!isAddress(addr))
+		return Promise.reject({invalidAddress: true});
+
+	// sanitize given addr
+	addr = web3.utils.toChecksumAddress(addr);
+
+	let first = await blocks_first(addr);
+	let last = await blocks_last(addr);
+
+	if (!first || !last) return Promise.resolve();
+
+	return mongo.db(config.mongo.db.sync).collection('balances').updateOne({address: addr}, {$set: { rnode_block_first_ts: first.timestamp, rnode_block_last_ts: last.timestamp }}, { upsert: true });
+}
