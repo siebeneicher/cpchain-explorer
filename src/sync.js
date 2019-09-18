@@ -1,6 +1,7 @@
 const {blockNumber, versions, rnodes, block, generation, transaction, web3, balance, blockProposer} = require('./cpc-fusion/api');
 const mongo = require('./app/mongo');
 const { balances, addresses, blocks: data_blocks } = require('./app/data');
+const _data = require('./app/data');
 const config = require('./app/config');
 const now = require('performance-now');
 const moment = require('moment');
@@ -659,7 +660,7 @@ async function syncRNodesFirstNLastBlockDates () {
 	return new Promise((resolve, reject) => {
 		mongo_db_balances.find().toArray(async function (err, bs) {
 			for (let i in bs) {
-				await data.rnodes.update_firstNLastBlockDate(bs[i].address);
+				await _data.rnodes.update_firstNLastBlockDate(bs[i].address);
 			};
 			resolve();
 		});
