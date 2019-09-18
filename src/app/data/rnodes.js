@@ -184,7 +184,7 @@ async function blocks_first (addr) {
 				]
 			)
 			.toArray((err, result) => {
-				console.log("rewards.blocks_first(", addr, "):",!!result, err,"in", now() - t_start);
+				console.log("rewards.blocks_first(", addr, "):",(result ? result.length : null), err,"in", now() - t_start);
 
 				if (err) {
 					console.error("rnodes.blocks_first error:", err);
@@ -210,7 +210,7 @@ async function blocks_last (addr) {
 				]
 			)
 			.toArray((err, result) => {
-				console.log("rewards.blocks_last(", addr, "):",!!result, err,"in", now() - t_start);
+				console.log("rewards.blocks_last(", addr, "):",(result ? result.length : null), err,"in", now() - t_start);
 
 				if (err) {
 					console.error("rnodes.blocks_last error:", err);
