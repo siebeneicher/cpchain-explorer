@@ -297,7 +297,7 @@ async function update_firstNLastBlockDate (addr) {
 		mongo.db(config.mongo.db.sync).collection('balances')
 			.updateOne({address: addr}, { $set: { rnode_block_first_ts: first.timestamp, rnode_block_last_ts: last.timestamp } }, { upsert: false })
 			.then((res, err) => {
-				//console.log("update_firstNLastBlockDate("+addr+"), modCount:", res ? res.modifiedCount : err);
+				console.log("update_firstNLastBlockDate("+addr+"), modCount:", res ? res.modifiedCount : err);
 				resolve();
 			});
 	});
