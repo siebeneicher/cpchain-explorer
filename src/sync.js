@@ -29,6 +29,11 @@ const sync_rnodesFirstNLastBlockDate_delay = 1000 * 60 * 59 * 1;	// every hour -
 
 
 
+module.exports = {syncRNodesFirstNLastBlockDates};
+
+
+
+
 function subscribe () {
 // WS NOT YET WORKING ON CPC NODE
 	web3.eth.subscribe('logs', {}, (error, result) => {
@@ -654,7 +659,7 @@ async function syncRNodesFirstNLastBlockDates () {
 	return new Promise((resolve, reject) => {
 		mongo_db_balances.find().toArray(async function (err, bs) {
 			for (let i in bs) {
-				await rnodes.update_firstNLastBlockDate(bs[i].address);
+				await data.rnodes.update_firstNLastBlockDate(bs[i].address);
 			};
 			resolve();
 		});
