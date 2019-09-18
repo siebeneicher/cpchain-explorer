@@ -3,7 +3,7 @@ const data = require('./app/data');
 const {python_exe} = require('./app/helper');
 const {versions, blockNumber, transaction, generation, /*rnodes, */perfTest, blockProposer, block, balance} = require('./cpc-fusion/api');
 const redis = require('./app/redis');
-const sync = require('./sync');
+
 
 setTimeout(async () => {
 
@@ -11,7 +11,7 @@ setTimeout(async () => {
 
 	//await perfTest();
 
-	await sync.syncRNodesFirstNLastBlockDates();
+	await data.rnodes.updateAll_firstNLastBlockDate();
 
 	//await data.rnodes.update_firstNLastBlockDate('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');
 	//await data.transactions.ofAddress_count('0x2A186bE66Dd20c1699Add34A49A3019a93a7Fcd0');
