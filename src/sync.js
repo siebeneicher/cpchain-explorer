@@ -660,7 +660,12 @@ async function syncRNodesFirstNLastBlockDates () {
 	return new Promise((resolve, reject) => {
 		mongo_db_balances.find().toArray(async function (err, bs) {
 			for (let i in bs) {
-				await _data.rnodes.update_firstNLastBlockDate(bs[i].address);
+				try {
+					console.log(bs[i].address);
+					await _data.rnodes.update_firstNLastBlockDate(bs[i].address);
+				} catch (err) {
+					console.log(err);
+				}
 			};
 			resolve();
 		});

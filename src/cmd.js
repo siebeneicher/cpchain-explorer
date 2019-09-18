@@ -78,4 +78,4 @@ setTimeout(async () => {
 	//console.log(await versions());
 
 	process.exit()
-}, 2500);
+}, 5500);

@@ -180,7 +180,7 @@ async function blocks_first (addr) {
 			.sort({timestamp: 1})
 			.limit(1)
 			.toArray((err, result) => {
-				//console.log("rewards.blocks_first(", addr, "):",result,"in", now() - t_start);
+				console.log("rewards.blocks_first(", addr, "):",!!result, err,"in", now() - t_start);
 
 				if (err) {
 					console.error("rnodes.blocks_first error:", err);
@@ -202,7 +202,7 @@ async function blocks_last (addr) {
 			.sort({timestamp: -1})
 			.limit(1)
 			.toArray((err, result) => {
-				//console.log("rewards.blocks_last(", addr, "):",result,"in", now() - t_start);
+				console.log("rewards.blocks_last(", addr, "):",!!result, err,"in", now() - t_start);
 
 				if (err) {
 					console.error("rnodes.blocks_last error:", err);
@@ -262,6 +262,8 @@ async function items (unit, times, ts_start, addr = null, fieldOnly = null) {
 async function update_firstNLastBlockDate (addr) {
 	const t_start = now();
 
+console.log(addr, isAddress(addr));
+
 	// is address
 	if (!isAddress(addr))
 		return Promise.reject({invalidAddress: true});
@@ -272,7 +274,16 @@ async function update_firstNLastBlockDate (addr) {
 	let first = await blocks_first(addr);
 	let last = await blocks_last(addr);
 
+console.log(addr, "has: ", !!first, !!last);
+
 	if (!first || !last) return Promise.resolve();
 
-	return mongo.db(config.mongo.db.sync).collection('balances').updateOne({address: addr}, {$set: { rnode_block_first_ts: first.timestamp, rnode_block_last_ts: last.timestamp }}, { upsert: true });
+	return new Promise((resolve, reject) => {
+		mongo.db(config.mongo.db.sync).collection('balances')
+			.updateOne({address: addr}, { $set: { rnode_block_first_ts: first.timestamp, rnode_block_last_ts: last.timestamp } }, { upsert: false })
+			.then((res, err) => {
+				console.log("update_firstNLastBlockDate("+addr+"), modCount:", res ? res.modifiedCount : err);
+				resolve();
+			});
+	});
 }
