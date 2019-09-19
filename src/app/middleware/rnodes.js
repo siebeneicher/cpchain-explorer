@@ -296,7 +296,7 @@ const all = {
 					let [f3] = _rewards.filter(_ => _.rnode == addr);
 					if (f3) {
 						delete f3.rnode;
-						//delete f3.balance;
+						delete f3.balance;
 						Object.assign(rnode, f3);
 					} else {
 						Object.assign(rnode, {
