@@ -121,74 +121,67 @@ async function ofBlock (blockNumber) {
 	});
 }
 
-async function ofAddress (addrHash) {
+async function ofAddress (addrHash, offset = null, limit = null, sort = null, sortOrder = null) {
 	return new Promise((resolve, reject) => {
 		const t_start = now();
 
 		// sanitize given addr
 		addrHash = web3.utils.toChecksumAddress(addrHash);
+		let _sort = sort === null ? {__ts: -1} : {[sort]: parseInt(sortOrder)};
+
+		const aggr = [
+			{ $match: {address: addrHash} },
+			{
+				$lookup:{
+					from: "transactions",
+					localField: "address",
+					foreignField: "from",
+					as: "transactions_from"
+				}
+			},
+			{
+				$lookup:{
+					from: "transactions",
+					localField: "address",
+					foreignField: "to",
+					as: "transactions_to"
+				}
+			},
+			{ $project: { transactions: { $concatArrays: [ "$transactions_to", "$transactions_from" ] } } },
+			{ $unwind: '$transactions' },
+			{ $project: {
+				_id: 0,
+				'hash':'$transactions.hash',
+				'__ts':'$transactions.__ts',
+				'value':'$transactions.value',
+				'to':'$transactions.to',
+				'from':'$transactions.from',
+				'blockNumber':'$transactions.blockNumber',
+			} },
+			{ $sort: _sort }
+		];
+
+		if (offset !== null) {
+			aggr.push({ $skip: parseInt(offset) });
+		}
+		if (limit !== null && parseInt(limit) != -1) {
+			aggr.push({ $limit: parseInt(limit) });
+		}
+
+console.log("transactions.ofAddress:", aggr);
 
 		mongo.db(config.mongo.db.sync).collection('balances')
-			.aggregate([
-				{ $match: {address: addrHash} },
-				{
-					$lookup:{
-						from: "transactions",
-						localField: "address",
-						foreignField: "from",
-						as: "transactions_from"
-					}
-				},
-				{
-					$lookup:{
-						from: "transactions",
-						localField: "address",
-						foreignField: "to",
-						as: "transactions_to"
-					}
-				},
-/*				{
-					$lookup:{
-						from: "blocks",
-						localField: "address",
-						foreignField: "miner",
-						as: "blocks_mined"
-					}
-				},*/
-				{ $project: {
-					address:1,
-					'transactions_from.hash':1,
-					'transactions_from.__ts':1,
-					'transactions_from.value':1,
-					'transactions_from.to':1,
-					'transactions_from.from':1,
-					'transactions_from.blockNumber':1,
-					'transactions_to.hash':1,
-					'transactions_to.__ts':1,
-					'transactions_to.value':1,
-					'transactions_to.to':1,
-					'transactions_to.from':1,
-					'transactions_to.blockNumber':1,
-				} },
-			])
-			.toArray((err, addr) => {
+			.aggregate(aggr)
+			.toArray((err, trxs) => {
+
+console.log(err, trxs);
 
 				if (err) return reject(err);
-				else if (!addr || !addr.length) return reject(null);
+				else if (!trxs || !trxs.length) return reject(null);
 
-				// merge from/to transactions
-				const trxs = addr[0].transactions_from.concat(addr[0].transactions_to);
+				console.log("transactions.ofAddress(", addrHash, offset, limit, ") took", now() - t_start);
 
-				// sort
-				trxs.sort((a,b) => (a.__ts > b.__ts) ? -1 : ((b.__ts > a.__ts) ? 1 : 0));
-
-				addr[0].transactions = trxs;
-				delete addr[0].transactions_from;
-				delete addr[0].transactions_to;
-
-				console.log("transactions.ofAddress(", addrHash, ") took", now() - t_start);
-
-				resolve(addr[0]);
+				resolve(trxs);
 			});
 	});
 }

@@ -94,10 +94,10 @@ async function ofBlock (blockNumber) {
 	});
 }
 
-async function ofAddress (addrHash) {
+async function ofAddress (addrHash, offset = null, limit = null, sort = null, sortOrder = null) {
 	return new Promise(async function (resolve, reject) {
 		try {
-			resolve(await transactions.ofAddress(addrHash));
+			resolve(await transactions.ofAddress(addrHash, offset, limit, sort, sortOrder));
 		} catch (err) {
 			if (!err) resolve({empty: true});
 			else resolve({err});

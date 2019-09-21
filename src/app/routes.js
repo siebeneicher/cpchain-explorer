@@ -81,12 +81,12 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 
 .get('/api/v1/address/transactions/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await transactions.ofAddress(req.params.addr));
+	res.json(await transactions.ofAddress(req.params.addr, req.query.offset, req.query.limit, req.query.sort, req.query.sortOrder));
 })
 
 .get('/api/v1/rnodes/blocks/:addr', async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
-	res.json(await rnodes.blocks(req.params.addr));
+	res.json(await rnodes.blocks(req.params.addr, req.query.offset, req.query.limit, req.query.sort, req.query.sortOrder));
 })
 
 .get('/api/v1/rnodes/blocks-count/:addr', async function (req, res) {

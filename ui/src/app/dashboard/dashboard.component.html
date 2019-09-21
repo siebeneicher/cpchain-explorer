@@ -8,11 +8,11 @@
       <a href="https://cpchain.io"><img src="assets/logo_only.png" class="cpc-logo"></a>
     </div>
     <div class="column is-6 titles">
-      <h2 class="subtitle">rnodes.io</h2>
-      <h1 class="title">CPChain Blockchain Explorer</h1>
+      <h2 class="subtitle" i18n="home-page|title/domain of page">rnodes.io</h2>
+      <h1 class="title" i18n="home-page|subtitle of page">CPChain Blockchain Explorer</h1>
     </div>
     <div class="column is-3 has-text-centered">
-      <i class="subtext">A new<br> distributed infrastructure for<br> next generation IoT</i>
+      <i class="subtext" i18n="home-page|description of cpchain">A new<br> distributed infrastructure for<br> next generation IoT</i>
     </div>
     <div class="column is-1"></div>
   </div>
@@ -25,7 +25,7 @@
       </span>
     </p>
     <div class="control">
-      <a class="button is-large is-info" (click)="search()">Go</a>
+      <a class="button is-large is-info" (click)="search()" i18n="home-page|search formulat submit button title">Go</a>
     </div>
   </div>
 
@@ -43,11 +43,11 @@
     <div class="column is-3 has-text-centered stats" *ngIf="kpi.datasets.dashboard.data">
       <div class="info title">
         <span class="typcn typcn-power"></span>
-        {{kpi.datasets.dashboard.data.default.last_rnodes.rnodes.length}} RNodes Live
+        {{kpi.datasets.dashboard.data.default.last_rnodes.rnodes.length}} <span i18n="home-page|title of KPI">RNodes Live</span>
       </div>
 
       <div class="info title">
-        <b>$</b>&nbsp;<a href="https://coinmarketcap.com/currencies/cpchain/" target="_blank">{{kpi.datasets.dashboard.data.default.last_price.USD.price |  number : '1.1-4'}} Price</a>
+        <b>$</b>&nbsp;<a href="https://coinmarketcap.com/currencies/cpchain/" target="_blank">{{kpi.datasets.dashboard.data.default.last_price.USD.price |  number : '1.1-4'}} <span i18n="home-page|cpc price">Price</span></a>
       </div>
 
       <app-price-graph class="graph price"></app-price-graph>
@@ -55,12 +55,12 @@
     <div class="column is-4 has-text-centered stats">
       <div class="info title">
         <span class="typcn typcn-arrow-loop"></span>
-        {{kpi.data('dashboard','last_rewards','avg_roi_year','dashboard.top-teaser')}}% ROI (avg.)
+        {{kpi.data('dashboard','last_rewards','avg_roi_year','dashboard.top-teaser')}}% <span i18n="home-page|Return on Investment (average)">ROI (avg.)</span>
       </div>
 
       <div class="info title">
         <span class="typcn typcn-arrow-shuffle"></span>
-        {{kpi.data('dashboard','last_transactions','count','dashboard.top-teaser')}} Trx's / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.top-teaser').full}}
+        {{kpi.data('dashboard','last_transactions','count','dashboard.top-teaser')}} <span i18n="home-page|transactions KPI">Trx's</span> / {{kpi.selectedOption('dashboard','last_transactions','count','dashboard.top-teaser').full}}
       </div>
 
       <app-trx-graph class="graph trx"></app-trx-graph>
@@ -77,16 +77,16 @@
   <div class="tile is-ancestor">
     <div class="tile is-parent">
       <article class="tile is-child boxed is-primary" *ngIf="kpi.isLoaded('dashboard')">
-        <p class="title is-size-3">Health</p>
-        <p class="subtitle">Networks overall health KPIs</p>
+        <p class="title is-size-3" i18n="home-page|title of info block">Health</p>
+        <p class="subtitle" i18n="home-page|subtitle of info block">Networks overall health KPIs</p>
         <div class="keys-values-container is-size-5">
           <div class="keys-container">
-            <div class="item text">Last Block</div>
-            <div class="item">Active RNodes</div>
-            <div class="item">Transactions</div>
-            <div class="item">Trx. Volume</div>
-            <div class="item">Fee (avg.)</div>
-            <div class="item">Impeached</div>
+            <div class="item text" i18n="home-page|title of KPI">Last Block</div>
+            <div class="item" i18n="home-page|title of KPI">Active RNodes</div>
+            <div class="item" i18n="home-page|title of KPI">Transactions</div>
+            <div class="item" i18n="home-page|title of KPI">Trx. Volume</div>
+            <div class="item" i18n="home-page|title of KPI">Fee (avg.)</div>
+            <div class="item" i18n="home-page|title of KPI">Impeached</div>
           </div>
           <div class="values-container is-size-5">
             <div class="item"><a [routerLink]="['/block', lastBlockService.last_block.number]">{{lastBlockService.last_block.number}}</a></div>
@@ -112,7 +112,7 @@
               </div>
             </div>
             <div class="item">
-              <span class=""><span class="number-mono">{{kpi.data('dashboard','last_transactions','fee_avg','dashboard.health') | number : '1.4-4'}}</span> / Trx</span>
+              <span class=""><span class="number-mono">{{kpi.data('dashboard','last_transactions','fee_avg','dashboard.health') | number : '1.4-4'}}</span> / <span i18n="home-page|title of KPI (transaction)">Trx</span></span>
             </div>
             <div class="item onhover">
               <span class="onhover-hide"><span class="number-mono">{{kpi.data('dashboard','last_blocks','impeached','dashboard.health')}}</span> / {{kpi.selectedOption('dashboard','last_blocks','impeached','dashboard.health').full}}</span>
@@ -130,17 +130,17 @@
     </div>
     <div class="tile is-parent">
       <article class="tile is-child boxed is-primary" *ngIf="kpi.isLoaded('dashboard')">
-        <p class="title is-size-3">Rewards</p>
-        <p class="subtitle">Whats the rewards running an RNode</p>
+        <p class="title is-size-3" i18n="home-page|title of info block">Rewards</p>
+        <p class="subtitle" i18n="home-page|subtitle of info block">Whats the rewards running an RNode</p>
         <div class="keys-values-container is-size-5 ">
           <div class="keys-container">
-            <div class="item">ROI (avg.)</div>
+            <div class="item" i18n="home-page|title of KPI">ROI (avg.)</div>
             <!-- <div class="item">ROI ENode (avg.)</div> -->
-            <div class="item">Reward (fixed)</div>
-            <div class="item">Total Rewards</div>
-            <div class="item">Rewards (fixed)</div>
-            <div class="item">Rewards (fee)</div>
-            <div class="item">Fee/Fixed Ratio</div>
+            <div class="item" i18n="home-page|title of KPI">Reward (fixed)</div>
+            <div class="item" i18n="home-page|title of KPI">Total Rewards</div>
+            <div class="item" i18n="home-page|title of KPI">Rewards (fixed)</div>
+            <div class="item" i18n="home-page|title of KPI">Rewards (fee)</div>
+            <div class="item" i18n="home-page|title of KPI">Fee/Fixed Ratio</div>
             <!-- <div class="item">Rewards / Year</div> -->
           </div>
           <div class="values-container is-size-5">

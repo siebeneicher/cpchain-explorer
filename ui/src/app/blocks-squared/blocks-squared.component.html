@@ -8,7 +8,7 @@
 	<ng-container *ngIf="unit == 'hour'">
 		<div *ngIf="initiated" (mouseout)="mouseout()">
 			<div class="blocks-title">
-				<span class="subtitle">Recent Blocks</span>&nbsp;&nbsp;
+				<span class="subtitle" i18n="blocks-squared|title">Recent Blocks</span>&nbsp;&nbsp;
 				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
 				<a class="button is-small {{loading ? 'is-loading' : ''}}" (click)="forward()"><i class="typcn typcn-chevron-right"></i></a>
 			</div>
@@ -35,7 +35,7 @@
 
 		<div *ngIf="initiated" (mouseout)="mouseout()">
 			<h1 class="title">
-				Blocks of {{this.ts | date:'dd-MM-yyyy'}}
+				<span  i18n="blocks-squared|title followed by date">Blocks of</span> {{this.ts | date:'dd-MM-yyyy'}}
 				<a class="button {{loading ? 'is-loading' : ''}}" (click)="backward()"><i class="typcn typcn-chevron-left"></i></a>&nbsp;
 				<a class="button {{loading ? 'is-loading' : ''}}" (click)="forward()"><i class="typcn typcn-chevron-right"></i></a>
 			</h1>
@@ -59,19 +59,19 @@
 
 			<div class="columns legend">
 				<div class="column">
-					<span class="colorbox validated-empty"></span><span class="desc">Validated Block (empty)</span>
+					<span class="colorbox validated-empty"></span><span class="desc" i18n="blocks-squared|legend description">Validated Block (empty)</span>
 				</div>
 				<div class="column">
-					<span class="colorbox validated"></span><span class="desc">Validated Block (has Trx's)</span>
+					<span class="colorbox validated"></span><span class="desc" i18n="blocks-squared|legend description">Validated Block (has Trx's)</span>
 				</div>
 				<div class="column">
-					<span class="colorbox impeached"></span><span class="desc">Impeached Block</span>
+					<span class="colorbox impeached"></span><span class="desc" i18n="blocks-squared|legend description">Impeached Block</span>
 				</div>
 				<div class="column">
-					<span class="colorbox unsynced"></span><span class="desc">Unsynced Block</span>
+					<span class="colorbox unsynced"></span><span class="desc" i18n="blocks-squared|legend description">Unsynced Block</span>
 				</div>
 				<div class="column">
-					<span class="colorbox future"></span><span class="desc">Future Block</span>
+					<span class="colorbox future"></span><span class="desc" i18n="blocks-squared|legend description">Future Block</span>
 				</div>
 			</div>
 		</div>
@@ -80,15 +80,15 @@
 </div>
 
 <div #hovertooltip id="hovertooltip" class="hover-tooltip {{hovered_block ? 'visible' : 'hide'}}"><span *ngIf="hovered_block">
-	<div>Block {{hovered_block.number}}</div>
-	<div>Time: {{hovered_block.time_pretty}}</div>
+	<div><span  i18n="blocks-squared|tooltip">Block</span> {{hovered_block.number}}</div>
+	<div><span i18n="blocks-squared|tooltip">Time</span>: {{hovered_block.time_pretty}}</div>
 	<div *ngIf="hovered_block.synced">
-		<div>Proposer: {{hovered_block.__proposer | slice:0:12}}...</div>
-		<div *ngIf="!hovered_block.__impeached">Trx's: {{hovered_block.trx_count}}</div>
-		<div *ngIf="hovered_block.__impeached">Impeached</div>
+		<div><span i18n="blocks-squared|tooltip">Proposer</span>: {{hovered_block.__proposer | slice:0:12}}...</div>
+		<div *ngIf="!hovered_block.__impeached"><span i18n="blocks-squared|tooltip">Trx's</span>: {{hovered_block.trx_count}}</div>
+		<div *ngIf="hovered_block.__impeached" i18n="blocks-squared|tooltip">Impeached</div>
 	</div>
 	<div *ngIf="!hovered_block.synced">
-		<div *ngIf="hovered_block.sync_should">Unsynced Block</div>
-		<div *ngIf="!hovered_block.sync_should">Future Block</div>
+		<div *ngIf="hovered_block.sync_should" i18n="blocks-squared|tooltip">Unsynced Block</div>
+		<div *ngIf="!hovered_block.sync_should" i18n="blocks-squared|tolltip">Future Block</div>
 	</div>
 </span></div>

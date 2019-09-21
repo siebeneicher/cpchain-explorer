@@ -3,7 +3,7 @@
 <ng-container *ngIf="loaded">
 	<table class="table border-box is-hoverable table is-fullwidth is-striped" *ngIf="data.length">
 		<thead>
-			<th></th>
+			<!-- <th></th> -->
 			<th i18n="address-transactions|table header">TxHash</th>
 			<th i18n="address-transactions|table header">Block</th>
 			<th i18n="address-transactions|table header">When</th>
@@ -15,8 +15,8 @@
 		</thead>
 		<tbody>
 			<ng-container *ngFor="let trx of data; let i = index">
-				<tr *ngIf="i < limit">
-					<td>#{{data.length - i}}</td>
+				<tr>
+					<!-- <td>#{{data.length - i}}</td> -->
 					<td><a [routerLink]="['/trx', trx.hash]">{{trx.hash | slice:0:12}}...</a></td>
 					<td><a [routerLink]="['/block', trx.blockNumber]">{{trx.blockNumber}}</a></td>
 					<td>{{trx.__ts | dateAgo}} | {{trx.__ts | date: 'long' : 'UTC' }}</td>
@@ -30,8 +30,8 @@
 		</tbody>
 	</table>
 
-	<div class="container has-text-centered" *ngIf="data.length > limit">
-		<a class="button is-small" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show more">Show more</span></a>
-		<a class="button is-small" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show all">Show all</span></a>
+	<div class="container has-text-centered">
+		<a class="button is-small" [class.is-loading]="loading" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show more">Show more</span> (+{{this.steps}})</a>
+		<a class="button is-small" [class.is-loading]="loading" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show all">Show all</span></a>
 	</div>
 </ng-container>
