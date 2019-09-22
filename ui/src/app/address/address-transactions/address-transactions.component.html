@@ -11,7 +11,7 @@
 			<th></th>
 			<th i18n="address-transactions|table header">To</th>
 			<th i18n="address-transactions|table header">Value</th>
-			<th i18n="address-transactions|table header">TxFee</th>
+			<!-- <th i18n="address-transactions|table header">TxFee</th> -->
 		</thead>
 		<tbody>
 			<ng-container *ngFor="let trx of data; let i = index">
@@ -24,14 +24,14 @@
 					<td><span class="in-out tag is-normal is-{{ trx.from == addr ? 'warning' : 'success' }}">{{ trx.from == addr ? 'OUT' : 'IN' }}</span></td>
 					<td><a [routerLink]="['/address', trx.to]">{{trx.to | slice:0:12}}...</a></td>
 					<td>{{trx.value}} CPC</td>
-					<td>-</td>
+					<!-- <td>-</td> -->
 				</tr>
 			</ng-container>
 		</tbody>
 	</table>
 
 	<div class="container has-text-centered">
-		<a class="button is-small" [class.is-loading]="loading" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show more">Show more</span> (+{{this.steps}})</a>
+		<a class="button is-small" [class.is-loading]="loading" (click)="showMore()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show more">Show more</span>&nbsp;(+{{this.steps}})</a>
 		<a class="button is-small" [class.is-loading]="loading" (click)="showAll()"><i class="typcn typcn-arrow-sorted-down"></i> <span i18n="address-blocks|table show all">Show all</span></a>
 	</div>
 </ng-container>

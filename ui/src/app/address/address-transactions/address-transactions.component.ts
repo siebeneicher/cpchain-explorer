@@ -16,7 +16,7 @@ export class AddressTransactionsComponent implements OnInit {
 	loading:boolean = false;
 	loaded:boolean = false;
 	data:Array<any>;
-	steps:number = 15;
+	steps:number = 50;
 	sort:string;
 	sortOrder:number;
 

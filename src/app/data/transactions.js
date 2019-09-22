@@ -168,13 +168,9 @@ async function ofAddress (addrHash, offset = null, limit = null, sort = null, so
 			aggr.push({ $limit: parseInt(limit) });
 		}
 
-console.log("transactions.ofAddress:", aggr);
-
 		mongo.db(config.mongo.db.sync).collection('balances')
 			.aggregate(aggr)
 			.toArray((err, trxs) => {
-
-console.log(err, trxs);
 
 				if (err) return reject(err);
 				else if (!trxs || !trxs.length) return reject(null);
