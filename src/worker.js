@@ -10,6 +10,8 @@ const compression = require('compression')
 const responseTime = require('response-time')
 const redis = require('./app/redis');
 const fs = require('fs');
+const session = require('express-session');
+const redisStore = require('connect-redis')(session);
 
 // https://github.com/expressjs/express/pull/3730
 /*const http2 = require('http2');
@@ -18,6 +20,20 @@ const options = {
  cert: fs.readFileSync('./cert/localhost.cer')
 };*/
 
+const expressRedisStore = new redisStore({
+	port: 6379,
+	host: "localhost",
+	client: redis.client,
+	ttl: 260
+});
+
+app.use(session({
+  secret: 'huhu rnodes.io secret',
+  //cookie: { maxAge: 16*60*60*1000, secure: true },
+  resave: false,
+  saveUninitialized: true,
+  store: expressRedisStore
+}))
 
 app.use(compression({}));
 app.use(responseTime());
@@ -33,6 +49,27 @@ app.use(function (req, res, next) {
     res.header('Pragma', 'no-cache');
     res.header('Access-Control-Allow-Origin', '*');
     next();
+});
+
+// session views and last request timestamp
+app.use(function (req, res, next) {
+	if (!req.session.views)	req.session.views = {}
+	req.session.views[req.url] = (req.session.views[req.url] || 0) + 1
+	req.session.last_req_ts = new Date().getTime();
+	next()
+})
+
+app.get('/active-sessions/count', (req, res, next) => {
+	const active_ts_backwards = 1000 * 30;		// last req within timestamp is counted
+
+	console.log(req.session);
+
+	expressRedisStore.all((err,_) => {
+		//console.log(err,_);
+		if (!_ || err) return res.json({err, cnt: 0});
+		const cnt = _.filter(s => s.id && s.last_req_ts + active_ts_backwards > new Date().getTime()).length;
+		res.json({cnt});
+	});
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
