@@ -42,7 +42,7 @@ export class RnodesComponent implements OnInit {
 		// 1st. by sealed (primite sort by this.sortBy, minied)
 		if (this.sortBy != "mined")
 			this.filtered.sort((a,b) => (a["mined"] > b["mined"]) ? 1*-1 : ((b["mined"] > a["mined"]) ? -1*-1 : 0));
-
+debugger;
 		// 2nd. by user choice
 		this.filtered.sort((a,b) => (a[this.sortBy] > b[this.sortBy]) ? 1*this.sortOrder : ((b[this.sortBy] > a[this.sortBy]) ? -1*this.sortOrder : 0));
 	}
@@ -83,7 +83,7 @@ export class RnodesComponent implements OnInit {
 
 		function _calc () {
 			_this.width_left = 0;
-			["pos","address","owned","balance","rpt","elected","roi"].forEach(_ => {
+			["pos","address","first-last-block","owned","balance","rpt","elected","roi"].forEach(_ => {
 				_this.width_left += document.querySelector('table.rnodes th.'+_).clientWidth;
 			});
 

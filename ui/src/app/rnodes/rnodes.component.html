@@ -56,7 +56,10 @@
 			<th class="pos">#</th>
 			<th class="address">Address</th>
 			<th class="owned"></th>
-			<th class="has-text-centered first-last-block">First Block</th>
+			<th (click)="clickSort('rnode_block_first_ts')" class="is-clickable has-text-centered first-last-block">
+				First Block
+				<i *ngIf="sortBy == 'rnode_block_first_ts'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
+			</th>
 			<th (click)="clickSort('elected')" class="is-clickable has-text-centered elected">
 				Proposer
 				<i *ngIf="sortBy == 'elected'" class="typcn typcn-arrow-sorted-{{ sortOrder == 1 ? 'up' : 'down' }}"></i>
