@@ -46,7 +46,7 @@ async function collect () {
 	_syncNewAddressBalanceFromTransactions();
 	_syncCPCPrice();
 	_syncBalances();
-	_syncRNodesFirstNLastBlockDate();
+	//_syncRNodesFirstNLastBlockDate();
 
 	function _snapshot () {
 		setTimeout(async () => {
