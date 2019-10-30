@@ -270,7 +270,7 @@ async function resetAndSyncAllBlocks () {
 	let latest = await blockNumber();
 
 	// sync all blocks
-	return new Promise ((resolve, reject) => {
+	return new Promise (async function (resolve, reject) {
 		let i = latest, new_blocks = 0, limit = 0;
 		while (i > limit) {
 			i--;
