@@ -263,6 +263,30 @@ async function syncBackwards () {
 	});
 }
 
+// call this function to reset all blocks and sync all blocks at once
+async function resetAndSyncAllBlocks () {
+	const t_start = now();
+
+	let latest = await blockNumber();
+
+	// sync all blocks
+	return new Promise ((resolve, reject) => {
+		let i = latest, new_blocks = 0, limit = 0;
+		while (i > limit) {
+			i--;
+			if (numbers.includes(i)) continue;
+
+			new_blocks++;
+
+			// sync missing block
+			try {
+				await syncBlock(i);
+			} catch (err) {
+				console.error(err);
+			}
+		}
+	});
+}
 
 async function syncBlock (targetBlockNum = null) {
 	const t_start = now();
@@ -804,4 +828,5 @@ init(false)
 	//.then(syncRNodesFirstNLastBlockDates)
 	//.then(syncBalances)
 	//.then(backwardsFindNewAddresses)
-	.then(collect);
+	.then(resetAndSyncAllBlocks)
+	//.then(collect);

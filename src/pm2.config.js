@@ -13,7 +13,7 @@ module.exports = {
     watch_options: {
         "followSymlinks": false
     },
-    error_file: "./logs/sync.err.log",
+    //error_file: "./logs/sync.err.log",
     //out_file: "./logs/sync.verbose.log",
     env: {
       NODE_ENV: "production",
@@ -32,7 +32,7 @@ module.exports = {
     watch_options: {
         "followSymlinks": false
     },
-    error_file: "./logs/aggregate.err.log",
+    //error_file: "./logs/aggregate.err.log",
     //out_file: "./logs/aggregate.verbose.log",
     env: {
       NODE_ENV: "production",
@@ -51,7 +51,7 @@ module.exports = {
     watch_options: {
         "followSymlinks": false
     },
-    error_file: "./logs/worker.err.log",
+    //error_file: "./logs/worker.err.log",
     //out_file: "./logs/worker.verbose.log",
     env: {
       NODE_ENV: "production",
