@@ -274,8 +274,6 @@ async function resetAndSyncAllBlocks () {
 		let i = latest, new_blocks = 0, limit = 0;
 		while (i > limit) {
 			i--;
-			if (numbers.includes(i)) continue;
-
 			new_blocks++;
 
 			// sync missing block
@@ -285,6 +283,8 @@ async function resetAndSyncAllBlocks () {
 				console.error(err);
 			}
 		}
+
+		console.log("reset/synced",new_blocks,"blocks");
 	});
 }
 
