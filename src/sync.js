@@ -16,7 +16,7 @@ let cur_rnodes = [];				// most recent rnodes synced
 let cur_generation = {};			// most recent block generation info synced
 let last_blockNumber = 0;			// most recent block number
 
-const max_backwards = 3 * 24 * 60*6;		// 3h; max limit of time to look for missing blocks backwards
+const max_backwards = 3 * 60*6;		// 3h; max limit of time to look for missing blocks backwards
 const sync_delay = 150;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 10000;
