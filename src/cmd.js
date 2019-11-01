@@ -11,7 +11,7 @@ setTimeout(async () => {
 
 	//await perfTest();
 
-	await data.rnodes.updateAll_firstNLastBlockDate();
+	//await data.rnodes.updateAll_firstNLastBlockDate();
 
 	//await data.rnodes.update_firstNLastBlockDate('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');
 	//await data.transactions.ofAddress_count('0x2A186bE66Dd20c1699Add34A49A3019a93a7Fcd0');
@@ -33,9 +33,9 @@ setTimeout(async () => {
 
 	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
-	//await aggregate.reset();
-	//await aggregate.run();
-	//await aggregate.test();
+	await aggregate.reset();
+	await aggregate.run();
+	await aggregate.test();
 
 /*	try {
 		await balances.latest("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F");
