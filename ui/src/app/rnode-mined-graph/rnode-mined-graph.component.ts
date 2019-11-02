@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, Input, ViewChild, ElementRef } from '@ang
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { ActivatedRoute } from "@angular/router";
+import { DataApiService } from '../data-api.service';
 import * as d3 from 'd3';
 import * as moment from 'moment';
 
@@ -35,6 +36,7 @@ export class RnodeMinedGraphComponent implements OnInit {
 	constructor(
 		private httpClient: HttpClient,
 		private route: ActivatedRoute,
+		public dataApiService: DataApiService,
 	) {
 	}
 
@@ -43,23 +45,18 @@ export class RnodeMinedGraphComponent implements OnInit {
 		this.filtered = [];
 		this.loaded = false;
 
-		setTimeout(() => this.setFilter(this.filter_select), this.index * 200);
+		//setTimeout(() => this.setFilter(this.filter_select), this.index * 30);
+		this.setFilter(this.filter_select);
 	}
 
 	async load () {
 		this.loading = true;
 
-		const f = this.filters[this.filter_select];
-		let url = environment.backendBaseUrl + `/rnodes/timeline/${f.unit}/${f.times}/${this.ts_start}/${this.addr}?fieldOnly=mined`;
-
-		return new Promise((resolve, reject) => {
-			return this.httpClient.get(url).subscribe((res: any) => {
-				this.data = res ? <Array<any>> res : [];
-				this.loading = false;
-				this.loaded = true;
-				setTimeout(() => this.render(), 15);
-				resolve();
-			});
+		return this.dataApiService.rnodeTimeline(this.addr).then((res: any) => {
+			this.data = res ? <Array<any>> res : [];
+			this.loading = false;
+			this.loaded = true;
+			setTimeout(() => this.render(), 15);
 		});
 	}
 
@@ -78,7 +75,7 @@ export class RnodeMinedGraphComponent implements OnInit {
 		let has = false;
 		dataset = dataset.filter(_ => {
 			if (has) return true;
-			if (_.mined) return has = true;
+			if (_.mined !== undefined) return has = true;
 			return false;
 		});
 

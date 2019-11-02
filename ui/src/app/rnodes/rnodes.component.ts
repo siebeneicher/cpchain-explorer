@@ -42,7 +42,7 @@ export class RnodesComponent implements OnInit {
 		// 1st. by sealed (primite sort by this.sortBy, minied)
 		if (this.sortBy != "mined")
 			this.filtered.sort((a,b) => (a["mined"] > b["mined"]) ? 1*-1 : ((b["mined"] > a["mined"]) ? -1*-1 : 0));
-debugger;
+
 		// 2nd. by user choice
 		this.filtered.sort((a,b) => (a[this.sortBy] > b[this.sortBy]) ? 1*this.sortOrder : ((b[this.sortBy] > a[this.sortBy]) ? -1*this.sortOrder : 0));
 	}

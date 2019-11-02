@@ -226,7 +226,7 @@ async function blocks_last (addr) {
 async function items (unit, times, ts_start, addr = null, fieldOnly = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
-
+debugger;
 		const project = { _id:0, ts:1 };
 
 		if (addr) {
@@ -260,6 +260,14 @@ async function items (unit, times, ts_start, addr = null, fieldOnly = null) {
 					console.error("rewards.items(",unit, times ,addr,") error:", err);
 					resolve(null);
 				} else {
+					if (fieldOnly) {
+						result.forEach(_ => {
+							Object.keys(_.rnodes).forEach(_addr => {
+								_.rnodes[_addr] = { [fieldOnly]: _.rnodes[_addr][fieldOnly] };
+							});
+						});
+					}
+
 					resolve(result);
 				}
 			});
