@@ -143,14 +143,14 @@ async function aggregate_process_blocks (unit) {
 	// prepare chunks of timespan units based on new blocks
 	const new_blocks = await getBlocksByAggregated(unit, max_blocks_per_aggregation);
 
-	//console.log("new_blocks: ", new_blocks.map(_ => _.number));
+	console.log("new_blocks: ", new_blocks.map(_ => _.number));
 
 	if (new_blocks.length == 0)
 		return Promise.resolve({new_blocks: 0});
 
 	const chunks = await chunkAggregationByBlockUnit(new_blocks, unit);
 
-	//console.log(unit+": Clustered "+new_blocks.length+" blocks ("+new_blocks[0].number+" ... "+new_blocks[new_blocks.length-1].number+") into", Object.keys(chunks).length, "chunks");
+	console.log(unit+": Clustered "+new_blocks.length+" blocks ("+new_blocks[0].number+" ... "+new_blocks[new_blocks.length-1].number+") into", Object.keys(chunks).length, "chunks");
 
 	// chunk by chunk / sequential & asynchronious
 	const p = Object.entries(chunks).reduce(async (previousPromise, chunk) => {
@@ -163,7 +163,7 @@ async function aggregate_process_blocks (unit) {
 			return { updateOne: { filter: { number: block.number }, update: { $set: { ['__aggregated.by_'+unit]: true } } } };
 		});
 
-		//console.log('bulk update:', bulk.map(_ => _.updateOne));
+		console.log('bulk update:', bulk.map(_ => _.updateOne));
 
 		// update all new blocks __aggregated.by_ object
 		await mongo.db(config.mongo.db.sync).collection('blocks').bulkWrite(bulk).then((result, err) => {
