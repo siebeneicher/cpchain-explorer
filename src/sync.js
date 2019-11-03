@@ -828,4 +828,4 @@ init(false)
 	//.then(syncBalances)
 	//.then(backwardsFindNewAddresses)
 	//.then(resetAndSyncAllBlocks)
-	//.then(collect);
+	.then(collect);
