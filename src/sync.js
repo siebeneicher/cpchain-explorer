@@ -489,22 +489,21 @@ function ensure_indexes () {
 	if (mongo_db_blocks) {
 		mongo_db_blocks.indexInformation(async (err, indexes) => {
 			if (err) return;
-			if (!indexes.timestamp_1)
-				await mongo_db_blocks.createIndex({ timestamp: -1 }, { unique: true });
-			if (!indexes.__proposer_1)
-				await mongo_db_blocks.createIndex({ __proposer: 1 }, { unique: false });
-			if (!indexes.number_1)
-				await mongo_db_blocks.createIndex({ number: -1 }, { unique: true });
-			if (!indexes['__aggregated.by_minute_1'])
-				await mongo_db_blocks.createIndex({ '__aggregated.by_minute': 1 }, { unique: false });
-			if (!indexes['__aggregated.by_hour_1'])
-				await mongo_db_blocks.createIndex({ '__aggregated.by_hour': 1 }, { unique: false });
-			if (!indexes['__aggregated.by_day_1'])
-				await mongo_db_blocks.createIndex({ '__aggregated.by_day': 1 }, { unique: false });
-			if (!indexes['__aggregated.by_month_1'])
-				await mongo_db_blocks.createIndex({ '__aggregated.by_month': 1 }, { unique: false });
-			if (!indexes['__aggregated.by_year_1'])
-				await mongo_db_blocks.createIndex({ '__aggregated.by_year': 1 }, { unique: false });
+
+			await mongo_db_blocks.createIndex({ timestamp: -1 }, { unique: true });
+			await mongo_db_blocks.createIndex({ __proposer: 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ number: -1 }, { unique: true });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_minute': 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_hour': 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_day': 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_month': 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_year': 1 }, { unique: false });
+
+			await mongo_db_blocks.createIndex({ '__aggregated.by_minute': 1, number: 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_hour': 1, number: 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_day': 1, number: 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_month': 1, number: 1 }, { unique: false });
+			await mongo_db_blocks.createIndex({ '__aggregated.by_year': 1, number: 1 }, { unique: false });
 		})
 	}
 
@@ -829,4 +828,4 @@ init(false)
 	//.then(syncBalances)
 	//.then(backwardsFindNewAddresses)
 	//.then(resetAndSyncAllBlocks)
-	.then(collect);
+	//.then(collect);
