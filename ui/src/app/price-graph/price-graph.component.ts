@@ -28,6 +28,8 @@ export class PriceGraphComponent implements OnInit {
 	mouse_x:number;
 	mouse_y:number;
 
+	reloadIntervalMS:number = 10 * 10 * 1000;		// each 10 minutes
+
 
 	constructor() { }
 
@@ -37,9 +39,14 @@ export class PriceGraphComponent implements OnInit {
 
 	ngAfterContentInit() {
 		this.timeranges = [
-			{title: 'last 7 days', unit: "day", times: 7}
+			{title: 'last 48 hours', unit: "hour", times: 48},
+			{title: 'last 24 hours', unit: "hour", times: 24},
+			{title: 'last 14 days', unit: "day", times: 14},
+			{title: 'last 20 days', unit: "day", times: 20},
 		];
-		this.setTimerange(0);
+		this.setTimerange(3);
+
+		setInterval(() => this.reload(), this.reloadIntervalMS);
 	}
 	ngAfterViewInit () {
 		//this.attachTooltipToDocument();
@@ -62,7 +69,12 @@ export class PriceGraphComponent implements OnInit {
 	filter (res) {
 		//let data = res.data.map(_ => {return {y: _.transactions_count, ts: _.ts}});
 
-		return {dataset: res.data, max: res.usd_avg_max};
+		const dataset = res.data.map(_ => {
+			_.ts = _.ts / 1000;
+			return _;
+		});
+
+		return {dataset, max: res.usd_avg_max};
 	}
 
 	clear () {
@@ -119,7 +131,7 @@ export class PriceGraphComponent implements OnInit {
 		svg.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + (this.height-10) + ")")
-			.call(d3.axisBottom(xScale).tickSize(10).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format('DD MMMM')))
+			.call(d3.axisBottom(xScale).tickSize(10).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format("DD-MMM")))
 			.select(".domain").remove()
 
 // 4. Call the y axis in a group tag

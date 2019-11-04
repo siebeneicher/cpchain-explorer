@@ -120,7 +120,7 @@ export class TrxGraphComponent implements OnInit {
 		svg.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + (this.height-10) + ")")
-			.call(d3.axisBottom(xScale).tickSize(10).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format('DD MMMM')))
+			.call(d3.axisBottom(xScale).tickSize(10).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format('DD-MMM')))
 			.select(".domain").remove()
 
 // 4. Call the y axis in a group tag

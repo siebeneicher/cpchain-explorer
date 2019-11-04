@@ -17,7 +17,7 @@ export class TrxStreamgraphComponent implements OnInit {
 	limit:number = 10;
 	timerange:any;
 	timeranges:Array<any> = [];
-	axisTicks:number = 5;
+	axisTicks:number = 14;
 
 	unit:string;
 	times:number;
@@ -120,7 +120,7 @@ export class TrxStreamgraphComponent implements OnInit {
 
 		this.svg.append("g")
 			.attr("transform", "translate(0," + this.height*0.8 + ")")
-			.call(d3.axisBottom(x).tickSize(-this.height*.7).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format('DD MMMM')))
+			.call(d3.axisBottom(x).tickSize(-this.height*.7).ticks(this.axisTicks).tickFormat(d => moment.utc(d*1000).format('DD-MMM')))
 			.select(".domain").remove()
 
 		this.svg

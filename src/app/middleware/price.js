@@ -39,7 +39,8 @@ const graph = {
 			return new Promise(async function (resolve, reject) {
 				const t_start = now();
 
-				let items = await price.items_byDay(times, ts);
+				const callFn = unit == "hour" ? "items_byHour" : "items_byDay";
+				let items = await price[callFn](times, ts);
 
 				let usd_avg_max = 0;
 				let usd_avg_sum = 0;

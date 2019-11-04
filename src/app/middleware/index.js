@@ -109,6 +109,13 @@ async function update_rnodes_overview () {
 	return cache_fe.invalidate("/api/v1/rnodes/*");
 }
 
+async function update_price () {
+	price.graph.cache_flush_all();		// instead of updating, we flush the existing entries
+
+	// 2. invalidate frontend-cache, which will, on next request use the middleware-cache 
+	return cache_fe.invalidate("/api/v1/price-graph*");
+}
+
 
 
 
