@@ -419,6 +419,43 @@ const timeline = {
 
 
 
+const rptgraph = {
+	cache_key: function (addr, unit, times, ts_start, options = {}) {
+		return 'CPC-DATA-RNODES-RPTGRAPH_'+addr+'_'+unit+'_'+times+'_'+ts_start+'_'+addr+'_'+JSON.stringify(options);
+	},
+	cache_flush_all: async function () {
+		return redis.delPrefix('CPC-DATA-RNODES-RPTGRAPH_');
+	},
+	get: async function (addr, unit, times, ts_start = 'latest', options = {}, forceUpdate = false) {
+		let data = await redis.get(rptgraph.cache_key(addr, unit, times, ts_start, options));
+
+		if (!forceUpdate && data) console.log("Serving rnodes.rptgraph from redis");
+		if (forceUpdate || !data)
+			data = await rptgraph.update(addr, unit, times, ts_start, options);
+
+		return data;
+	},
+	update: async function (addr, unit, times, ts_start = 'latest', options = {}) {
+
+		let ts = ts_start == 'latest' ? last_unit_ts(unit, times, 10) : unit_ts(ts_start, 10);
+
+		return new Promise(async function (resolve, reject) {
+			const t_start = now();
+
+			let data = await rnodes.rpt(addr, unit, times, ts);
+
+			redis.set(rptgraph.cache_key(addr, unit, times, ts_start, options), data);
+			redis.expire(rptgraph.cache_key(addr, unit, times, ts_start, options), CACHE_EXPIRE_FOREVER);
+
+			console.log('rnodes.rptgraph.update took', now()-t_start);
+
+			resolve(data);
+		});
+	}
+}
+
+
+
 async function blocks (addr, offset = 0, limit = null) {
 	return new Promise(async function (resolve, reject) {
 		try {
@@ -449,4 +486,4 @@ async function blocks_count (addr) {
 	});
 }
 
-module.exports = {user, streamgraph, all, blocks, blocks_count, roi, timeline};
+module.exports = {user, streamgraph, all, blocks, blocks_count, roi, timeline, rptgraph};

@@ -39,7 +39,7 @@ init();
 
 
 
-module.exports = {run, reset, test, aggregate_all};
+module.exports = {run, reset, test, aggregate_all, transactionsVolumeFee};
 
 
 
@@ -86,9 +86,9 @@ async function reset (unit = null, times = null) {
 				}
 			} catch (err) { /*console.error(err); */resolve(); }
 		}).then(() => {
-			console.log("resetting blocks... ", _unit, del_block_min, del_block_max);
+			console.log("resetting blocks", _unit, del_block_min, del_block_max, "...");
 			return blocks.updateMany({ number: { $gte: del_block_min, $lte: del_block_max } }, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
-				console.log("reseted aggregations."+_unit+":", result.modifiedCount, err);
+				console.log("resetted aggregations."+_unit+":", result.modifiedCount, err);
 			});
 		});
 	})).then(() => {
@@ -281,13 +281,13 @@ async function aggregate_unit (unit, ts, chunk) {
 
 			// transactions count
 			aggregate.transactions_count += b.transactions.length;
-
+if (b.__fee) debugger;
 			// transactions volume, fee
 			let trx_volume = 0, trx_fee = 0;
 			try {
 				const _trx = await transactionsVolumeFee(b.transactions);
 				trx_volume = _trx.volume;
-				trx_fee = _trx.fee;
+				trx_fee = b.__fee;
 				aggregate.transactions_volume += trx_volume;
 				aggregate.transactions_fee += trx_fee;
 			} catch (err) {
@@ -472,8 +472,9 @@ async function transactionsVolumeFee (transactions) {
 	return new Promise ((resolve, reject) => {
 		collection.aggregate([
 			{ $match: { hash: {$in: transactions} } },
+// RISK: gas * gasPrice does not reflect used gas. Dont use 'fee' value!!
 			{ $project: { _id:1, value: { $divide: [ "$value", config.cpc.unit_convert ] }, fee: { $divide: [ { $multiply: [ "$gas", "$gasPrice" ] }, config.cpc.unit_convert ] } } },
-			{ $group: { _id: null, volume: { $sum: "$value" }, fee: { $sum: "$fee" } } },
+			//{ $group: { _id: null, volume: { $sum: "$value" }, fee: { $sum: "$fee" } } },
 		]).toArray((err, value) => {
 			//console.log("sum volume of", transactions.length, "transactions, took", now()-t_start);
 

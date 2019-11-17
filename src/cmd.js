@@ -11,7 +11,10 @@ setTimeout(async () => {
 
 	//await perfTest();
 
-	await data.rnodes.updateAll_firstNLastBlockDate();
+	//await data.rnodes.roi
+
+	//await data.rnodes.updateAll_firstNLastBlockDate();
+	//await rnodes.rptgraph.update('0x8d16Adafb4633A3956691aA4636B603e8F328446', 'minute', 6, 'latest');
 
 	//await data.rnodes.update_firstNLastBlockDate('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');
 	//await data.transactions.ofAddress_count('0x2A186bE66Dd20c1699Add34A49A3019a93a7Fcd0');
@@ -19,8 +22,13 @@ setTimeout(async () => {
 	//console.log(await balance("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F"));
 	//console.log(await transaction("0x6764996826a1cbb1224ade30d180669b4b056f97a8105a92b093199f78926c68"));
 
-	//let roi = await data.rewards.roi('hour', 24);
-	//console.log(roi.avg_performance, roi.data.filter(_ => ['0x8d16Adafb4633A3956691aA4636B603e8F328446','0x17d52a444CF2462e68a2bE459CA640FC3b326906'].includes(_._id)));
+	//let b = await data.blocks.get(1223283);
+	//console.log(b.transactions);
+	//console.log(await aggregate.transactionsVolumeFee(b.transactions));
+
+	//let roi = await data.rewards.roi('hour', 1);
+	//console.log(roi);
+	//console.log(roi.avg_performance, roi.dataset.filter(_ => ['0xAc9adF73A63e212aec39Fb71D5DBd4Ae7B1b74A9','0xAdF66309f80662db3348dD341E05C51F2dee2d1B'].includes(_._id)));
 
 	//console.log(await data.rewards.last("month", 14, 'latest', '0x8d16Adafb4633A3956691aA4636B603e8F328446'));
 	//console.log(await data.rewards.last("month", 1, 'prelatest', '0x8d16Adafb4633A3956691aA4636B603e8F328446'));
@@ -33,7 +41,7 @@ setTimeout(async () => {
 
 	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
-	//await aggregate.reset();
+	await aggregate.reset();
 	//await aggregate.run();
 	//await aggregate.test();
 

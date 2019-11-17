@@ -822,10 +822,10 @@ async function init (clearAll = false) {
 
 
 init(false)
-	//.then(syncCPCPrice)
+	.then(backwardsFindNewAddresses)
+	.then(syncCPCPrice)
 	//.then(backwardsBlock)
 	//.then(syncRNodesFirstNLastBlockDates)
 	//.then(syncBalances)
-	//.then(backwardsFindNewAddresses)
 	//.then(resetAndSyncAllBlocks)
 	.then(collect);

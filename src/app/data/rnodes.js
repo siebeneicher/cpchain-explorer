@@ -5,7 +5,7 @@ const now = require('performance-now');
 const {unitTs} = require('../middleware/aggregate');
 const {web3} = require('../../cpc-fusion/api');
 
-module.exports = {last, last_rpt, type, items, blocks, blocks_count, last_generation, update_firstNLastBlockDate, blocks_first, blocks_last, updateAll_firstNLastBlockDate}
+module.exports = {last, last_rpt, rpt, type, items, blocks, blocks_count, last_generation, update_firstNLastBlockDate, blocks_first, blocks_last, updateAll_firstNLastBlockDate}
 
 async function type (addr) {
 	// sanitize given addr
@@ -222,11 +222,37 @@ async function blocks_last (addr) {
 	});
 }
 
+async function rpt (addr, unit, times, ts_start) {
+	return new Promise(async function (resolve, reject) {
+		const t_start = now();
+
+		const aggr = [
+			{ $project: { _id:0, ts:1, ['rnodes.'+addr+'.rpt_max']: 1} },
+			{ $sort: { ts: 1 } },
+			{ $match: { ts: { $gte: convert_ts(ts_start, 10) } } },
+			{ $limit: times }
+		];
+
+		mongo.db(config.mongo.db.aggregation).collection('by_'+unit)
+			.aggregate(aggr)
+			.toArray((err, result) => {
+				console.log("rnodes.rpt(", addr, unit, times, ts_start, ")", now() - t_start);
+				//console.log("rnodes.rpt aggregate: ", JSON.stringify(aggr));
+console.log(result);
+				if (err) {
+					console.error("rnodes.rpt(",addr,unit, times ,") error:", err);
+					resolve(null);
+				} else {
+					resolve(result);
+				}
+			});
+	});
+}
 
 async function items (unit, times, ts_start, addr = null, fieldOnly = null) {
 	return new Promise(async function (resolve, reject) {
 		const t_start = now();
-debugger;
+
 		const project = { _id:0, ts:1 };
 
 		if (addr) {

@@ -34,6 +34,11 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.json(await rnodes.user.get(req.params.addr, !!parseInt(req.query.forceUpdate)));
 })
 
+app.get('/api/v1/rnode/rpt-graph/:addr', cache.route(), async function (req, res) {
+	res.setHeader('X-Used-Frontend-Cache', 'no');
+	res.json(await rnodes.rptgraph.get(req.params.addr, req.query.unit, parseInt(req.query.times), 'latest', { exclude_last: !!parseInt(req.query.exclude_last) }, !!parseInt(req.query.forceUpdate)));
+})
+
 .get('/api/v1/dashboard', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await dashboard.get());
@@ -54,7 +59,7 @@ app.get('/api/v1/rnode/user/:addr', cache.route(), async function (req, res) {
 	res.json(await transactions.graph.get(req.query.unit, parseInt(req.query.times), 'latest', { exclude_last: !!parseInt(req.query.exclude_last) }, !!parseInt(req.query.forceUpdate)));
 })
 
-.get('/api/v1/price-graph', async function (req, res) {
+.get('/api/v1/price-graph', cache.route(), async function (req, res) {
 	res.setHeader('X-Used-Frontend-Cache', 'no');
 	res.json(await price.graph.get(req.query.unit, parseInt(req.query.times), 'latest', { exclude_last: !!parseInt(req.query.exclude_last) }, !!parseInt(req.query.forceUpdate)));
 })
