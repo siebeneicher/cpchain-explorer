@@ -87,7 +87,7 @@ async function reset (unit = null, times = null) {
 			} catch (err) { /*console.error(err); */resolve(); }
 		}).then(() => {
 			console.log("resetting blocks", _unit, del_block_min, del_block_max, "...");
-			return blocks.updateMany({ number: { $gte: del_block_min, $lte: del_block_max } }, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
+			return blocks.updateMany({ /*number: { $gte: del_block_min, $lte: del_block_max }*/ }, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
 				console.log("resetted aggregations."+_unit+":", result.modifiedCount, err);
 			});
 		});
