@@ -15,6 +15,8 @@ module.exports = {
     },
     //error_file: "./logs/sync.err.log",
     //out_file: "./logs/sync.verbose.log",
+    "out_file": "/dev/null",
+    "error_file": "/dev/null",
     env: {
       NODE_ENV: "production",
     }
@@ -34,6 +36,8 @@ module.exports = {
     },
     //error_file: "./logs/aggregate.err.log",
     //out_file: "./logs/aggregate.verbose.log",
+    "out_file": "/dev/null",
+    "error_file": "/dev/null",
     env: {
       NODE_ENV: "production",
     }
@@ -53,6 +57,8 @@ module.exports = {
     },
     //error_file: "./logs/worker.err.log",
     //out_file: "./logs/worker.verbose.log",
+    "out_file": "/dev/null",
+    "error_file": "/dev/null",
     env: {
       NODE_ENV: "production",
     }
