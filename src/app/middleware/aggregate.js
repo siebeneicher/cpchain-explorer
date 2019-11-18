@@ -86,7 +86,7 @@ async function reset (unit = null, times = null) {
 				}
 			} catch (err) { /*console.error(err); */resolve(); }
 		}).then(() => {
-			console.log("resetting blocks", _unit, del_block_min, del_block_max, "...");
+			console.log("resetting blocks", _unit, /*del_block_min, del_block_max,*/ "...");
 			return blocks.updateMany({ /*number: { $gte: del_block_min, $lte: del_block_max }*/ }, {$set: {['__aggregated.by_'+_unit]: false}}).then((result, err) => {
 				console.log("resetted aggregations."+_unit+":", result.modifiedCount, err);
 			});
@@ -281,7 +281,7 @@ async function aggregate_unit (unit, ts, chunk) {
 
 			// transactions count
 			aggregate.transactions_count += b.transactions.length;
-if (b.__fee) debugger;
+
 			// transactions volume, fee
 			let trx_volume = 0, trx_fee = 0;
 			try {
@@ -463,7 +463,7 @@ async function transactionsVolumeFee (transactions) {
 		transactions = [transactions];
 
 	if (transactions.length == 0)
-		return Promise.resolve({volume: 0, fee: 0});
+		return Promise.resolve({volume: 0, /*fee: 0*/});
 
 	const collection = mongo.db(config.mongo.db.sync).collection('transactions');
 
@@ -473,15 +473,15 @@ async function transactionsVolumeFee (transactions) {
 		collection.aggregate([
 			{ $match: { hash: {$in: transactions} } },
 // RISK: gas * gasPrice does not reflect used gas. Dont use 'fee' value!!
-			{ $project: { _id:1, value: { $divide: [ "$value", config.cpc.unit_convert ] }, fee: { $divide: [ { $multiply: [ "$gas", "$gasPrice" ] }, config.cpc.unit_convert ] } } },
-			//{ $group: { _id: null, volume: { $sum: "$value" }, fee: { $sum: "$fee" } } },
+			{ $project: { _id:1, value: { $divide: [ "$value", config.cpc.unit_convert ] }, /*fee: { $divide: [ { $multiply: [ "$gas", "$gasPrice" ] }, config.cpc.unit_convert ] }*/ } },
+			{ $group: { _id: null, volume: { $sum: "$value" }, /*fee: { $sum: "$fee" }*/ } },
 		]).toArray((err, value) => {
 			//console.log("sum volume of", transactions.length, "transactions, took", now()-t_start);
 
 			if (err) throw err;
 			if (value === null) throw 'getTransaction('+txn+') unknown error: empty err and null value';
-			if (!(value instanceof Array) || value.length == 0) return resolve({volume: 0, fee: 0});
-			resolve({volume: value[0].volume, fee: value[0].fee});
+			if (!(value instanceof Array) || value.length == 0) return resolve({volume: 0, /*fee: 0*/});
+			resolve({volume: value[0].volume || 0, /*fee: value[0].fee || 0*/});
 		});
 	});
 }
