@@ -61,7 +61,9 @@ async function reset (unit = null, times = null) {
 				let collection = mongo.db(config.mongo.db.aggregation).collection('by_'+_unit);
 
 				if (times == null) {
-					collection.drop();
+					try {
+						collection.drop();
+					} catch (e) {}
 					console.log("dropped aggregations."+_unit);
 					resolve();
 				} else {

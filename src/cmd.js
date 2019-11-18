@@ -42,7 +42,7 @@ setTimeout(async () => {
 	//console.log(await price.graph.update('day', 7, 'latest', {exclude_latest: true}));
 
 	await aggregate.reset();
-	await aggregate.run();
+	//await aggregate.run();
 	//await aggregate.test();
 
 /*	try {
