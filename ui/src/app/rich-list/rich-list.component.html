@@ -19,7 +19,10 @@
 				<td class="has-text-right"><span class="number-mono">{{addr.latest_balance | number: '1.0-18'}} CPC</span></td>
 				<td class="has-text-right"><span class="number-mono">$ {{addr.latest_balance_usd | number: '1.0-2'}}</span></td>
 				<td>{{addr.balance_pct_of_total | number : '1.1-3'}}%</td>
-				<td><span class="tag is-primary is-small" *ngIf="addr.owned_by == 'cpchain'">CPC-Team</span></td>
+				<td>
+					<span class="tag is-primary is-small" *ngIf="addr.owned_by == 'cpchain'">CPC-Team</span>
+					<span class="tag is-primary is-small" *ngIf="addr.owned_by == 'bibox'">Bibox</span>
+				</td>
 			</tr>
 		</tbody>
 	</table>
