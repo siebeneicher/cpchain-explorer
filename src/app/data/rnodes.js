@@ -307,6 +307,7 @@ async function updateAll_firstNLastBlockDate () {
 			.toArray(async function (err, bs) {
 				for (let i in bs) {
 					try {
+						console.log(bs[i].address, "update_firstNLastBlockDate()");
 						await update_firstNLastBlockDate(bs[i].address);
 					} catch (err) {
 						console.log(err);
@@ -331,9 +332,9 @@ async function update_firstNLastBlockDate (addr) {
 	addr = web3.utils.toChecksumAddress(addr);
 
 	let first = await blocks_first(addr);
-	//let last = await blocks_last(addr);
+	let last = null;//await blocks_last(addr);
 
-	//console.log(addr, "has: ", !!first, !!last);
+	console.log(addr, "has: ", !!first, !!last);
 
 	if (!first/* || !last*/) return Promise.resolve();
 
