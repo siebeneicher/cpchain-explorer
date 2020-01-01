@@ -98,9 +98,9 @@
 						<a [routerLink]="['/address', rnode.rnode]">{{rnode.rnode | slice:0:10}}...</a>&nbsp;<i class="typcn typcn-eye watch-btn is-clickable" (click)="watchService.toggle(rnode.rnode)"></i>
 					</td>
 					<td width="1%">
-						<span class="tag is-primary is-small" *ngIf="addr.owned_label">{{rnode.owned_label}}</span>
-						<!-- <span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'cpchain'">CPC-Team</span>
-						<span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'bibox'">Bibox</span> -->
+						<!-- <span class="tag is-primary is-small" *ngIf="rnode.owned_label">{{rnode.owned_label}}</span> -->
+						<span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'cpchain'">CPC-Team</span>
+						<span class="tag is-primary is-small" *ngIf="rnode.owned_by == 'bibox'">Bibox</span>
 					</td>
 					<td class="has-text-centered">{{rnode.rnode_block_first_ts | date: 'dd-MM-yyyy' : 'UTC'}}</td>
 					<td class="has-text-centered"><i *ngIf="rnode.elected" [class.typcn-media-record-outline]="!rnode.proposing" [class.typcn-media-record]="rnode.proposing" class="typcn"></i></td>

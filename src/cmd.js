@@ -13,7 +13,7 @@ setTimeout(async () => {
 
 	//await data.rnodes.roi
 
-	//await data.rnodes.updateAll_firstNLastBlockDate();
+	await data.rnodes.updateAll_firstNLastBlockDate();
 	//await rnodes.rptgraph.update('0x8d16Adafb4633A3956691aA4636B603e8F328446', 'minute', 6, 'latest');
 
 	//await data.rnodes.update_firstNLastBlockDate('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');

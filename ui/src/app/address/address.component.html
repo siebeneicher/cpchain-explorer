@@ -11,7 +11,7 @@
 		<table class="table border-box is-hoverable table is-fullwidth is-striped">
 			<tbody>
 				<tr><td i18n="address-page|Title of the balance of the address">Balance</td><td>{{info.latest_balance}} <span i18n="CPC Token Symbol">CPC</span> (<span i18n="address-page|Whats the rank of the address with the current balance it has">Rank</span>: {{info.rank}}th, {{info.balance_pct_of_total | number : '1.3-3'}}%)</td></tr>
-				<tr *ngIf="addr.owned_label"><td>Owned by</td><td>{{addr.owned_label}}</td></tr>
+				<tr *ngIf="info.owned_label"><td>Owned by</td><td>{{info.owned_label}}</td></tr>
 			</tbody>
 		</table>
 
