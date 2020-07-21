@@ -824,10 +824,10 @@ async function init (clearAll = false) {
 
 
 init(false)
-	//.then(backwardsFindNewAddresses)
-	//.then(syncCPCPrice)
-	//.then(backwardsBlock)
-	//.then(syncRNodesFirstNLastBlockDates)
-	//.then(syncBalances)
-	.then(resetAndSyncAllBlocks)
+	.then(resetAndSyncAllBlocks)	
+	.then(backwardsFindNewAddresses)
+	.then(syncCPCPrice)
+	.then(backwardsBlock)
+	.then(syncRNodesFirstNLastBlockDates)
+	.then(syncBalances)
 	.then(collect);
