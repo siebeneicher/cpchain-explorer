@@ -236,7 +236,7 @@ async function syncBackwards () {
 
 	// sync all blocks
 	return new Promise ((resolve, reject) => {
-		mongo_db_blocks.find({}).project({_id:-1, number: 1}).sort({number:-1}).limit(max_backwards).toArray(async function (err, items) {
+		mongo_db_blocks.find({}).project({number: 1}).sort({number:-1}).limit(max_backwards).toArray(async function (err, items) {
 			let numbers = items.map(b => b.number);
 
 			console.log("Sync backwards: ",items.length,"(total synced) vs", latest, "(last block number)");
@@ -295,7 +295,7 @@ async function syncBlock (targetBlockNum = null) {
 
 	let b, g, number;
 
-	console.log("syncBlock("+targetBlockNum+")");
+	if (targetBlockNum) console.log("syncBlock("+targetBlockNum+")");
 
 	// LAST BLOCK
 	if (targetBlockNum === null) {
