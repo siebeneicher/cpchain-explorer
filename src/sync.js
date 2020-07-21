@@ -278,6 +278,8 @@ async function resetAndSyncAllBlocks () {
 			i--;
 			new_blocks++;
 
+if (i < 2800000) break;
+
 			// sync missing block
 			try {
 				await syncBlock(i);
