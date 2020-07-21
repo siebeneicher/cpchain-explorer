@@ -13,10 +13,15 @@ setTimeout(async () => {
 
 	//await data.rnodes.roi
 
-	await data.rnodes.updateAll_firstNLastBlockDate();
+	//await data.rnodes.updateAll_firstNLastBlockDate();
 	//await rnodes.rptgraph.update('0x8d16Adafb4633A3956691aA4636B603e8F328446', 'minute', 6, 'latest');
 
-	//await data.rnodes.update_firstNLastBlockDate('0xfAf2a2CDC4Da310B52aD7d8d86e8C1bd5D4C0bD0');
+	await data.rnodes.update_firstNLastBlockDate('0xE0E539e725f1CB9AF75e3F81230731D6a51F3c46');
+	await data.rnodes.update_firstNLastBlockDate('0x2BF07672FF0217dEd489a887E4A9F38C10093BbB');
+	await data.rnodes.update_firstNLastBlockDate('0xB80dC7a6c3b0e121eef30162063EB27a08894334');
+	await data.rnodes.update_firstNLastBlockDate('0x29cE0226556621A76c60Be810028e397e6d7653B');
+	await data.rnodes.update_firstNLastBlockDate('0xf6C17C790aE6d764Cb03822949960fcd57d614f0');
+	await data.rnodes.update_firstNLastBlockDate('0x5ff921EeaC393bCBD2fa1F20E40f3A3d423684dF');
 	//await data.transactions.ofAddress_count('0x2A186bE66Dd20c1699Add34A49A3019a93a7Fcd0');
 
 	//console.log(await balance("0xcB6Fb6a201D6C126f80053FE17ca45188e24Fe2F"));

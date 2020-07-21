@@ -232,6 +232,8 @@ async function syncBackwards () {
 
 	// TODO: make this function big data proof
 
+console.log("syncBackwards()...")
+
 	// sync all blocks
 	return new Promise ((resolve, reject) => {
 		mongo_db_blocks.find({}).project({_id:-1, number: 1}).sort({number:-1}).limit(max_backwards).toArray(async function (err, items) {
@@ -293,7 +295,7 @@ async function syncBlock (targetBlockNum = null) {
 
 	let b, g, number;
 
-	//console.log(targetBlockNum);
+	console.log("syncBlock("+targetBlockNum+")");
 
 	// LAST BLOCK
 	if (targetBlockNum === null) {
