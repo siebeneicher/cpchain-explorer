@@ -21,7 +21,7 @@ const sync_delay = 250;
 const cpc_price_delay = 1000 * 60 * 10;		// basic plan: 333 reqs / day
 const backwards_delay = 30000;				// each 30 secs.
 const sync_missing_addresses_delay = 5000;
-const maxNewBlocksBackwardsPerCycle = 250000;
+const maxNewBlocksBackwardsPerCycle = 25000;
 const sync_balances_delay = 1000 * 60 * 60 * 1;			// every hour
 const sync_rnodesFirstNLastBlockDate_delay = 1000 * 60 * 60 * 24;	// every 24 hour
 
