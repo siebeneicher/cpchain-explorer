@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-const request = require('request')
+//const request = require('request')
 const config = require('./config').sender;
 const web3 = new Web3(config.web3_url, null, {});
 
