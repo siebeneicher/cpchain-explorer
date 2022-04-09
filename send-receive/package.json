@@ -7,7 +7,7 @@
   "author": "Markus Siebeneicher",
   "license": "GNU General Public License v3.0",
   "dependencies": {
-    "moment": "^2.22.x",
+    "moment": "^2.29.x",
     "object-assign-deep": "^0.4.0",
     "performance-now": "^2.1.0",
     "request": "^2.88.0",
