@@ -28,7 +28,7 @@
     "bulma-tooltip": "~2.0.x",
     "core-js": "^2.5.4",
     "d3": "^5.9.7",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "ngx-clipboard": "^12.2.0",
     "ngx-cookie-service": "^2.2.0",
     "rxjs": "~6.5.2",
