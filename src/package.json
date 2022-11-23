@@ -36,7 +36,7 @@
     "request-promise-native": "^1.0.7",
     "response-time": "^2.3.2",
     "sha3": "^2.0.6",
-    "socket.io": "~2.2.x",
+    "socket.io": "~2.5.x",
     "socket.io-redis": "~5.2.x",
     "web3": "^1.0.0-beta.55"
   }
