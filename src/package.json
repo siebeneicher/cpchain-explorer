@@ -19,7 +19,7 @@
     "crypto-js": "^3.1.9-1",
     "dotenv": "~7.0.x",
     "ethrpc": "~6.1.5",
-    "express": "4.15.2",
+    "express": "4.17.3",
     "express-redis-cache": "~1.1.x",
     "express-session": "^1.15.6",
     "helmet": "^3.20.0",
